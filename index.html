@@ -146,37 +146,31 @@
         .offline-status{position:fixed;bottom:10px;right:10px;padding:6px 12px;border-radius:20px;font-size:0.7rem;font-weight:700;z-index:98;transition:all .3s}
         .offline-status.online{background:var(--green);color:var(--bg)}
         .offline-status.offline{background:var(--red);color:#fff}
-        /* EDIT MODAL */
         .modal-bg{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:500;justify-content:center;align-items:center}
         .modal-bg.show{display:flex}
         .modal-box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;width:90%;max-width:420px}
         .modal-box h3{color:var(--gold);margin-bottom:16px;font-size:1rem}
         .modal-actions{display:flex;gap:10px;margin-top:16px;justify-content:flex-end}
-        /* LAST SORTEO BANNER */
         .ls-banner{background:linear-gradient(135deg,rgba(245,166,35,0.1),rgba(0,212,170,0.08));border:1px solid var(--gold);border-radius:12px;padding:12px 16px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
         .ls-banner .ls-num{font-size:2rem;font-weight:900;color:var(--gold)}
         .ls-banner .ls-lbl{font-size:0.65rem;color:var(--dim);text-transform:uppercase}
         .ls-banner .ls-info{font-size:0.78rem;color:var(--green)}
         .ls-banner .ls-next{font-size:0.78rem;color:var(--gold2);font-weight:700}
-        /* PROB BARS */
         .prob-bar{height:8px;border-radius:4px;background:var(--border);overflow:hidden;margin:3px 0}
         .prob-fill{height:100%;border-radius:4px;transition:width .5s}
         .prob-high{background:linear-gradient(90deg,var(--green),#69f0ae)}
         .prob-med{background:linear-gradient(90deg,var(--orange),var(--gold))}
         .prob-low{background:linear-gradient(90deg,var(--red),var(--orange))}
-        /* REC BOX */
         .rec-box{background:linear-gradient(135deg,rgba(255,71,87,0.08),rgba(0,212,170,0.06));border:1px solid var(--gold);border-radius:10px;padding:14px;margin:10px 0}
         .rec-box h4{color:var(--gold);margin-bottom:8px;font-size:0.82rem;text-transform:uppercase}
         .rec-nums{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
         .rec-item{background:var(--bg3);padding:5px 12px;border-radius:20px;font-size:0.82rem;border:1px solid var(--border)}
         .rec-item span{color:var(--gold);font-weight:700}
-        /* WEEK GRID */
         .week-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-bottom:12px}
         .week-card{background:var(--bg3);border-radius:10px;padding:10px;text-align:center;border:1px solid var(--border)}
         .week-card .wc-day{font-size:0.65rem;color:var(--dim);margin-bottom:4px}
         .week-card .wc-num{font-size:1.2rem;font-weight:900;color:var(--gold)}
         .week-card .wc-info{font-size:0.62rem;color:var(--green);margin-top:3px}
-        /* GUIDE */
         .guide-sec{background:var(--bg3);border-radius:10px;padding:14px;margin-bottom:12px;border-left:3px solid var(--gold)}
         .guide-sec h4{color:var(--gold);margin-bottom:8px;font-size:0.85rem}
         .guide-sec p,.guide-sec li{color:var(--dim);font-size:0.8rem;line-height:1.6}
@@ -188,10 +182,7 @@
     </style>
 </head>
 <body>
-
 <div class="overlay" id="ov"><div class="spin"></div><div class="tg" id="ovt">Procesando...</div></div>
-
-<!-- EDIT MODAL -->
 <div class="modal-bg" id="editModal">
     <div class="modal-box">
         <h3>✏️ Editar Sorteo</h3>
@@ -204,12 +195,10 @@
         </div>
     </div>
 </div>
-
 <div class="header">
     <h1>🎯 SUPER ANÁLISIS DE SORTEOS</h1>
     <p id="hsub">Cargando...</p>
 </div>
-
 <div class="nav">
     <button class="active" onclick="goTab('home',this)">🏠 Inicio</button>
     <button onclick="goTab('hist',this)">📋 Historial</button>
@@ -226,8 +215,6 @@
     <button onclick="goTab('imp',this)">📥 Importar</button>
     <button onclick="goTab('guia',this)">📖 Guía</button>
 </div>
-
-<!-- HOME -->
 <div class="sec active" id="sec-home">
     <div class="card"><div class="card-t">🎯 Último Sorteo</div><div class="g2" id="lastDraw"><div class="empty" style="grid-column:1/-1"><div class="ei">🎲</div><p>Importa datos para comenzar</p></div></div></div>
     <div class="card" id="lastAnalCard" style="display:none"><div class="card-t">🔍 Análisis Último Número</div><div id="lastAnal"></div></div>
@@ -236,35 +223,26 @@
     <div class="card"><div class="card-t">📊 Últimos 2 Meses — Decenas & Terminales</div><div id="last2months"></div></div>
     <div class="card"><div class="card-t">⏱️ Racha</div><div id="streak" class="td fs">Sin datos</div></div>
 </div>
-
-<!-- HISTORIAL -->
 <div class="sec" id="sec-hist">
     <div class="card"><div class="card-t">📋 Historial Completo</div>
-        <div class="sbar">
-            <input type="text" id="sI" placeholder="Buscar..." oninput="rHist()">
-            <select id="sF" onchange="rHist()"><option value="">Todos</option><option value="midday">Mediodía</option><option value="evening">Noche</option></select>
-        </div>
+        <div class="sbar"><input type="text" id="sI" placeholder="Buscar..." oninput="rHist()"><select id="sF" onchange="rHist()"><option value="">Todos</option><option value="midday">Mediodía</option><option value="evening">Noche</option></select></div>
         <div class="tw"><table><thead><tr><th>Fecha</th><th>Turno</th><th>Número</th><th>Dec</th><th>Term</th><th>Acc</th></tr></thead><tbody id="hBody"></tbody></table></div>
         <div class="pag"><button class="btn btn-outline" onclick="cPage(-1)">◀</button><span class="pag-info" id="pInfo">0/0</span><button class="btn btn-outline" onclick="cPage(1)">▶</button></div>
     </div>
 </div>
-
-<!-- FRECUENCIAS -->
 <div class="sec" id="sec-freq">
     <div id="lsBannerFreq"></div>
     <div class="sub-tabs" id="freqTabs">
-        <button class="sub-tab active" onclick="freqView('top',this)">🔥 Top 15</button>
+        <button class="sub-tab active" onclick="freqView('all',this)">📊 Todos</button>
+        <button class="sub-tab" onclick="freqView('top',this)">🔥 Top 15</button>
         <button class="sub-tab" onclick="freqView('bottom',this)">❄️ Bottom 15</button>
         <button class="sub-tab" onclick="freqView('midday',this)">☀️ Mediodía</button>
         <button class="sub-tab" onclick="freqView('evening',this)">🌙 Noche</button>
-        <button class="sub-tab" onclick="freqView('all100',this)">📊 Los 100</button>
         <button class="sub-tab" onclick="freqView('decs',this)">🔢 Decenas</button>
         <button class="sub-tab" onclick="freqView('terms',this)">🎯 Terminales</button>
     </div>
-    <div class="card"><div class="card-t" id="freqTitle">📊 Top 15 Más Frecuentes</div><div id="freqContent"></div></div>
+    <div class="card"><div class="card-t" id="freqTitle">📊 Frecuencias</div><div id="freqContent"></div></div>
 </div>
-
-<!-- DECENAS -->
 <div class="sec" id="sec-dec">
     <div id="lsBannerDec"></div>
     <div class="sub-tabs">
@@ -277,8 +255,6 @@
     </div>
     <div class="card"><div class="card-t" id="decTitle">🔢 Análisis de Decenas</div><div id="decContent"></div></div>
 </div>
-
-<!-- TERMINALES -->
 <div class="sec" id="sec-term">
     <div id="lsBannerTerm"></div>
     <div class="sub-tabs">
@@ -291,8 +267,6 @@
     </div>
     <div class="card"><div class="card-t" id="termTitle">🎯 Análisis de Terminales</div><div id="termContent"></div></div>
 </div>
-
-<!-- MATRIX -->
 <div class="sec" id="sec-matrix">
     <div id="lsBannerMatrix"></div>
     <div class="sub-tabs">
@@ -302,8 +276,6 @@
     </div>
     <div class="card"><div class="card-t" id="matTitle">🧮 Matrix de Decenas</div><div id="matContent"></div></div>
 </div>
-
-<!-- VIBRACIONES -->
 <div class="sec" id="sec-vib">
     <div id="lsBannerVib"></div>
     <div class="sub-tabs">
@@ -313,8 +285,6 @@
     </div>
     <div class="card"><div class="card-t" id="vibTitle">📡 Vibraciones</div><div id="vibContent"></div></div>
 </div>
-
-<!-- CONEXIONES -->
 <div class="sec" id="sec-pull">
     <div class="sub-tabs">
         <button class="sub-tab active" onclick="pullView('nums',this)">🔢 Números</button>
@@ -323,30 +293,25 @@
     </div>
     <div class="card"><div class="card-t" id="pullTitle">🧲 Conexiones</div><div id="pullContent"></div></div>
 </div>
-
-<!-- POR AÑO -->
 <div class="sec" id="sec-year">
     <div id="lsBannerYear"></div>
-    <div class="card"><div class="card-t">📅 Análisis por Año</div>
-        <div class="ytabs" id="yTabs"></div>
-        <div id="yearContent"></div>
-    </div>
+    <div class="card"><div class="card-t">📅 Análisis por Año</div><div class="ytabs" id="yTabs"></div><div id="yearContent"></div></div>
     <div class="card"><div class="card-t">📊 Comparar Años → Recomendación</div><div id="yearCompare"></div></div>
 </div>
-
-<!-- ÚLTIMA SEMANA -->
 <div class="sec" id="sec-semana">
     <div id="lsBannerSemana"></div>
     <div class="card"><div class="card-t">📆 Análisis Última Semana</div><div id="semanaContent"></div></div>
 </div>
-
-<!-- ANÁLISIS -->
 <div class="sec" id="sec-analisis">
     <div id="lsBannerAnalisis"></div>
-    <div class="card"><div class="card-t">🎯 Análisis → Próximo Sorteo</div><div id="analisisContent"></div></div>
+    <div class="sub-tabs">
+        <button class="sub-tab active" onclick="analView('auto',this)">🎯 Auto (Próximo)</button>
+        <button class="sub-tab" onclick="analView('midday',this)">☀️ Solo Mediodía</button>
+        <button class="sub-tab" onclick="analView('evening',this)">🌙 Solo Noche</button>
+        <button class="sub-tab" onclick="analView('both',this)">📊 Comparar Ambos</button>
+    </div>
+    <div class="card"><div class="card-t" id="analTitle">🎯 Análisis → Próximo Sorteo</div><div id="analisisContent"></div></div>
 </div>
-
-<!-- AGREGAR -->
 <div class="sec" id="sec-add">
     <div class="card"><div class="card-t">➕ Agregar Resultado Manual</div>
         <div id="addA" class="alert"></div>
@@ -361,409 +326,98 @@
         <div class="btn-row">
             <button class="btn btn-green" onclick="expData()">📤 Exportar JSON</button>
             <button class="btn btn-blue" onclick="expExcel()">📊 Exportar Excel</button>
-            <button class="btn btn-purple" onclick="downTemplate()">📋 Plantilla Excel</button>
+            <button class="btn btn-purple" onclick="downTemplate()">📋 Plantilla</button>
             <button class="btn btn-red" onclick="clearAll()">🗑️ Borrar Todo</button>
         </div>
     </div>
 </div>
-
-<!-- IMPORTAR -->
 <div class="sec" id="sec-imp">
     <div class="card"><div class="card-t">📥 Importar Datos</div>
         <div id="impA" class="alert"></div>
-        <div class="imp-area excel" onclick="document.getElementById('fExcel').click()">
-            <div class="ic">📊</div>
-            <p><strong style="color:var(--green)">EXCEL / CSV</strong></p>
-            <p class="fxs td mt">Toca aquí — Acepta .xlsx, .xls, .csv</p>
-        </div>
+        <div class="imp-area excel" onclick="document.getElementById('fExcel').click()"><div class="ic">📊</div><p><strong style="color:var(--green)">EXCEL / CSV</strong></p><p class="fxs td mt">Toca aquí — .xlsx, .xls, .csv</p></div>
         <input type="file" id="fExcel" accept=".xlsx,.xls,.csv" style="display:none" onchange="hExcel(event)">
-        <div class="imp-area json" onclick="document.getElementById('fJson').click()">
-            <div class="ic">📂</div>
-            <p><strong style="color:var(--blue)">JSON</strong></p>
-            <p class="fxs td mt">Toca aquí para subir archivo .json</p>
-        </div>
+        <div class="imp-area json" onclick="document.getElementById('fJson').click()"><div class="ic">📂</div><p><strong style="color:var(--blue)">JSON</strong></p><p class="fxs td mt">Toca aquí para .json</p></div>
         <input type="file" id="fJson" accept=".json" style="display:none" onchange="hFile(event)">
         <div class="divider"></div>
         <p class="fs td mb">📋 O pega JSON aquí:</p>
         <textarea id="jPaste" rows="5" style="width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--text);font-size:0.75rem;font-family:monospace" placeholder='{"results":[...]}'></textarea>
         <div class="mt"><button class="btn btn-gold" onclick="impPaste()">📥 Importar JSON</button></div>
     </div>
-    <div class="card">
-        <div class="card-t">📋 Formato del Excel/CSV</div>
-        <p class="fxs td mb">El Excel debe tener 3 columnas: <strong class="tg">Fecha</strong>, <strong class="tg">Turno</strong>, <strong class="tg">Numero</strong></p>
-        <div class="format-example">
-            <table><thead><tr><th>Fecha</th><th>Turno</th><th>Numero</th></tr></thead>
-            <tbody><tr><td>2024-01-01</td><td>Mediodía</td><td>91</td></tr><tr><td>2024-01-01</td><td>Noche</td><td>38</td></tr></tbody></table>
-        </div>
-        <div class="mt fxs td">
-            <p>✅ Funciona 100% sin internet</p>
-            <p>✅ Detecta automáticamente la pestaña con datos</p>
-            <p>✅ Acepta: Mediodía, Día, Noche, D, N</p>
-        </div>
+    <div class="card"><div class="card-t">📋 Formato del Excel/CSV</div>
+        <p class="fxs td mb">3 columnas: <strong class="tg">Fecha</strong>, <strong class="tg">Turno</strong>, <strong class="tg">Numero</strong></p>
+        <div class="format-example"><table><thead><tr><th>Fecha</th><th>Turno</th><th>Numero</th></tr></thead><tbody><tr><td>2024-01-01</td><td>Mediodía</td><td>91</td></tr><tr><td>2024-01-01</td><td>Noche</td><td>38</td></tr></tbody></table></div>
         <div class="mt"><button class="btn btn-purple" onclick="downTemplate()">📥 Descargar Plantilla</button></div>
     </div>
 </div>
-
-<!-- GUÍA -->
 <div class="sec" id="sec-guia">
-    <div class="card">
-        <div class="card-t">📖 Guía Completa de la App</div>
-        <div class="guide-sec">
-            <h4>🏠 Inicio</h4>
-            <ul>
-                <li><strong>Último sorteo:</strong> Muestra el último mediodía y noche registrados.</li>
-                <li><strong>Análisis último número:</strong> Ranking, vibración, decena, terminal, paridad y transición desde el sorteo anterior.</li>
-                <li><strong>Últimos 2 meses:</strong> Top decenas y terminales comparados con el último sorteo del mes.</li>
-                <li><strong>Calientes/Fríos:</strong> Los 5 números más y menos frecuentes del historial.</li>
-            </ul>
-        </div>
-        <div class="guide-sec">
-            <h4>📋 Historial</h4>
-            <ul>
-                <li><strong>Buscar:</strong> Filtra por número, fecha o turno.</li>
-                <li><strong>✏️ Editar:</strong> Modifica cualquier sorteo sin borrarlo.</li>
-                <li><strong>🗑️ Eliminar:</strong> Borra sorteos individuales.</li>
-                <li>Muestra Decena y Terminal de cada sorteo.</li>
-            </ul>
-        </div>
-        <div class="guide-sec">
-            <h4>📊 Frecuencias</h4>
-            <ul>
-                <li><strong>Top/Bottom 15:</strong> Números más y menos frecuentes del historial.</li>
-                <li><strong>Mediodía / Noche:</strong> Frecuencias separadas por turno (corregido).</li>
-                <li><strong>Los 100:</strong> Vista completa de todos los números.</li>
-                <li><strong>Decenas:</strong> Frecuencia de cada decena (00-99) comparada con el último sorteo.</li>
-                <li><strong>Terminales:</strong> Frecuencia de cada terminal comparada con el último sorteo.</li>
-            </ul>
-        </div>
-        <div class="guide-sec">
-            <h4>🔢 Decenas & 🎯 Terminales</h4>
-            <ul>
-                <li><strong>General:</strong> Frecuencia histórica comparada con el último sorteo del mes.</li>
-                <li><strong>M→M:</strong> Qué decena/terminal de mediodía sigue a otra de mediodía.</li>
-                <li><strong>N→N:</strong> Noche sigue a noche.</li>
-                <li><strong>M→N:</strong> Qué sale en noche después del mediodía del mismo día.</li>
-                <li><strong>N→M:</strong> Qué sale en mediodía después de la noche anterior.</li>
-                <li><strong>Mejores:</strong> Ranking por momentum (reciente vs histórico).</li>
-                <li>Cada vista incluye comparación con el último sorteo.</li>
-            </ul>
-        </div>
-        <div class="guide-sec">
-            <h4>🧮 Matrix</h4>
-            <ul>
-                <li><strong>Decenas:</strong> Tabla de frecuencias por decena, de mayor a menor.</li>
-                <li><strong>Terminales:</strong> Tabla de frecuencias por terminal.</li>
-                <li><strong>Transiciones:</strong> Grid 10x10 que muestra qué decena sigue a otra.</li>
-            </ul>
-        </div>
-        <div class="guide-sec">
-            <h4>📡 Vibraciones</h4>
-            <ul>
-                <li>Compara la frecuencia reciente (últimos 20) vs histórica para medir la "energía" de cada número.</li>
-                <li>Relaciona el resultado con el último sorteo del mes para ver qué vibra en contexto.</li>
-                <li>🔥 MUY ALTA = activo recientemente. 💤 BAJA = dormido.</li>
-            </ul>
-        </div>
-        <div class="guide-sec">
-            <h4>🧲 Conexiones</h4>
-            <ul>
-                <li>Muestra qué número, decena o terminal suele seguir al último sorteo.</li>
-                <li>Las conexiones más fuertes son las que se repiten más veces en el historial.</li>
-            </ul>
-        </div>
-        <div class="guide-sec">
-            <h4>📅 Por Año</h4>
-            <ul>
-                <li>Estadísticas detalladas por año: top números, decenas, terminales y distribución mensual.</li>
-                <li><strong>Comparar años:</strong> Qué decenas y terminales siguieron al número actual en años anteriores.</li>
-                <li>Recomendación basada en patrones históricos anuales vs último sorteo.</li>
-            </ul>
-        </div>
-        <div class="guide-sec">
-            <h4>📆 Última Semana</h4>
-            <ul>
-                <li>Muestra los sorteos de los últimos 7 días antes del próximo sorteo.</li>
-                <li>Calcula decenas y terminales más repetidas esa semana.</li>
-                <li>Compara con el último sorteo del mes para dar recomendaciones.</li>
-            </ul>
-        </div>
-        <div class="guide-sec">
-            <h4>🎯 Análisis → Próximo Sorteo</h4>
-            <ul>
-                <li>Sistema de puntuación que combina: historial completo, transiciones por turno, vibraciones y mes actual.</li>
-                <li>Barras de probabilidad para las mejores decenas y terminales.</li>
-                <li>Recomendación separada para Mediodía y Noche.</li>
-                <li>Top combinaciones Dec+Term con mayor puntaje.</li>
-            </ul>
-        </div>
-        <div class="guide-sec">
-            <h4>💡 Consejos de Uso</h4>
-            <ul>
-                <li>Importa el mayor historial posible para análisis más precisos.</li>
-                <li>Revisa Vibraciones y Análisis antes de cada sorteo.</li>
-                <li>Combina varias pestañas: Conexiones + Análisis + Última Semana.</li>
-                <li>Exporta tu JSON regularmente como respaldo.</li>
-                <li>La app funciona 100% offline una vez cargada.</li>
-            </ul>
-        </div>
+    <div class="card"><div class="card-t">📖 Guía Completa</div>
+        <div class="guide-sec"><h4>🏠 Inicio</h4><ul><li><strong>Último sorteo:</strong> Mediodía y noche recientes.</li><li><strong>Análisis:</strong> Ranking, vibración, decena, terminal.</li><li><strong>2 meses:</strong> Top Dec/Term con recomendación.</li></ul></div>
+        <div class="guide-sec"><h4>📋 Historial</h4><ul><li>✏️ Editar sin borrar. 🗑️ Eliminar. Filtrar por turno.</li></ul></div>
+        <div class="guide-sec"><h4>📊 Frecuencias</h4><ul><li><strong>Todos:</strong> Frecuencia conjunta ambos turnos.</li><li><strong>Mediodía/Noche:</strong> Separadas correctamente.</li><li><strong>Decenas/Terminales:</strong> Frecuencia por Dec y Term.</li></ul></div>
+        <div class="guide-sec"><h4>🔢 Dec & 🎯 Term</h4><ul><li><strong>General:</strong> Historial completo vs último sorteo.</li><li><strong>M-M, N-N, M-N, N-M:</strong> Transiciones por turno con estadísticas del último sorteo.</li><li><strong>Mejores:</strong> Momentum reciente vs histórico.</li></ul></div>
+        <div class="guide-sec"><h4>🧮 Matrix</h4><ul><li>Decenas y Terminales con ranking. Transiciones en grid 10x10.</li></ul></div>
+        <div class="guide-sec"><h4>📡 Vibraciones</h4><ul><li>Actividad reciente vs histórica, relacionada con último sorteo y matrices.</li></ul></div>
+        <div class="guide-sec"><h4>🧲 Conexiones</h4><ul><li>Qué número/decena/terminal sigue al último sorteo.</li></ul></div>
+        <div class="guide-sec"><h4>📅 Por Año</h4><ul><li>Estadísticas anuales. Comparar años vs último sorteo.</li></ul></div>
+        <div class="guide-sec"><h4>📆 Última Semana</h4><ul><li>7 días previos. Dec/Term repetidas. Recomendación.</li></ul></div>
+        <div class="guide-sec"><h4>🎯 Análisis</h4><ul><li><strong>Auto:</strong> Análisis para el próximo turno.</li><li><strong>Solo Mediodía/Noche:</strong> Estadísticas independientes.</li><li><strong>Comparar:</strong> Tabla lado a lado Med vs Noc.</li><li>Números más probables con barras de probabilidad.</li></ul></div>
+        <div class="guide-sec"><h4>💡 Consejos</h4><ul><li>Importa todo el historial posible.</li><li>Revisa Análisis antes de cada sorteo.</li><li>Combina Conexiones + Vibraciones + Análisis.</li><li>Exporta JSON como respaldo regular.</li><li>Funciona 100% offline.</li></ul></div>
     </div>
 </div>
-
-<div class="offline-status" id="offStatus">🌐 Cargando...</div>
-
-<script>
-// ===== SERVICE WORKER =====
-if('serviceWorker' in navigator){
-    window.addEventListener('load',()=>{
-        navigator.serviceWorker.register('./sw.js').then(()=>console.log('✅ SW OK')).catch(e=>console.log('SW:',e));
-    });
-}
-
-function updOffStatus(){
-    const el=document.getElementById('offStatus');
-    if(navigator.onLine){el.className='offline-status online';el.textContent='🌐 En línea';setTimeout(()=>el.style.opacity='0.5',2000)}
-    else{el.className='offline-status offline';el.textContent='📴 Sin conexión';el.style.opacity='1'}
-}
-window.addEventListener('online',updOffStatus);
-window.addEventListener('offline',updOffStatus);
-
-// ===== STORAGE =====
+<div class="offline-status" id="offStatus">🌐</div><script>
+if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('./sw.js').catch(e=>console.log('SW:',e))})}
+function updOffStatus(){const el=document.getElementById('offStatus');if(navigator.onLine){el.className='offline-status online';el.textContent='🌐 En línea';setTimeout(()=>el.style.opacity='0.5',2000)}else{el.className='offline-status offline';el.textContent='📴 Sin conexión';el.style.opacity='1'}}
+window.addEventListener('online',updOffStatus);window.addEventListener('offline',updOffStatus);
 const SK='sorteos_super_v10';
 const LD=()=>{try{const r=localStorage.getItem(SK);return r?JSON.parse(r):[]}catch(e){return[]}};
 const SD=a=>localStorage.setItem(SK,JSON.stringify(a));
-
-// ===== UTILIDADES =====
-function noTilde(s){if(!s)return '';return String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim()}
+function noTilde(s){if(!s)return'';return String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim()}
 function p2(n){return String(n).padStart(2,'0')}
 function getDec(n){return Math.floor(parseInt(n,10)/10)}
 function getTerm(n){return parseInt(n,10)%10}
 function fmtD(d){if(!d)return'-';const[y,m,dd]=d.split('-');const mn=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];return`${parseInt(dd)} ${mn[parseInt(m)-1]} ${y}`}
 function diffD(a,b){return Math.abs(Math.round((new Date(b+'T00:00:00')-new Date(a+'T00:00:00'))/86400000))}
-function getDayName(d){return['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'][new Date(d+'T12:00:00').getDay()]}
+function getDayName(d){return['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'][new Date(d+'T12:00:00').getDay()]}
 function gFreq(data){const f={};for(let i=0;i<=99;i++)f[p2(i)]=0;data.forEach(d=>{if(f[d.number]!==undefined)f[d.number]++});return f}
 function sFreq(f){return Object.entries(f).sort((a,b)=>b[1]-a[1])}
 function showOv(msg){document.getElementById('ovt').textContent=msg;document.getElementById('ov').classList.add('show')}
 function hideOv(){document.getElementById('ov').classList.remove('show')}
 function sAlert(id,msg,type){const el=document.getElementById(id);if(!el)return;el.className=`alert alert-${type}`;el.textContent=msg;el.style.display='block';setTimeout(()=>el.style.display='none',10000)}
+function getLastSorteoMes(){const data=LD();if(!data.length)return null;const now=new Date();const ym=`${now.getFullYear()}-${p2(now.getMonth()+1)}`;const mes=data.filter(d=>d.drawDate.startsWith(ym));if(mes.length)return[...mes].sort((a,b)=>b.drawDate.localeCompare(a.drawDate)||b.shift.localeCompare(a.shift))[0];return[...data].sort((a,b)=>b.drawDate.localeCompare(a.drawDate))[0]}
+function getNextTurno(){const ls=getLastSorteoMes();if(!ls)return{shift:'midday',label:'Mediodía'};return ls.shift==='midday'?{shift:'evening',label:'Noche'}:{shift:'midday',label:'Mediodía'}}
+function renderLsBanner(id){const el=document.getElementById(id);if(!el)return;const ls=getLastSorteoMes();if(!ls){el.innerHTML='';return}const next=getNextTurno();el.innerHTML=`<div class="ls-banner"><div><div class="ls-lbl">Último sorteo del mes</div><div class="ls-num">${ls.number}</div><div class="ls-info">Dec: ${getDec(ls.number)}0s | Term: T${getTerm(ls.number)}</div></div><div style="text-align:right"><div class="ls-info">${fmtD(ls.drawDate)} ${ls.shift==='midday'?'☀️':'🌙'}</div><div class="ls-next">Próximo: ${next.label}</div></div></div>`}
 
-// ===== ÚLTIMO SORTEO DEL MES ACTUAL =====
-function getLastSorteoMes(){
-    const data=LD();
-    if(!data.length)return null;
-    const now=new Date();
-    const ym=`${now.getFullYear()}-${p2(now.getMonth()+1)}`;
-    const mes=data.filter(d=>d.drawDate.startsWith(ym));
-    if(mes.length)return [...mes].sort((a,b)=>b.drawDate.localeCompare(a.drawDate)||b.shift.localeCompare(a.shift))[0];
-    return [...data].sort((a,b)=>b.drawDate.localeCompare(a.drawDate))[0];
-}
-function getNextTurno(){
-    const ls=getLastSorteoMes();
-    if(!ls)return{shift:'midday',label:'Mediodía'};
-    return ls.shift==='midday'?{shift:'evening',label:'Noche'}:{shift:'midday',label:'Mediodía'};
-}
-function renderLsBanner(id){
-    const el=document.getElementById(id);
-    if(!el)return;
-    const ls=getLastSorteoMes();
-    if(!ls){el.innerHTML='';return}
-    const next=getNextTurno();
-    el.innerHTML=`<div class="ls-banner">
-        <div><div class="ls-lbl">Último sorteo del mes</div><div class="ls-num">${ls.number}</div><div class="ls-info">Dec: ${getDec(ls.number)}0s | Term: T${getTerm(ls.number)}</div></div>
-        <div style="text-align:right"><div class="ls-info">${fmtD(ls.drawDate)} ${ls.shift==='midday'?'☀️':'🌙'}</div><div class="ls-next">Próximo: ${next.label}</div></div>
-    </div>`;
-}
-
-// ===== PARSE DATES & SHIFTS =====
-function parseDate(input){
-    if(input===null||input===undefined||input==='')return null;
-    if(input instanceof Date&&!isNaN(input.getTime())){const y=input.getFullYear(),m=String(input.getMonth()+1).padStart(2,'0'),d=String(input.getDate()).padStart(2,'0');return`${y}-${m}-${d}`}
-    let s=String(input).trim();if(!s)return null;
-    if(/^\d+(\.\d+)?$/.test(s)){const num=parseFloat(s);if(num>25569&&num<80000){const ed=new Date((num-25569)*86400*1000);if(!isNaN(ed.getTime())){const y=ed.getUTCFullYear(),m=String(ed.getUTCMonth()+1).padStart(2,'0'),d=String(ed.getUTCDate()).padStart(2,'0');return`${y}-${m}-${d}`}}}
-    s=s.replace(/T.*$/,'').replace(/\s+\d.*$/,'').trim();
-    let m=s.match(/^(\d{4})[-\/\.](\d{1,2})[-\/\.](\d{1,2})$/);if(m)return`${m[1]}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}`;
-    m=s.match(/^(\d{1,2})[-\/\.](\d{1,2})[-\/\.](\d{4})$/);if(m){const d=parseInt(m[1]),mo=parseInt(m[2]);if(d>12)return`${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;if(mo>12)return`${m[3]}-${m[1].padStart(2,'0')}-${m[2].padStart(2,'0')}`;return`${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`}
-    try{const d=new Date(s);if(!isNaN(d.getTime())){return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}}catch(e){}
-    return null;
-}
-function parseShift(input){
-    if(input===null||input===undefined)return null;
-    const s=noTilde(input);if(!s)return null;
-    const midday=['dia','d','day','midday','mediodia','md','tarde','manana','am','1','m','matutino'];
-    const evening=['noche','n','night','evening','eve','ev','pm','2','e','nocturno','vespertino'];
-    if(midday.indexOf(s)>=0)return 'midday';
-    if(evening.indexOf(s)>=0)return 'evening';
-    if(s.indexOf('medio')>=0||s.indexOf('dia')>=0||s.indexOf('day')>=0||s.indexOf('mid')>=0)return 'midday';
-    if(s.indexOf('noche')>=0||s.indexOf('night')>=0||s.indexOf('even')>=0)return 'evening';
-    return null;
-}
-function norm(r){
-    let dateVal=null;
-    for(const k of['drawDate','date','fecha','Fecha','FECHA','DATE']){if(r[k]!==undefined&&r[k]!==null&&r[k]!==''){dateVal=r[k];break}}
-    const rd=parseDate(dateVal);if(!rd||!/^\d{4}-\d{2}-\d{2}$/.test(rd))return null;
-    let numVal=null;
-    for(const k of['number','numero','Numero','NUMERO','Número','num','Num','n','N']){if(r[k]!==undefined&&r[k]!==null&&r[k]!==''){numVal=r[k];break}}
-    const ni=parseInt(String(numVal),10);if(isNaN(ni)||ni<0||ni>99)return null;
-    const n=String(ni).padStart(2,'0');
-    let shiftVal=null;
-    for(const k of['shift','turno','Turno','TURNO','periodo','Periodo','SHIFT']){if(r[k]!==undefined&&r[k]!==null&&r[k]!==''){shiftVal=r[k];break}}
-    const s=parseShift(shiftVal);if(!s)return null;
-    return{id:`${rd}_${s}`,drawDate:rd,shift:s,number:n,createdAt:r.createdAt||Date.now()};
-}
-
-function extractItemsFromSheet(sheet){
-    const allRows=XLSX.utils.sheet_to_json(sheet,{header:1,raw:false,defval:''});
-    if(!allRows.length)return[];
-    const firstRow=allRows[0]||[];
-    const firstStr=firstRow.map(x=>noTilde(String(x||''))).join('|');
-    const hasHeaders=firstStr.indexOf('fecha')>=0||firstStr.indexOf('turno')>=0||firstStr.indexOf('numero')>=0||firstStr.indexOf('date')>=0||firstStr.indexOf('shift')>=0;
-    const startIdx=hasHeaders?1:0;
-    const items=[];
-    for(let i=startIdx;i<allRows.length;i++){
-        const row=allRows[i];if(!row||row.length===0)continue;
-        const nonEmpty=[];for(let j=0;j<row.length;j++){const val=row[j];if(val!==null&&val!==undefined&&String(val).trim()!=='')nonEmpty.push(val)}
-        if(nonEmpty.length<3)continue;
-        items.push({Fecha:nonEmpty[0],Turno:nonEmpty[1],Numero:nonEmpty[2]});
-    }
-    return items;
-}
-function processItems(items,src){
-    const norms=items.map(norm).filter(Boolean);
-    if(!norms.length){hideOv();const firstRow=items[0]?JSON.stringify(items[0]).substring(0,200):'vacío';sAlert(src,`❌ Ningún dato válido. Primera fila: ${firstRow}`,'e');return}
-    const ex=LD();const map={};ex.forEach(e=>map[e.id]=e);let a=0,u=0;
-    norms.forEach(nr=>{if(map[nr.id])u++;else a++;map[nr.id]=nr});
-    const final=Object.values(map).sort((a,b)=>b.drawDate.localeCompare(a.drawDate));
-    SD(final);rAll();hideOv();
-    sAlert(src,`✅ ${a} nuevos, ${u} actualizados. Total: ${final.length}`,'s');
-}
-function procImp(txt,src){
-    showOv('Procesando JSON...');
-    setTimeout(()=>{try{const p=JSON.parse(txt.trim());let items=Array.isArray(p)?p:(p.results&&Array.isArray(p.results))?p.results:null;if(!items)throw new Error('Formato no reconocido');if(!items.length)throw new Error('Sin resultados');processItems(items,src)}catch(e){hideOv();sAlert(src,`❌ ${e.message}`,'e')}},200);
-}
-function hExcel(ev){
-    const f=ev.target.files[0];if(!f)return;
-    if(typeof XLSX==='undefined'){sAlert('impA','❌ Librería Excel no disponible','e');return}
-    showOv('Leyendo Excel...');
-    const reader=new FileReader();
-    reader.onload=e=>{
-        try{
-            const data=new Uint8Array(e.target.result);
-            const wb=XLSX.read(data,{type:'array',cellDates:true,cellNF:false});
-            if(!wb.SheetNames||!wb.SheetNames.length){hideOv();sAlert('impA','❌ Excel sin hojas','e');return}
-            let bestSheet=null,bestItems=[],bestValidCount=0,sheetInfo=[];
-            for(const sheetName of wb.SheetNames){const sheet=wb.Sheets[sheetName];const items=extractItemsFromSheet(sheet);const validCount=items.map(norm).filter(Boolean).length;sheetInfo.push(`"${sheetName}":${validCount}`);if(validCount>bestValidCount){bestValidCount=validCount;bestSheet=sheetName;bestItems=items}}
-            if(!bestItems.length||bestValidCount===0){hideOv();sAlert('impA',`❌ Sin datos válidos. Pestañas: ${sheetInfo.join(' | ')}`,'e');return}
-            showOv(`Leyendo "${bestSheet}"...`);setTimeout(()=>processItems(bestItems,'impA'),200);
-        }catch(err){hideOv();sAlert('impA',`❌ Error: ${err.message}`,'e')}
-    };
-    reader.onerror=()=>{hideOv();sAlert('impA','❌ No se pudo leer','e')};
-    reader.readAsArrayBuffer(f);ev.target.value='';
-}
+function parseDate(input){if(input===null||input===undefined||input==='')return null;if(input instanceof Date&&!isNaN(input.getTime())){const y=input.getFullYear(),m=String(input.getMonth()+1).padStart(2,'0'),d=String(input.getDate()).padStart(2,'0');return`${y}-${m}-${d}`}let s=String(input).trim();if(!s)return null;if(/^\d+(\.\d+)?$/.test(s)){const num=parseFloat(s);if(num>25569&&num<80000){const ed=new Date((num-25569)*86400*1000);if(!isNaN(ed.getTime())){const y=ed.getUTCFullYear(),m=String(ed.getUTCMonth()+1).padStart(2,'0'),d=String(ed.getUTCDate()).padStart(2,'0');return`${y}-${m}-${d}`}}}s=s.replace(/T.*$/,'').replace(/\s+\d.*$/,'').trim();let m=s.match(/^(\d{4})[-\/\.](\d{1,2})[-\/\.](\d{1,2})$/);if(m)return`${m[1]}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}`;m=s.match(/^(\d{1,2})[-\/\.](\d{1,2})[-\/\.](\d{4})$/);if(m){const d=parseInt(m[1]),mo=parseInt(m[2]);if(d>12)return`${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;if(mo>12)return`${m[3]}-${m[1].padStart(2,'0')}-${m[2].padStart(2,'0')}`;return`${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`}m=s.match(/^(\d{1,2})[-\/\.](\d{1,2})[-\/\.](\d{2})$/);if(m){const yr=parseInt(m[3])>50?'19'+m[3]:'20'+m[3];const d=parseInt(m[1]),mo=parseInt(m[2]);if(d>12)return`${yr}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;return`${yr}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`}try{const d=new Date(s);if(!isNaN(d.getTime()))return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}catch(e){}return null}
+function parseShift(input){if(input===null||input===undefined)return null;const s=noTilde(input);if(!s)return null;if(['dia','d','day','midday','mediodia','md','tarde','manana','am','1','m','matutino'].indexOf(s)>=0)return'midday';if(['noche','n','night','evening','eve','ev','pm','2','e','nocturno','vespertino'].indexOf(s)>=0)return'evening';if(s.indexOf('medio')>=0||s.indexOf('dia')>=0||s.indexOf('day')>=0||s.indexOf('mid')>=0)return'midday';if(s.indexOf('noche')>=0||s.indexOf('night')>=0||s.indexOf('even')>=0)return'evening';return null}
+function norm(r){let dateVal=null;for(const k of['drawDate','date','fecha','Fecha','FECHA','DATE']){if(r[k]!==undefined&&r[k]!==null&&r[k]!==''){dateVal=r[k];break}}const rd=parseDate(dateVal);if(!rd||!/^\d{4}-\d{2}-\d{2}$/.test(rd))return null;let numVal=null;for(const k of['number','numero','Numero','NUMERO','Número','num','Num','n','N']){if(r[k]!==undefined&&r[k]!==null&&r[k]!==''){numVal=r[k];break}}const ni=parseInt(String(numVal),10);if(isNaN(ni)||ni<0||ni>99)return null;const n=String(ni).padStart(2,'0');let shiftVal=null;for(const k of['shift','turno','Turno','TURNO','periodo','Periodo','SHIFT']){if(r[k]!==undefined&&r[k]!==null&&r[k]!==''){shiftVal=r[k];break}}const s=parseShift(shiftVal);if(!s)return null;return{id:`${rd}_${s}`,drawDate:rd,shift:s,number:n,createdAt:r.createdAt||Date.now()}}
+function extractItemsFromSheet(sheet){const allRows=XLSX.utils.sheet_to_json(sheet,{header:1,raw:false,defval:''});if(!allRows.length)return[];const firstRow=allRows[0]||[];const firstStr=firstRow.map(x=>noTilde(String(x||''))).join('|');const hasHeaders=firstStr.indexOf('fecha')>=0||firstStr.indexOf('turno')>=0||firstStr.indexOf('numero')>=0||firstStr.indexOf('date')>=0||firstStr.indexOf('shift')>=0;const startIdx=hasHeaders?1:0;const items=[];for(let i=startIdx;i<allRows.length;i++){const row=allRows[i];if(!row||row.length===0)continue;const nonEmpty=[];for(let j=0;j<row.length;j++){const val=row[j];if(val!==null&&val!==undefined&&String(val).trim()!=='')nonEmpty.push(val)}if(nonEmpty.length<3)continue;items.push({Fecha:nonEmpty[0],Turno:nonEmpty[1],Numero:nonEmpty[2]})}return items}
+function processItems(items,src){const norms=items.map(norm).filter(Boolean);if(!norms.length){hideOv();sAlert(src,'❌ Ningún dato válido','e');return}const ex=LD();const map={};ex.forEach(e=>map[e.id]=e);let a=0,u=0;norms.forEach(nr=>{if(map[nr.id])u++;else a++;map[nr.id]=nr});const final=Object.values(map).sort((a,b)=>b.drawDate.localeCompare(a.drawDate));SD(final);rAll();hideOv();sAlert(src,`✅ ${a} nuevos, ${u} actualizados. Total: ${final.length}`,'s')}
+function procImp(txt,src){showOv('Procesando JSON...');setTimeout(()=>{try{const p=JSON.parse(txt.trim());let items=Array.isArray(p)?p:(p.results&&Array.isArray(p.results))?p.results:null;if(!items)throw new Error('Formato no reconocido');processItems(items,src)}catch(e){hideOv();sAlert(src,`❌ ${e.message}`,'e')}},200)}
+function hExcel(ev){const f=ev.target.files[0];if(!f)return;if(typeof XLSX==='undefined'){sAlert('impA','❌ Librería Excel no disponible','e');return}showOv('Leyendo Excel...');const reader=new FileReader();reader.onload=e=>{try{const data=new Uint8Array(e.target.result);const wb=XLSX.read(data,{type:'array',cellDates:true,cellNF:false});if(!wb.SheetNames||!wb.SheetNames.length){hideOv();sAlert('impA','❌ Excel sin hojas','e');return}let bestSheet=null,bestItems=[],bestValidCount=0;for(const sn of wb.SheetNames){const sheet=wb.Sheets[sn];const items=extractItemsFromSheet(sheet);const vc=items.map(norm).filter(Boolean).length;if(vc>bestValidCount){bestValidCount=vc;bestSheet=sn;bestItems=items}}if(!bestItems.length||bestValidCount===0){hideOv();sAlert('impA','❌ Sin datos válidos','e');return}showOv(`Leyendo "${bestSheet}"...`);setTimeout(()=>processItems(bestItems,'impA'),200)}catch(err){hideOv();sAlert('impA',`❌ ${err.message}`,'e')}};reader.onerror=()=>{hideOv();sAlert('impA','❌ No se pudo leer','e')};reader.readAsArrayBuffer(f);ev.target.value=''}
 function hFile(ev){const f=ev.target.files[0];if(!f)return;const r=new FileReader();r.onload=e=>procImp(e.target.result,'impA');r.readAsText(f);ev.target.value=''}
-function impPaste(){const t=document.getElementById('jPaste').value.trim();if(!t){sAlert('impA','⚠️ Pega el JSON primero','e');return}procImp(t,'impA')}
-
-// ===== AGREGAR =====
-function addR(){
-    const d=document.getElementById('aDate').value,s=document.getElementById('aShift').value,nr=document.getElementById('aNum').value.trim();
-    if(!d){sAlert('addA','⚠️ Selecciona fecha','e');return}
-    if(!nr){sAlert('addA','⚠️ Ingresa número','e');return}
-    const ni=parseInt(nr,10);if(isNaN(ni)||ni<0||ni>99){sAlert('addA','⚠️ Número 00-99','e');return}
-    const n=String(ni).padStart(2,'0'),id=`${d}_${s}`,data=LD();
-    const idx=data.findIndex(x=>x.id===id);
-    const entry={id,drawDate:d,shift:s,number:n,createdAt:Date.now()};
-    if(idx>=0){data[idx]=entry;sAlert('addA','✅ Actualizado','s')}else{data.push(entry);sAlert('addA','✅ Guardado','s')}
-    data.sort((a,b)=>b.drawDate.localeCompare(a.drawDate));SD(data);rAll();document.getElementById('aNum').value='';
-}
-
-// ===== EDITAR =====
+function impPaste(){const t=document.getElementById('jPaste').value.trim();if(!t){sAlert('impA','⚠️ Pega el JSON','e');return}procImp(t,'impA')}
+function addR(){const d=document.getElementById('aDate').value,s=document.getElementById('aShift').value,nr=document.getElementById('aNum').value.trim();if(!d){sAlert('addA','⚠️ Selecciona fecha','e');return}if(!nr){sAlert('addA','⚠️ Ingresa número','e');return}const ni=parseInt(nr,10);if(isNaN(ni)||ni<0||ni>99){sAlert('addA','⚠️ Número 00-99','e');return}const n=String(ni).padStart(2,'0'),id=`${d}_${s}`,data=LD();const idx=data.findIndex(x=>x.id===id);const entry={id,drawDate:d,shift:s,number:n,createdAt:Date.now()};if(idx>=0){data[idx]=entry;sAlert('addA','✅ Actualizado','s')}else{data.push(entry);sAlert('addA','✅ Guardado','s')}data.sort((a,b)=>b.drawDate.localeCompare(a.drawDate));SD(data);rAll();document.getElementById('aNum').value=''}
 let editId=null;
-function openEdit(id){
-    const data=LD();const item=data.find(x=>x.id===id);if(!item)return;
-    editId=id;
-    document.getElementById('eFecha').value=item.drawDate;
-    document.getElementById('eTurno').value=item.shift;
-    document.getElementById('eNum').value=item.number;
-    document.getElementById('editModal').classList.add('show');
-}
+function openEdit(id){const data=LD();const item=data.find(x=>x.id===id);if(!item)return;editId=id;document.getElementById('eFecha').value=item.drawDate;document.getElementById('eTurno').value=item.shift;document.getElementById('eNum').value=item.number;document.getElementById('editModal').classList.add('show')}
 function closeEdit(){document.getElementById('editModal').classList.remove('show');editId=null}
-function saveEdit(){
-    if(!editId)return;
-    const fecha=document.getElementById('eFecha').value;
-    const turno=document.getElementById('eTurno').value;
-    const nr=document.getElementById('eNum').value.trim();
-    if(!fecha||!nr){alert('Completa todos los campos');return}
-    const ni=parseInt(nr,10);if(isNaN(ni)||ni<0||ni>99){alert('Número 00-99');return}
-    const n=String(ni).padStart(2,'0');
-    const newId=`${fecha}_${turno}`;
-    let data=LD();
-    const idx=data.findIndex(x=>x.id===editId);if(idx<0)return;
-    if(newId!==editId&&data.find(x=>x.id===newId)){alert('Ya existe un sorteo en esa fecha y turno');return}
-    data[idx]={id:newId,drawDate:fecha,shift:turno,number:n,createdAt:data[idx].createdAt||Date.now()};
-    data.sort((a,b)=>b.drawDate.localeCompare(a.drawDate));SD(data);closeEdit();rAll();rHist();
-}
-
-// ===== ELIMINAR =====
-function delR(id){if(!confirm('¿Eliminar este sorteo?'))return;SD(LD().filter(d=>d.id!==id));rAll();rHist()}
-
-// ===== EXPORTAR =====
+function saveEdit(){if(!editId)return;const fecha=document.getElementById('eFecha').value,turno=document.getElementById('eTurno').value,nr=document.getElementById('eNum').value.trim();if(!fecha||!nr){alert('Completa todos los campos');return}const ni=parseInt(nr,10);if(isNaN(ni)||ni<0||ni>99){alert('Número 00-99');return}const n=String(ni).padStart(2,'0'),newId=`${fecha}_${turno}`;let data=LD();const idx=data.findIndex(x=>x.id===editId);if(idx<0)return;if(newId!==editId&&data.find(x=>x.id===newId)){alert('Ya existe ese sorteo');return}data[idx]={id:newId,drawDate:fecha,shift:turno,number:n,createdAt:data[idx].createdAt||Date.now()};data.sort((a,b)=>b.drawDate.localeCompare(a.drawDate));SD(data);closeEdit();rAll();rHist()}
+function delR(id){if(!confirm('¿Eliminar?'))return;SD(LD().filter(d=>d.id!==id));rAll();rHist()}
 function expData(){const d=LD();if(!d.length){alert('Sin datos');return}const b=new Blob([JSON.stringify({version:1,exportDate:new Date().toISOString(),results:d},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`sorteos_${new Date().toISOString().substring(0,10)}.json`;a.click()}
-function expExcel(){const d=LD();if(!d.length){alert('Sin datos');return}if(typeof XLSX==='undefined'){alert('Librería Excel no disponible');return}const rows=d.map(x=>({Fecha:x.drawDate,Turno:x.shift==='midday'?'Mediodía':'Noche',Numero:x.number}));const ws=XLSX.utils.json_to_sheet(rows);const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Sorteos');XLSX.writeFile(wb,`sorteos_${new Date().toISOString().substring(0,10)}.xlsx`)}
-function downTemplate(){if(typeof XLSX==='undefined'){alert('Librería Excel no disponible');return}const rows=[{Fecha:'2024-01-01',Turno:'Mediodía',Numero:'91'},{Fecha:'2024-01-01',Turno:'Noche',Numero:'38'},{Fecha:'2024-01-02',Turno:'Mediodía',Numero:'56'},{Fecha:'2024-01-02',Turno:'Noche',Numero:'84'}];const ws=XLSX.utils.json_to_sheet(rows);const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Sorteos');XLSX.writeFile(wb,'plantilla_sorteos.xlsx')}
-function clearAll(){if(!confirm('⚠️ ¿BORRAR TODO? No se puede deshacer.'))return;if(!confirm('⚠️ ¿Completamente seguro?'))return;localStorage.removeItem(SK);rAll();alert('✅ Todo borrado')}
+function expExcel(){const d=LD();if(!d.length){alert('Sin datos');return}if(typeof XLSX==='undefined'){alert('Librería no disponible');return}const rows=d.map(x=>({Fecha:x.drawDate,Turno:x.shift==='midday'?'Mediodía':'Noche',Numero:x.number}));const ws=XLSX.utils.json_to_sheet(rows);const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Sorteos');XLSX.writeFile(wb,`sorteos_${new Date().toISOString().substring(0,10)}.xlsx`)}
+function downTemplate(){if(typeof XLSX==='undefined'){alert('Librería no disponible');return}const ws=XLSX.utils.json_to_sheet([{Fecha:'2024-01-01',Turno:'Mediodía',Numero:'91'},{Fecha:'2024-01-01',Turno:'Noche',Numero:'38'}]);const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Sorteos');XLSX.writeFile(wb,'plantilla_sorteos.xlsx')}
+function clearAll(){if(!confirm('⚠️ ¿BORRAR TODO?'))return;if(!confirm('⚠️ ¿Seguro?'))return;localStorage.removeItem(SK);rAll();alert('✅ Borrado')}
 
-// ===== TRANSICIONES =====
-function getTransitions(data,type){
-    const sorted=[...data].sort((a,b)=>a.drawDate.localeCompare(b.drawDate)||a.shift.localeCompare(b.shift));
-    const pairs=[];
-    for(let i=0;i<sorted.length-1;i++){
-        const curr=sorted[i],next=sorted[i+1];let match=false;
-        if(type==='dd'&&curr.shift==='midday'&&next.shift==='midday')match=true;
-        if(type==='nn'&&curr.shift==='evening'&&next.shift==='evening')match=true;
-        if(type==='dn'&&curr.shift==='midday'&&next.shift==='evening'&&curr.drawDate===next.drawDate)match=true;
-        if(type==='nd'&&curr.shift==='evening'&&next.shift==='midday')match=true;
-        if(type==='all')match=true;
-        if(match)pairs.push({from:curr,to:next});
-    }
-    return pairs;
-}
+function getTransitions(data,type){const sorted=[...data].sort((a,b)=>{if(a.drawDate!==b.drawDate)return a.drawDate.localeCompare(b.drawDate);return a.shift==='midday'?-1:1});const pairs=[];for(let i=0;i<sorted.length-1;i++){const curr=sorted[i],next=sorted[i+1];let match=false;if(type==='dd'&&curr.shift==='midday'&&next.shift==='midday')match=true;if(type==='nn'&&curr.shift==='evening'&&next.shift==='evening')match=true;if(type==='dn'&&curr.shift==='midday'&&next.shift==='evening')match=true;if(type==='nd'&&curr.shift==='evening'&&next.shift==='midday')match=true;if(type==='all')match=true;if(match)pairs.push({from:curr,to:next})}return pairs}
 function getDecTransFreq(pairs){const freq={};for(let i=0;i<=9;i++)for(let j=0;j<=9;j++)freq[`${i}->${j}`]=0;pairs.forEach(p=>{freq[`${getDec(p.from.number)}->${getDec(p.to.number)}`]++});return freq}
 function getTermTransFreq(pairs){const freq={};for(let i=0;i<=9;i++)for(let j=0;j<=9;j++)freq[`${i}->${j}`]=0;pairs.forEach(p=>{freq[`${getTerm(p.from.number)}->${getTerm(p.to.number)}`]++});return freq}
-
-// ===== VIBRACIONES =====
-function calcVibration(data,num,recentCount){
-    const total=data.length;if(total<10)return{level:0,label:'Sin datos',cls:'vib-low'};
-    const recent=data.slice(0,recentCount||20);
-    const freq=gFreq(data);const rFreq=gFreq(recent);
-    const expected=total/100,rExpected=recent.length/100;
-    const actual=freq[num]||0,rActual=rFreq[num]||0;
-    const ratio=(rActual/Math.max(rExpected,0.1))/(Math.max(actual,1)/Math.max(expected,0.1));
-    const pct=Math.min(100,Math.round(ratio*50));
-    let label,cls;
-    if(ratio>1.5){label='🔥 MUY ALTA';cls='vib-high'}else if(ratio>1){label='⚡ ALTA';cls='vib-high'}else if(ratio>0.5){label='➡️ MEDIA';cls='vib-med'}else{label='💤 BAJA';cls='vib-low'}
-    return{level:pct,label,cls};
-}
-
-// ===== CONEXIONES =====
-function getPullConnections(data,limit){
-    const sorted=[...data].sort((a,b)=>a.drawDate.localeCompare(b.drawDate)||(a.shift==='midday'?-1:1));
-    const connections={};
-    for(let i=0;i<sorted.length-1;i++){const from=sorted[i].number,to=sorted[i+1].number,key=`${from}->${to}`;if(!connections[key])connections[key]={from,to,count:0};connections[key].count++}
-    return Object.values(connections).sort((a,b)=>b.count-a.count).slice(0,limit||20);
-}
+function calcVibration(data,num,rc){const t=data.length;if(t<10)return{level:0,label:'Sin datos',cls:'vib-low'};const recent=data.slice(0,rc||20);const freq=gFreq(data);const rF=gFreq(recent);const exp=t/100,rE=recent.length/100;const act=freq[num]||0,rA=rF[num]||0;const ratio=(rA/Math.max(rE,0.1))/(Math.max(act,1)/Math.max(exp,0.1));const pct=Math.min(100,Math.round(ratio*50));let label,cls;if(ratio>1.5){label='🔥 MUY ALTA';cls='vib-high'}else if(ratio>1){label='⚡ ALTA';cls='vib-high'}else if(ratio>0.5){label='➡️ MEDIA';cls='vib-med'}else{label='💤 BAJA';cls='vib-low'}return{level:pct,label,cls}}
+function getPullConnections(data,limit){const sorted=[...data].sort((a,b)=>a.drawDate.localeCompare(b.drawDate)||(a.shift==='midday'?-1:1));const conn={};for(let i=0;i<sorted.length-1;i++){const from=sorted[i].number,to=sorted[i+1].number,key=`${from}->${to}`;if(!conn[key])conn[key]={from,to,count:0};conn[key].count++}return Object.values(conn).sort((a,b)=>b.count-a.count).slice(0,limit||20)}
 
 // ===== HOME =====
 function rHome(){
     const data=LD();const t=data.length;
     document.getElementById('hsub').textContent=t>0?`${t} sorteos registrados`:'Sin datos — Ve a Importar';
-    if(!t){
-        document.getElementById('lastDraw').innerHTML='<div class="empty" style="grid-column:1/-1"><div class="ei">🎲</div><p>Importa datos</p></div>';
-        document.getElementById('lastAnalCard').style.display='none';
-        document.getElementById('hotN').innerHTML='<span class="td fs">-</span>';
-        document.getElementById('coldN').innerHTML='<span class="td fs">-</span>';
-        document.getElementById('genStats').innerHTML='';
-        document.getElementById('last2months').innerHTML='<span class="td fs">Sin datos</span>';
-        document.getElementById('streak').textContent='Sin datos';
-        return;
-    }
+    if(!t){document.getElementById('lastDraw').innerHTML='<div class="empty" style="grid-column:1/-1"><div class="ei">🎲</div><p>Importa datos</p></div>';document.getElementById('lastAnalCard').style.display='none';document.getElementById('hotN').innerHTML='-';document.getElementById('coldN').innerHTML='-';document.getElementById('genStats').innerHTML='';document.getElementById('last2months').innerHTML='Sin datos';document.getElementById('streak').textContent='Sin datos';return}
     const s=[...data].sort((a,b)=>b.drawDate.localeCompare(a.drawDate));
     const lm=s.find(d=>d.shift==='midday'),le=s.find(d=>d.shift==='evening');
     let h='';
@@ -771,653 +425,109 @@ function rHome(){
     if(le)h+=`<div class="draw-box"><div class="lbl">🌙 Última Noche</div><div class="num">${le.number}</div><div class="dt">${fmtD(le.drawDate)}</div></div>`;
     document.getElementById('lastDraw').innerHTML=h;
     const freq=gFreq(data),sf=sFreq(freq);
-    const top5=sf.slice(0,5),cold5=[...sf].sort((a,b)=>a[1]-b[1]).slice(0,5);
-    document.getElementById('hotN').innerHTML=top5.map(([n,c])=>`<span class="hc-n">${n}<br><span style="font-size:0.6rem">${c}x</span></span>`).join('');
-    document.getElementById('coldN').innerHTML=cold5.map(([n,c])=>`<span class="hc-n">${n}<br><span style="font-size:0.6rem">${c}x</span></span>`).join('');
-    const years=new Set(data.map(d=>d.drawDate.substring(0,4))).size;
-    const mf=sf[0],lf=[...sf].sort((a,b)=>a[1]-b[1])[0];
-    document.getElementById('genStats').innerHTML=`<div class="stat-box"><div class="v">${t}</div><div class="l">Total Sorteos</div></div><div class="stat-box"><div class="v">${years}</div><div class="l">Años</div></div><div class="stat-box"><div class="v">${mf[0]}</div><div class="l">Más Frecuente (${mf[1]}x)</div></div><div class="stat-box"><div class="v">${lf[0]}</div><div class="l">Menos Frecuente (${lf[1]}x)</div></div>`;
-    rLastAnal(s[0],data,freq,sf);rStreak(s);rLast2Months(data);
+    document.getElementById('hotN').innerHTML=sf.slice(0,5).map(([n,c])=>`<span class="hc-n">${n}<br><span style="font-size:0.6rem">${c}x</span></span>`).join('');
+    document.getElementById('coldN').innerHTML=[...sf].sort((a,b)=>a[1]-b[1]).slice(0,5).map(([n,c])=>`<span class="hc-n">${n}<br><span style="font-size:0.6rem">${c}x</span></span>`).join('');
+    const years=new Set(data.map(d=>d.drawDate.substring(0,4))).size;const mf=sf[0],lf=[...sf].sort((a,b)=>a[1]-b[1])[0];
+    document.getElementById('genStats').innerHTML=`<div class="stat-box"><div class="v">${t}</div><div class="l">Total</div></div><div class="stat-box"><div class="v">${years}</div><div class="l">Años</div></div><div class="stat-box"><div class="v">${mf[0]}</div><div class="l">Más Frec (${mf[1]}x)</div></div><div class="stat-box"><div class="v">${lf[0]}</div><div class="l">Menos Frec (${lf[1]}x)</div></div>`;
+    rLastAnal(s[0],data,freq,sf);rStreak(s);rLast2M(data);
 }
+function rLastAnal(last,data,freq,sf){if(!last)return;document.getElementById('lastAnalCard').style.display='block';const n=last.number,c=freq[n]||0,pct=((c/data.length)*100).toFixed(1),rank=sf.findIndex(([x])=>x===n)+1,ni=parseInt(n,10),par=ni%2===0?'Par':'Impar',dec=getDec(n),term=getTerm(n);let tag=rank<=10?'<span class="tag tag-hot">🔥 Caliente</span>':rank>=90?'<span class="tag tag-cold">❄️ Frío</span>':'<span class="tag tag-norm">⚖️ Normal</span>';const vib=calcVibration(data,n,20);const prev=data.filter(d=>d.number===n&&d.id!==last.id).sort((a,b)=>b.drawDate.localeCompare(a.drawDate))[0];const sorted=[...data].sort((a,b)=>b.drawDate.localeCompare(a.drawDate));const pen=sorted[1];let ti='';if(pen)ti=`<div class="divider"></div><div class="card-t fxs mb">🔄 Transición</div><div class="g2"><div class="ai"><div class="al">Anterior</div><div class="av tg">${pen.number} (${pen.shift==='midday'?'☀️':'🌙'})</div></div><div class="ai"><div class="al">Actual</div><div class="av tgr">${n} (${last.shift==='midday'?'☀️':'🌙'})</div></div><div class="ai"><div class="al">Decena</div><div class="av">${getDec(pen.number)}0s→${dec}0s</div></div><div class="ai"><div class="al">Terminal</div><div class="av">T${getTerm(pen.number)}→T${term}</div></div></div>`;document.getElementById('lastAnal').innerHTML=`<div class="g2"><div class="ai"><div class="al">Número</div><div class="av tg" style="font-size:2rem">${n}</div></div><div class="ai"><div class="al">Clasificación</div><div class="av">${tag}</div></div><div class="ai"><div class="al">Apariciones</div><div class="av">${c} (${pct}%)</div></div><div class="ai"><div class="al">Ranking</div><div class="av">#${rank}/100</div></div><div class="ai"><div class="al">Dec/Term</div><div class="av">${dec}0s / T${term}</div></div><div class="ai"><div class="al">Paridad</div><div class="av">${par}</div></div><div class="ai"><div class="al">Vibración</div><div class="av">${vib.label}<div class="vib-meter"><div class="vib-fill ${vib.cls}" style="width:${vib.level}%"></div></div></div></div><div class="ai"><div class="al">Suma</div><div class="av">${Math.floor(ni/10)+ni%10}</div></div></div><div class="mt fs td">📅 ${last.shift==='midday'?'☀️Med':'🌙Noc'} — ${fmtD(last.drawDate)} ${prev?`<br>🔁 Anterior: ${fmtD(prev.drawDate)} (${diffD(prev.drawDate,last.drawDate)}d)`:'<br>🆕 Primera vez'}</div>${ti}`}
+function rStreak(sorted){if(sorted.length<2){document.getElementById('streak').textContent='Pocos datos';return}const n=sorted[0].number;let s=0;for(let i=1;i<sorted.length;i++){if(sorted[i].number!==n)s++;else break}document.getElementById('streak').innerHTML=`<span class="tg fw">${n}</span> — ${s>0?`No salió en ${s} sorteos anteriores`:'Salió consecutivamente'}<div class="mt">Apariciones: <span class="tgr fw">${sorted.filter(d=>d.number===n).length}</span></div>`}
+function rLast2M(data){if(!data.length){document.getElementById('last2months').innerHTML='Sin datos';return}const ls=getLastSorteoMes();const next=getNextTurno();const sorted=[...data].sort((a,b)=>b.drawDate.localeCompare(a.drawDate));const lD=sorted[0].drawDate,lM=lD.substring(0,7);const[ly,lm]=lM.split('-').map(Number);const months=[];for(let i=1;i<=2;i++){let m=lm-i,y=ly;if(m<=0){m+=12;y--}months.push(`${y}-${String(m).padStart(2,'0')}`)}months.unshift(lM);const mn=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];let html='<div class="g3">';months.forEach(ym=>{const mData=data.filter(d=>d.drawDate.startsWith(ym));const[y,m]=ym.split('-');if(!mData.length){html+=`<div class="stat-box"><div style="font-size:0.7rem;color:var(--gold);font-weight:700">${mn[parseInt(m)-1]} ${y}</div><div class="v" style="font-size:1rem">0</div></div>`;return}const mF=gFreq(mData);const top3=sFreq(mF).slice(0,3);const dF={},tF={};for(let i=0;i<=9;i++){dF[i]=0;tF[i]=0}mData.forEach(d=>{dF[getDec(d.number)]++;tF[getTerm(d.number)]++});const tD=Object.entries(dF).sort((a,b)=>b[1]-a[1])[0];const tT=Object.entries(tF).sort((a,b)=>b[1]-a[1])[0];html+=`<div class="stat-box"><div style="font-size:0.7rem;color:var(--gold);font-weight:700">${mn[parseInt(m)-1]} ${y}</div><div class="v" style="font-size:1.2rem">${mData.length}</div><div class="fxs td mt">${top3.map(([n,c])=>`<span class="tg">${n}</span>(${c})`).join(' ')}</div><div class="fxs mt" style="color:var(--green)">D:${tD[0]}0s T:T${tT[0]}</div></div>`});html+='</div>';if(ls){const lsDec=getDec(ls.number),lsTerm=getTerm(ls.number);const l2d=data.filter(d=>months.some(ym=>d.drawDate.startsWith(ym)));const dA={},tA={};const l2s=[...l2d].sort((a,b)=>a.drawDate.localeCompare(b.drawDate));for(let i=0;i<l2s.length-1;i++){if(getDec(l2s[i].number)===lsDec){const nd=getDec(l2s[i+1].number);dA[nd]=(dA[nd]||0)+1}if(getTerm(l2s[i].number)===lsTerm){const nt=getTerm(l2s[i+1].number);tA[nt]=(tA[nt]||0)+1}}const topDA=Object.entries(dA).sort((a,b)=>b[1]-a[1]).slice(0,5);const topTA=Object.entries(tA).sort((a,b)=>b[1]-a[1]).slice(0,5);html+=`<div class="rec-box mt"><h4>🎯 Recomendación → ${next.label}</h4>`;if(topDA.length){html+=`<div class="fxs tg mb">Dec tras ${lsDec}0s:</div><div class="rec-nums">`;topDA.forEach(([d,c])=>html+=`<div class="rec-item"><span>${d}0s</span>(${c}x)</div>`);html+='</div>'}if(topTA.length){html+=`<div class="fxs tg mt mb">Term tras T${lsTerm}:</div><div class="rec-nums">`;topTA.forEach(([t,c])=>html+=`<div class="rec-item"><span>T${t}</span>(${c}x)</div>`);html+='</div>'}html+='</div>'}document.getElementById('last2months').innerHTML=html}
 
-function rLastAnal(last,data,freq,sf){
-    if(!last)return;
-    document.getElementById('lastAnalCard').style.display='block';
-    const n=last.number,c=freq[n]||0,pct=((c/data.length)*100).toFixed(1);
-    const rank=sf.findIndex(([x])=>x===n)+1;
-    const ni=parseInt(n,10),par=ni%2===0?'Par':'Impar';
-    const dec=getDec(n),term=getTerm(n);
-    let tag=rank<=10?'<span class="tag tag-hot">🔥 Caliente</span>':rank>=90?'<span class="tag tag-cold">❄️ Frío</span>':'<span class="tag tag-norm">⚖️ Normal</span>';
-    const vib=calcVibration(data,n,20);
-    const prev=data.filter(d=>d.number===n&&d.id!==last.id).sort((a,b)=>b.drawDate.localeCompare(a.drawDate))[0];
-    const sorted=[...data].sort((a,b)=>b.drawDate.localeCompare(a.drawDate));
-    const penult=sorted[1];
-    let transInfo='';
-    if(penult){const pDec=getDec(penult.number),pTerm=getTerm(penult.number),cDec=getDec(n),cTerm=getTerm(n);transInfo=`<div class="divider"></div><div class="card-t fxs mb">🔄 Transición desde sorteo anterior</div><div class="g2"><div class="ai"><div class="al">Anterior</div><div class="av tg">${penult.number} <span class="fxs td">(${penult.shift==='midday'?'☀️':'🌙'})</span></div></div><div class="ai"><div class="al">Actual</div><div class="av tgr">${n} <span class="fxs td">(${last.shift==='midday'?'☀️':'🌙'})</span></div></div><div class="ai"><div class="al">Decena</div><div class="av">${pDec}0s → ${cDec}0s</div></div><div class="ai"><div class="al">Terminal</div><div class="av">T${pTerm} → T${cTerm}</div></div></div>`}
-    document.getElementById('lastAnal').innerHTML=`<div class="g2"><div class="ai"><div class="al">Número</div><div class="av tg" style="font-size:2rem">${n}</div></div><div class="ai"><div class="al">Clasificación</div><div class="av">${tag}</div></div><div class="ai"><div class="al">Apariciones</div><div class="av">${c} (${pct}%)</div></div><div class="ai"><div class="al">Ranking</div><div class="av">#${rank}/100</div></div><div class="ai"><div class="al">Decena/Terminal</div><div class="av">${dec}0s / T${term}</div></div><div class="ai"><div class="al">Paridad</div><div class="av">${par}</div></div><div class="ai"><div class="al">Vibración</div><div class="av">${vib.label}<div class="vib-meter"><div class="vib-fill ${vib.cls}" style="width:${vib.level}%"></div></div></div></div><div class="ai"><div class="al">Suma Dígitos</div><div class="av">${Math.floor(ni/10)+ni%10}</div></div></div><div class="mt fs td">📅 ${last.shift==='midday'?'☀️ Mediodía':'🌙 Noche'} — ${fmtD(last.drawDate)} ${prev?`<br>🔁 Anterior: ${fmtD(prev.drawDate)} (hace ${diffD(prev.drawDate,last.drawDate)} días)`:'<br>🆕 Primera aparición'}</div>${transInfo}`;
-}
-
-function rStreak(sorted){
-    if(sorted.length<2){document.getElementById('streak').textContent='Necesitas más datos';return}
-    const n=sorted[0].number;let streak=0;
-    for(let i=1;i<sorted.length;i++){if(sorted[i].number!==n)streak++;else break}
-    document.getElementById('streak').innerHTML=`<span class="tg fw">Número ${n}</span> — ${streak>0?`No había salido en los ${streak} sorteos anteriores`:'También salió en el sorteo anterior'}.<div class="mt">Total apariciones: <span class="tgr fw">${sorted.filter(d=>d.number===n).length}</span></div>`;
-}
-
-// ===== ÚLTIMOS 2 MESES CON DEC/TERM =====
-function rLast2Months(data){
-    if(!data.length){document.getElementById('last2months').innerHTML='Sin datos';return}
-    const ls=getLastSorteoMes();
-    const next=getNextTurno();
-    const sorted=[...data].sort((a,b)=>b.drawDate.localeCompare(a.drawDate));
-    const lastDate=sorted[0].drawDate,lastMonth=lastDate.substring(0,7);
-    const[ly,lm]=lastMonth.split('-').map(Number);
-    const months=[];
-    for(let i=1;i<=2;i++){let m=lm-i,y=ly;if(m<=0){m+=12;y--}months.push(`${y}-${String(m).padStart(2,'0')}`)}
-    months.unshift(lastMonth);
-    const allLast2=data.filter(d=>d.drawDate.startsWith(months[1])||d.drawDate.startsWith(months[2])||d.drawDate.startsWith(months[0]));
-    const mn=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-    let html='<div class="g3">';
-    months.forEach(ym=>{
-        const mData=data.filter(d=>d.drawDate.startsWith(ym));
-        const[y,m]=ym.split('-');
-        if(!mData.length){html+=`<div class="stat-box"><div style="font-size:0.7rem;color:var(--gold);font-weight:700">${mn[parseInt(m)-1]} ${y}</div><div class="v" style="font-size:1rem">0</div><div class="l">Sin datos</div></div>`;return}
-        const mFreq=gFreq(mData);const top3=sFreq(mFreq).slice(0,3);
-        const decF={},termF={};for(let i=0;i<=9;i++){decF[i]=0;termF[i]=0}
-        mData.forEach(d=>{decF[getDec(d.number)]++;termF[getTerm(d.number)]++});
-        const topDec=Object.entries(decF).sort((a,b)=>b[1]-a[1])[0];
-        const topTerm=Object.entries(termF).sort((a,b)=>b[1]-a[1])[0];
-        html+=`<div class="stat-box"><div style="font-size:0.7rem;color:var(--gold);font-weight:700">${mn[parseInt(m)-1]} ${y}</div><div class="v" style="font-size:1.2rem">${mData.length}</div><div class="l">sorteos</div><div class="fxs td mt">${top3.map(([n,c])=>`<span class="tg">${n}</span>(${c})`).join(' ')}</div><div class="fxs mt" style="color:var(--green)">Dec:${topDec[0]}0s Term:T${topTerm[0]}</div></div>`;
-    });
-    html+='</div>';
-    if(ls){
-        const lsDec=getDec(ls.number),lsTerm=getTerm(ls.number);
-        const last2data=data.filter(d=>d.drawDate.startsWith(months[1])||d.drawDate.startsWith(months[2]));
-        const decAfter={},termAfter={};
-        for(let i=0;i<last2data.length-1;i++){
-            if(getDec(last2data[i].number)===lsDec){const nd=getDec(last2data[i+1].number);decAfter[nd]=(decAfter[nd]||0)+1}
-            if(getTerm(last2data[i].number)===lsTerm){const nt=getTerm(last2data[i+1].number);termAfter[nt]=(termAfter[nt]||0)+1}
-        }
-        const topDA=Object.entries(decAfter).sort((a,b)=>b[1]-a[1]).slice(0,5);
-        const topTA=Object.entries(termAfter).sort((a,b)=>b[1]-a[1]).slice(0,5);
-        html+=`<div class="rec-box mt"><h4>🎯 Recomendación → ${next.label} (basado en Dec:${lsDec}0s Term:T${lsTerm})</h4>`;
-        if(topDA.length){html+=`<div class="fxs tg mb">Decenas que siguen a ${lsDec}0s:</div><div class="rec-nums">`;topDA.forEach(([d,c])=>{html+=`<div class="rec-item"><span>${d}0s</span> (${c}x)</div>`});html+='</div>'}
-        if(topTA.length){html+=`<div class="fxs tg mt mb">Terminales que siguen a T${lsTerm}:</div><div class="rec-nums">`;topTA.forEach(([t,c])=>{html+=`<div class="rec-item"><span>T${t}</span> (${c}x)</div>`});html+='</div>'}
-        html+='</div>';
-    }
-    document.getElementById('last2months').innerHTML=html;
-}
-
-// ===== HISTORIAL CON EDITAR =====
+// ===== HISTORIAL =====
 let cP=1;const pP=25;
-function gFilt(){
-    const d=LD(),s=document.getElementById('sI').value.toLowerCase(),f=document.getElementById('sF').value;
-    let r=[...d].sort((a,b)=>b.drawDate.localeCompare(a.drawDate));
-    if(s)r=r.filter(x=>x.number.includes(s)||x.drawDate.includes(s));
-    if(f)r=r.filter(x=>x.shift===f);
-    return r;
-}
-function rHist(){
-    const f=gFilt(),tp=Math.max(1,Math.ceil(f.length/pP));
-    if(cP>tp)cP=tp;
-    const pg=f.slice((cP-1)*pP,cP*pP);
-    const tb=document.getElementById('hBody');
-    if(!pg.length){tb.innerHTML='<tr><td colspan="6" class="tc td" style="padding:30px">Sin resultados</td></tr>'}
-    else{tb.innerHTML=pg.map(d=>`<tr><td>${fmtD(d.drawDate)}</td><td><span class="badge badge-${d.shift==='midday'?'m':'e'}">${d.shift==='midday'?'☀️Med':'🌙Noc'}</span></td><td><span class="pill">${d.number}</span></td><td class="td fxs">${getDec(d.number)}0s</td><td class="td fxs">T${getTerm(d.number)}</td><td style="display:flex;gap:4px"><button class="btn btn-blue" style="padding:3px 8px;font-size:0.7rem" onclick="openEdit('${d.id}')">✏️</button><button class="btn btn-red" style="padding:3px 8px;font-size:0.7rem" onclick="delR('${d.id}')">🗑️</button></td></tr>`).join('')}
-    document.getElementById('pInfo').textContent=`${cP}/${tp} (${f.length})`;
-}
+function gFilt(){const d=LD(),s=document.getElementById('sI').value.toLowerCase(),f=document.getElementById('sF').value;let r=[...d].sort((a,b)=>b.drawDate.localeCompare(a.drawDate));if(s)r=r.filter(x=>x.number.includes(s)||x.drawDate.includes(s));if(f)r=r.filter(x=>x.shift===f);return r}
+function rHist(){const f=gFilt(),tp=Math.max(1,Math.ceil(f.length/pP));if(cP>tp)cP=tp;const pg=f.slice((cP-1)*pP,cP*pP);const tb=document.getElementById('hBody');if(!pg.length)tb.innerHTML='<tr><td colspan="6" class="tc td" style="padding:30px">Sin resultados</td></tr>';else tb.innerHTML=pg.map(d=>`<tr><td>${fmtD(d.drawDate)}</td><td><span class="badge badge-${d.shift==='midday'?'m':'e'}">${d.shift==='midday'?'☀️Med':'🌙Noc'}</span></td><td><span class="pill">${d.number}</span></td><td class="td fxs">${getDec(d.number)}0s</td><td class="td fxs">T${getTerm(d.number)}</td><td style="display:flex;gap:4px"><button class="btn btn-blue" style="padding:3px 8px;font-size:0.7rem" onclick="openEdit('${d.id}')">✏️</button><button class="btn btn-red" style="padding:3px 8px;font-size:0.7rem" onclick="delR('${d.id}')">🗑️</button></td></tr>`).join('');document.getElementById('pInfo').textContent=`${cP}/${tp} (${f.length})`}
 function cPage(dir){const f=gFilt(),tp=Math.max(1,Math.ceil(f.length/pP));cP=Math.max(1,Math.min(tp,cP+dir));rHist()}
 
-// ===== FRECUENCIAS CON DECENAS Y TERMINALES =====
-let curFreqView='top';
+// ===== FRECUENCIAS CORREGIDAS =====
+let curFreqView='all';
 function freqView(v,btn){curFreqView=v;document.querySelectorAll('#freqTabs .sub-tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');rFreq()}
 function rFreq(){
-    const data=LD();
-    if(!data.length){document.getElementById('freqContent').innerHTML='<div class="empty"><div class="ei">📊</div><p>Sin datos</p></div>';return}
+    const data=LD();if(!data.length){document.getElementById('freqContent').innerHTML='<div class="empty"><div class="ei">📊</div><p>Sin datos</p></div>';return}
     renderLsBanner('lsBannerFreq');
-    // CORREGIDO: midday=Mediodía, evening=Noche
-    let fData=data,title='';
-    if(curFreqView==='midday'){fData=data.filter(d=>d.shift==='midday');title='☀️ Frecuencias Mediodía'}
-    else if(curFreqView==='evening'){fData=data.filter(d=>d.shift==='evening');title='🌙 Frecuencias Noche'}
-    else if(curFreqView==='top')title='🔥 Top 15 Más Frecuentes';
-    else if(curFreqView==='bottom')title='❄️ Top 15 Menos Frecuentes';
-    else if(curFreqView==='decs')title='🔢 Frecuencias por Decena';
-    else if(curFreqView==='terms')title='🎯 Frecuencias por Terminal';
-    else title='📊 Los 100 Números';
-    document.getElementById('freqTitle').textContent=title;
     if(curFreqView==='decs'){rFreqDecs(data);return}
     if(curFreqView==='terms'){rFreqTerms(data);return}
+    let fData=data,title='';
+    // CORREGIDO: midday=Mediodía, evening=Noche
+    if(curFreqView==='midday'){fData=data.filter(d=>d.shift==='midday');title='☀️ Frecuencias Solo MEDIODÍA ('+fData.length+' sorteos)'}
+    else if(curFreqView==='evening'){fData=data.filter(d=>d.shift==='evening');title='🌙 Frecuencias Solo NOCHE ('+fData.length+' sorteos)'}
+    else if(curFreqView==='top')title='🔥 Top 15 Más Frecuentes (Ambos turnos)';
+    else if(curFreqView==='bottom')title='❄️ Top 15 Menos Frecuentes (Ambos turnos)';
+    else title='📊 Todos los Números (Ambos turnos - '+data.length+' sorteos)';
+    document.getElementById('freqTitle').textContent=title;
     const freq=gFreq(fData),sf=sFreq(freq);const maxC=sf[0]?sf[0][1]:1;
     let items;
     if(curFreqView==='bottom')items=[...sf].sort((a,b)=>a[1]-b[1]).slice(0,15);
-    else if(curFreqView==='all100')items=sf;
+    else if(curFreqView==='all')items=sf;
     else items=sf.slice(0,15);
     const fillCls=curFreqView==='bottom'?'fill-hot':'fill-green';
-    document.getElementById('freqContent').innerHTML=items.map(([n,c])=>`<div class="fb"><div class="n">${n}</div><div class="track"><div class="fill ${fillCls}" style="width:${maxC>0?(c/maxC*100):0}%"><span>${c}</span></div></div><div class="c">${c}x</div></div>`).join('');
-}
-function rFreqDecs(data){
-    const ls=getLastSorteoMes();
-    const lsDec=ls?getDec(ls.number):null;
-    const decF={};for(let i=0;i<=9;i++)decF[i]=0;
-    data.forEach(d=>decF[getDec(d.number)]++);
-    const sorted=Object.entries(decF).sort((a,b)=>b[1]-a[1]);
-    const max=sorted[0][1];
-    let html='';
-    if(ls)html+=`<div class="fxs td mb">📌 Último sorteo: <span class="tg fw">${ls.number}</span> — Dec actual: <span class="tg fw">${lsDec}0s</span></div>`;
-    html+=sorted.map(([d,c])=>{const isLS=parseInt(d)===lsDec;return`<div class="fb"><div class="n" style="${isLS?'color:var(--gold2);font-size:1rem':''}">${d}0s${isLS?' 📌':''}</div><div class="track"><div class="fill ${isLS?'fill-gold':'fill-blue'}" style="width:${max>0?(c/max*100):0}%"><span>${c}</span></div></div><div class="c">${c}x</div></div>`}).join('');
-    document.getElementById('freqContent').innerHTML=html;
-}
-function rFreqTerms(data){
-    const ls=getLastSorteoMes();
-    const lsTerm=ls?getTerm(ls.number):null;
-    const termF={};for(let i=0;i<=9;i++)termF[i]=0;
-    data.forEach(d=>termF[getTerm(d.number)]++);
-    const sorted=Object.entries(termF).sort((a,b)=>b[1]-a[1]);
-    const max=sorted[0][1];
-    let html='';
-    if(ls)html+=`<div class="fxs td mb">📌 Último sorteo: <span class="tg fw">${ls.number}</span> — Term actual: <span class="tg fw">T${lsTerm}</span></div>`;
-    html+=sorted.map(([t,c])=>{const isLS=parseInt(t)===lsTerm;return`<div class="fb"><div class="n" style="${isLS?'color:var(--gold2);font-size:1rem':''}">T${t}${isLS?' 📌':''}</div><div class="track"><div class="fill ${isLS?'fill-gold':'fill-purple'}" style="width:${max>0?(c/max*100):0}%"><span>${c}</span></div></div><div class="c">${c}x</div></div>`}).join('');
-    document.getElementById('freqContent').innerHTML=html;
-}
+    document.getElementById('freqContent').innerHTML=items.map(([n,c])=>`<div class="fb"><div class="n">${n}</div><div class="track"><div class="fill ${fillCls}" style="width:${maxC>0?(c/maxC*100):0}%"><span>${c}</span></div></div><div class="c">${c}x</div></div>`).join('')}
+function rFreqDecs(data){const ls=getLastSorteoMes();const lsDec=ls?getDec(ls.number):null;const dF={};for(let i=0;i<=9;i++)dF[i]=0;data.forEach(d=>dF[getDec(d.number)]++);const sorted=Object.entries(dF).sort((a,b)=>b[1]-a[1]);const max=sorted[0][1];let html='';if(ls)html+=`<div class="fxs td mb">📌 Último: <span class="tg fw">${ls.number}</span> Dec: <span class="tg fw">${lsDec}0s</span></div>`;document.getElementById('freqTitle').textContent='🔢 Frecuencias por Decena';html+=sorted.map(([d,c])=>{const isLS=parseInt(d)===lsDec;return`<div class="fb"><div class="n" style="${isLS?'color:var(--gold2);font-size:1rem':''}">${d}0s${isLS?' 📌':''}</div><div class="track"><div class="fill ${isLS?'fill-gold':'fill-blue'}" style="width:${max>0?(c/max*100):0}%"><span>${c}</span></div></div><div class="c">${c}x</div></div>`}).join('');document.getElementById('freqContent').innerHTML=html}
+function rFreqTerms(data){const ls=getLastSorteoMes();const lsT=ls?getTerm(ls.number):null;const tF={};for(let i=0;i<=9;i++)tF[i]=0;data.forEach(d=>tF[getTerm(d.number)]++);const sorted=Object.entries(tF).sort((a,b)=>b[1]-a[1]);const max=sorted[0][1];let html='';if(ls)html+=`<div class="fxs td mb">📌 Último: <span class="tg fw">${ls.number}</span> Term: <span class="tg fw">T${lsT}</span></div>`;document.getElementById('freqTitle').textContent='🎯 Frecuencias por Terminal';html+=sorted.map(([t,c])=>{const isLS=parseInt(t)===lsT;return`<div class="fb"><div class="n" style="${isLS?'color:var(--gold2);font-size:1rem':''}">T${t}${isLS?' 📌':''}</div><div class="track"><div class="fill ${isLS?'fill-gold':'fill-purple'}" style="width:${max>0?(c/max*100):0}%"><span>${c}</span></div></div><div class="c">${c}x</div></div>`}).join('');document.getElementById('freqContent').innerHTML=html}
 
 // ===== DECENAS =====
 let curDecView='general';
 function decView(v,btn){curDecView=v;document.querySelectorAll('#sec-dec .sub-tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');rDec()}
-function rDec(){
-    const data=LD();
-    if(!data.length){document.getElementById('decContent').innerHTML='<div class="empty"><div class="ei">🔢</div><p>Sin datos</p></div>';return}
-    renderLsBanner('lsBannerDec');
-    if(curDecView==='general')rDecGeneral(data);
-    else if(curDecView==='best')rDecBest(data);
-    else rDecTrans(data,curDecView);
-}
-function rDecGeneral(data){
-    document.getElementById('decTitle').textContent='🔢 Frecuencia por Decena';
-    const ls=getLastSorteoMes();const lsDec=ls?getDec(ls.number):null;
-    const decFreq={};for(let i=0;i<=9;i++)decFreq[i]=0;
-    data.forEach(d=>decFreq[getDec(d.number)]++);
-    const sorted=Object.entries(decFreq).sort((a,b)=>b[1]-a[1]);const max=sorted[0][1];
-    let html='';
-    if(ls)html+=`<div class="fxs td mb">📌 Último mes: <span class="tg fw">${ls.number}</span> | Dec: <span class="tg fw">${lsDec}0s</span> | Term: <span class="tg fw">T${getTerm(ls.number)}</span></div>`;
-    html+=sorted.map(([d,c])=>{const isLS=parseInt(d)===lsDec;return`<div class="fb"><div class="n" style="${isLS?'color:var(--gold2)':''}">${d}0s${isLS?' 📌':''}</div><div class="track"><div class="fill ${isLS?'fill-hot':'fill-gold'}" style="width:${max>0?(c/max*100):0}%"><span>${c}</span></div></div><div class="c">${c}x</div></div>`}).join('');
-    html+=`<div class="divider"></div><div class="fxs td">Total: ${data.length} sorteos. Promedio: ${(data.length/10).toFixed(1)}</div>`;
-    document.getElementById('decContent').innerHTML=html;
-}
-function rDecTrans(data,type){
-    const labels={dd:'☀️→☀️ Mediodía-Mediodía',nn:'🌙→🌙 Noche-Noche',dn:'☀️→🌙 Mediodía-Noche',nd:'🌙→☀️ Noche-Mediodía'};
-    document.getElementById('decTitle').textContent=`🔢 Decenas: ${labels[type]}`;
-    const ls=getLastSorteoMes();const lsDec=ls?getDec(ls.number):null;
-    const pairs=getTransitions(data,type);
-    if(!pairs.length){document.getElementById('decContent').innerHTML='<div class="empty"><p>Sin transiciones</p></div>';return}
-    const freq=getDecTransFreq(pairs);
-    const sorted=Object.entries(freq).sort((a,b)=>b[1]-a[1]).filter(([,c])=>c>0);
-    const max=sorted[0]?sorted[0][1]:1;
-    let html='';
-    if(ls&&lsDec!==null){
-        const fromLS=Object.entries(freq).filter(([k])=>k.startsWith(`${lsDec}->`)).sort((a,b)=>b[1]-a[1]).filter(([,c])=>c>0).slice(0,5);
-        if(fromLS.length){
-            html+=`<div class="rec-box"><h4>🎯 Desde decena ${lsDec}0s (último: ${ls.number}) → sigue:</h4><div class="rec-nums">`;
-            fromLS.forEach(([k,c])=>{const[,t]=k.split('->');html+=`<div class="rec-item"><span>${t}0s</span> (${c}x)</div>`});
-            html+='</div></div>';
-        }
-    }
-    html+=`<p class="fxs td mb">${pairs.length} transiciones analizadas</p>`;
-    html+=sorted.slice(0,15).map(([k,c])=>{const[f,t]=k.split('->');return`<div class="fb"><div class="n" style="width:55px;font-size:0.75rem">${f}0s→${t}0s</div><div class="track"><div class="fill fill-gold" style="width:${(c/max*100)}%"><span>${c}</span></div></div><div class="c">${c}x</div></div>`}).join('');
-    document.getElementById('decContent').innerHTML=html;
-}
-function rDecBest(data){
-    document.getElementById('decTitle').textContent='🏆 Mejores Decenas a Jugar';
-    const ls=getLastSorteoMes();
-    const sorted=[...data].sort((a,b)=>b.drawDate.localeCompare(a.drawDate));
-    const recent=sorted.slice(0,Math.min(40,sorted.length));
-    const gDec={},rDec={};for(let i=0;i<=9;i++){gDec[i]=0;rDec[i]=0}
-    data.forEach(d=>gDec[getDec(d.number)]++);recent.forEach(d=>rDec[getDec(d.number)]++);
-    const scores=[];
-    for(let i=0;i<=9;i++){const gPct=gDec[i]/data.length,rPct=rDec[i]/recent.length;const momentum=rPct/Math.max(gPct,0.001);scores.push({dec:i,global:gDec[i],recent:rDec[i],momentum:momentum.toFixed(2)})}
-    scores.sort((a,b)=>b.momentum-a.momentum);
-    let html='';
-    if(ls)html+=`<div class="fxs td mb">📌 Último sorteo del mes: <span class="tg fw">${ls.number}</span> — Dec: <span class="tg fw">${getDec(ls.number)}0s</span></div>`;
-    html+=scores.map((s,idx)=>{const isLS=ls&&s.dec===getDec(ls.number);return`<div class="pull-box" style="${isLS?'border-color:var(--gold);':''}"><div style="font-size:1.5rem;font-weight:900;color:${idx<3?'var(--gold)':'var(--dim)'}">#${idx+1}</div><div><div class="fw tg" style="font-size:1.2rem">${s.dec}0s${isLS?' 📌':''}</div><div class="fxs td">Global: ${s.global}x | Reciente: ${s.recent}x | Momentum: ${s.momentum}x</div><div class="vib-meter" style="width:100px"><div class="vib-fill ${s.momentum>1.2?'vib-high':s.momentum>0.8?'vib-med':'vib-low'}" style="width:${Math.min(100,s.momentum*50)}%"></div></div></div></div>`}).join('');
-    document.getElementById('decContent').innerHTML=html;
-}
+function rDec(){const data=LD();if(!data.length){document.getElementById('decContent').innerHTML='<div class="empty"><div class="ei">🔢</div><p>Sin datos</p></div>';return}renderLsBanner('lsBannerDec');if(curDecView==='general')rDecGen(data);else if(curDecView==='best')rDecBest(data);else rDecTrans(data,curDecView)}
+function rDecGen(data){document.getElementById('decTitle').textContent='🔢 Frecuencia por Decena';const ls=getLastSorteoMes();const lsD=ls?getDec(ls.number):null;const dF={};for(let i=0;i<=9;i++)dF[i]=0;data.forEach(d=>dF[getDec(d.number)]++);const sorted=Object.entries(dF).sort((a,b)=>b[1]-a[1]);const max=sorted[0][1];let html='';if(ls)html+=`<div class="fxs td mb">📌 Último: <span class="tg fw">${ls.number}</span> Dec: <span class="tg fw">${lsD}0s</span></div>`;html+=sorted.map(([d,c])=>{const isLS=parseInt(d)===lsD;return`<div class="fb"><div class="n" style="${isLS?'color:var(--gold2)':''}">${d}0s${isLS?' 📌':''}</div><div class="track"><div class="fill ${isLS?'fill-hot':'fill-gold'}" style="width:${max>0?(c/max*100):0}%"><span>${c}</span></div></div><div class="c">${c}x</div></div>`}).join('');html+=`<div class="divider"></div><div class="fxs td">Total: ${data.length} | Promedio: ${(data.length/10).toFixed(1)}</div>`;document.getElementById('decContent').innerHTML=html}
+function rDecTrans(data,type){const labels={dd:'☀️→☀️ M-M',nn:'🌙→🌙 N-N',dn:'☀️→🌙 M-N',nd:'🌙→☀️ N-M'};document.getElementById('decTitle').textContent=`🔢 Decenas: ${labels[type]}`;const ls=getLastSorteoMes();const lsD=ls?getDec(ls.number):null;const pairs=getTransitions(data,type);if(!pairs.length){document.getElementById('decContent').innerHTML='<div class="empty"><p>Sin transiciones para este tipo</p></div>';return}const freq=getDecTransFreq(pairs);const sorted=Object.entries(freq).sort((a,b)=>b[1]-a[1]).filter(([,c])=>c>0);const max=sorted[0]?sorted[0][1]:1;let html='';if(ls&&lsD!==null){const fromLS=Object.entries(freq).filter(([k])=>k.startsWith(`${lsD}->`)).sort((a,b)=>b[1]-a[1]).filter(([,c])=>c>0).slice(0,5);if(fromLS.length){html+=`<div class="rec-box"><h4>🎯 Desde ${lsD}0s (último: ${ls.number}) → sigue:</h4><div class="rec-nums">`;fromLS.forEach(([k,c])=>{const[,t]=k.split('->');html+=`<div class="rec-item"><span>${t}0s</span>(${c}x)</div>`});html+='</div></div>'}}html+=`<p class="fxs td mb">${pairs.length} transiciones</p>`;html+=sorted.slice(0,15).map(([k,c])=>{const[f,t]=k.split('->');return`<div class="fb"><div class="n" style="width:55px;font-size:0.75rem">${f}0s→${t}0s</div><div class="track"><div class="fill fill-gold" style="width:${(c/max*100)}%"><span>${c}</span></div></div><div class="c">${c}x</div></div>`}).join('');document.getElementById('decContent').innerHTML=html}
+function rDecBest(data){document.getElementById('decTitle').textContent='🏆 Mejores Decenas';const ls=getLastSorteoMes();const sorted=[...data].sort((a,b)=>b.drawDate.localeCompare(a.drawDate));const recent=sorted.slice(0,Math.min(40,sorted.length));const gD={},rD={};for(let i=0;i<=9;i++){gD[i]=0;rD[i]=0}data.forEach(d=>gD[getDec(d.number)]++);recent.forEach(d=>rD[getDec(d.number)]++);const scores=[];for(let i=0;i<=9;i++){const gP=gD[i]/data.length,rP=rD[i]/recent.length;const mom=rP/Math.max(gP,0.001);scores.push({dec:i,global:gD[i],recent:rD[i],momentum:mom.toFixed(2)})}scores.sort((a,b)=>b.momentum-a.momentum);let html='';if(ls)html+=`<div class="fxs td mb">📌 Último: <span class="tg fw">${ls.number}</span> Dec: <span class="tg fw">${getDec(ls.number)}0s</span></div>`;html+=scores.map((s,idx)=>{const isLS=ls&&s.dec===getDec(ls.number);return`<div class="pull-box" style="${isLS?'border-color:var(--gold);':''}"><div style="font-size:1.5rem;font-weight:900;color:${idx<3?'var(--gold)':'var(--dim)'}">#${idx+1}</div><div><div class="fw tg" style="font-size:1.2rem">${s.dec}0s${isLS?' 📌':''}</div><div class="fxs td">Global:${s.global}x | Reciente:${s.recent}x | Mom:${s.momentum}x</div><div class="vib-meter" style="width:100px"><div class="vib-fill ${s.momentum>1.2?'vib-high':s.momentum>0.8?'vib-med':'vib-low'}" style="width:${Math.min(100,s.momentum*50)}%"></div></div></div></div>`}).join('');document.getElementById('decContent').innerHTML=html}
 
 // ===== TERMINALES =====
 let curTermView='general';
 function termView(v,btn){curTermView=v;document.querySelectorAll('#sec-term .sub-tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');rTerm()}
-function rTerm(){
-    const data=LD();
-    if(!data.length){document.getElementById('termContent').innerHTML='<div class="empty"><div class="ei">🎯</div><p>Sin datos</p></div>';return}
-    renderLsBanner('lsBannerTerm');
-    if(curTermView==='general')rTermGeneral(data);
-    else if(curTermView==='best')rTermBest(data);
-    else rTermTrans(data,curTermView);
-}
-function rTermGeneral(data){
-    document.getElementById('termTitle').textContent='🎯 Frecuencia por Terminal';
-    const ls=getLastSorteoMes();const lsTerm=ls?getTerm(ls.number):null;
-    const termFreq={};for(let i=0;i<=9;i++)termFreq[i]=0;
-    data.forEach(d=>termFreq[getTerm(d.number)]++);
-    const sorted=Object.entries(termFreq).sort((a,b)=>b[1]-a[1]);const max=sorted[0][1];
-    let html='';
-    if(ls)html+=`<div class="fxs td mb">📌 Último mes: <span class="tg fw">${ls.number}</span> | Term: <span class="tg fw">T${lsTerm}</span></div>`;
-    html+=sorted.map(([t,c])=>{const isLS=parseInt(t)===lsTerm;return`<div class="fb"><div class="n" style="${isLS?'color:var(--gold2)':''}">T${t}${isLS?' 📌':''}</div><div class="track"><div class="fill ${isLS?'fill-hot':'fill-blue'}" style="width:${max>0?(c/max*100):0}%"><span>${c}</span></div></div><div class="c">${c}x</div></div>`}).join('');
-    document.getElementById('termContent').innerHTML=html;
-}
-function rTermTrans(data,type){
-    const labels={dd:'☀️→☀️ Mediodía-Mediodía',nn:'🌙→🌙 Noche-Noche',dn:'☀️→🌙 Mediodía-Noche',nd:'🌙→☀️ Noche-Mediodía'};
-    document.getElementById('termTitle').textContent=`🎯 Terminales: ${labels[type]}`;
-    const ls=getLastSorteoMes();const lsTerm=ls?getTerm(ls.number):null;
-    const pairs=getTransitions(data,type);
-    if(!pairs.length){document.getElementById('termContent').innerHTML='<div class="empty"><p>Sin transiciones</p></div>';return}
-    const freq=getTermTransFreq(pairs);
-    const sorted=Object.entries(freq).sort((a,b)=>b[1]-a[1]).filter(([,c])=>c>0);
-    const max=sorted[0]?sorted[0][1]:1;
-    let html='';
-    if(ls&&lsTerm!==null){
-        const fromLS=Object.entries(freq).filter(([k])=>k.startsWith(`${lsTerm}->`)).sort((a,b)=>b[1]-a[1]).filter(([,c])=>c>0).slice(0,5);
-        if(fromLS.length){
-            html+=`<div class="rec-box"><h4>🎯 Desde T${lsTerm} (último: ${ls.number}) → sigue:</h4><div class="rec-nums">`;
-            fromLS.forEach(([k,c])=>{const[,t]=k.split('->');html+=`<div class="rec-item"><span>T${t}</span> (${c}x)</div>`});
-            html+='</div></div>';
-        }
-    }
-    html+=`<p class="fxs td mb">${pairs.length} transiciones</p>`;
-    html+=sorted.slice(0,15).map(([k,c])=>{const[f,t]=k.split('->');return`<div class="fb"><div class="n" style="width:50px;font-size:0.75rem">T${f}→T${t}</div><div class="track"><div class="fill fill-blue" style="width:${(c/max*100)}%"><span>${c}</span></div></div><div class="c">${c}x</div></div>`}).join('');
-    document.getElementById('termContent').innerHTML=html;
-}
-function rTermBest(data){
-    document.getElementById('termTitle').textContent='🏆 Mejores Terminales a Jugar';
-    const ls=getLastSorteoMes();
-    const sorted=[...data].sort((a,b)=>b.drawDate.localeCompare(a.drawDate));
-    const recent=sorted.slice(0,Math.min(40,sorted.length));
-    const gT={},rT2={};for(let i=0;i<=9;i++){gT[i]=0;rT2[i]=0}
-    data.forEach(d=>gT[getTerm(d.number)]++);recent.forEach(d=>rT2[getTerm(d.number)]++);
-    const scores=[];
-    for(let i=0;i<=9;i++){const gPct=gT[i]/data.length,rPct=rT2[i]/recent.length;const momentum=rPct/Math.max(gPct,0.001);scores.push({term:i,global:gT[i],recent:rT2[i],momentum:momentum.toFixed(2)})}
-    scores.sort((a,b)=>b.momentum-a.momentum);
-    let html='';
-    if(ls)html+=`<div class="fxs td mb">📌 Último sorteo del mes: <span class="tg fw">${ls.number}</span> — Term: <span class="tg fw">T${getTerm(ls.number)}</span></div>`;
-    html+=scores.map((s,idx)=>{const isLS=ls&&s.term===getTerm(ls.number);return`<div class="pull-box" style="${isLS?'border-color:var(--gold);':''}"><div style="font-size:1.5rem;font-weight:900;color:${idx<3?'var(--gold)':'var(--dim)'}">#${idx+1}</div><div><div class="fw tg" style="font-size:1.2rem">T${s.term}${isLS?' 📌':''}</div><div class="fxs td">Global: ${s.global}x | Reciente: ${s.recent}x | Momentum: ${s.momentum}x</div><div class="vib-meter" style="width:100px"><div class="vib-fill ${s.momentum>1.2?'vib-high':s.momentum>0.8?'vib-med':'vib-low'}" style="width:${Math.min(100,s.momentum*50)}%"></div></div></div></div>`}).join('');
-    document.getElementById('termContent').innerHTML=html;
-}
+function rTerm(){const data=LD();if(!data.length){document.getElementById('termContent').innerHTML='<div class="empty"><div class="ei">🎯</div><p>Sin datos</p></div>';return}renderLsBanner('lsBannerTerm');if(curTermView==='general')rTermGen(data);else if(curTermView==='best')rTermBest(data);else rTermTrans(data,curTermView)}
+function rTermGen(data){document.getElementById('termTitle').textContent='🎯 Frecuencia por Terminal';const ls=getLastSorteoMes();const lsT=ls?getTerm(ls.number):null;const tF={};for(let i=0;i<=9;i++)tF[i]=0;data.forEach(d=>tF[getTerm(d.number)]++);const sorted=Object.entries(tF).sort((a,b)=>b[1]-a[1]);const max=sorted[0][1];let html='';if(ls)html+=`<div class="fxs td mb">📌 Último: <span class="tg fw">${ls.number}</span> Term: <span class="tg fw">T${lsT}</span></div>`;html+=sorted.map(([t,c])=>{const isLS=parseInt(t)===lsT;return`<div class="fb"><div class="n" style="${isLS?'color:var(--gold2)':''}">T${t}${isLS?' 📌':''}</div><div class="track"><div class="fill ${isLS?'fill-hot':'fill-blue'}" style="width:${max>0?(c/max*100):0}%"><span>${c}</span></div></div><div class="c">${c}x</div></div>`}).join('');document.getElementById('termContent').innerHTML=html}
+function rTermTrans(data,type){const labels={dd:'☀️→☀️ M-M',nn:'🌙→🌙 N-N',dn:'☀️→🌙 M-N',nd:'🌙→☀️ N-M'};document.getElementById('termTitle').textContent=`🎯 Terminales: ${labels[type]}`;const ls=getLastSorteoMes();const lsT=ls?getTerm(ls.number):null;const pairs=getTransitions(data,type);if(!pairs.length){document.getElementById('termContent').innerHTML='<div class="empty"><p>Sin transiciones para este tipo</p></div>';return}const freq=getTermTransFreq(pairs);const sorted=Object.entries(freq).sort((a,b)=>b[1]-a[1]).filter(([,c])=>c>0);const max=sorted[0]?sorted[0][1]:1;let html='';if(ls&&lsT!==null){const fromLS=Object.entries(freq).filter(([k])=>k.startsWith(`${lsT}->`)).sort((a,b)=>b[1]-a[1]).filter(([,c])=>c>0).slice(0,5);if(fromLS.length){html+=`<div class="rec-box"><h4>🎯 Desde T${lsT} (último: ${ls.number}) → sigue:</h4><div class="rec-nums">`;fromLS.forEach(([k,c])=>{const[,t]=k.split('->');html+=`<div class="rec-item"><span>T${t}</span>(${c}x)</div>`});html+='</div></div>'}}html+=`<p class="fxs td mb">${pairs.length} transiciones</p>`;html+=sorted.slice(0,15).map(([k,c])=>{const[f,t]=k.split('->');return`<div class="fb"><div class="n" style="width:50px;font-size:0.75rem">T${f}→T${t}</div><div class="track"><div class="fill fill-blue" style="width:${(c/max*100)}%"><span>${c}</span></div></div><div class="c">${c}x</div></div>`}).join('');document.getElementById('termContent').innerHTML=html}
+function rTermBest(data){document.getElementById('termTitle').textContent='🏆 Mejores Terminales';const ls=getLastSorteoMes();const sorted=[...data].sort((a,b)=>b.drawDate.localeCompare(a.drawDate));const recent=sorted.slice(0,Math.min(40,sorted.length));const gT={},rT={};for(let i=0;i<=9;i++){gT[i]=0;rT[i]=0}data.forEach(d=>gT[getTerm(d.number)]++);recent.forEach(d=>rT[getTerm(d.number)]++);const scores=[];for(let i=0;i<=9;i++){const gP=gT[i]/data.length,rP=rT[i]/recent.length;const mom=rP/Math.max(gP,0.001);scores.push({term:i,global:gT[i],recent:rT[i],momentum:mom.toFixed(2)})}scores.sort((a,b)=>b.momentum-a.momentum);let html='';if(ls)html+=`<div class="fxs td mb">📌 Último: <span class="tg fw">${ls.number}</span> Term: <span class="tg fw">T${getTerm(ls.number)}</span></div>`;html+=scores.map((s,idx)=>{const isLS=ls&&s.term===getTerm(ls.number);return`<div class="pull-box" style="${isLS?'border-color:var(--gold);':''}"><div style="font-size:1.5rem;font-weight:900;color:${idx<3?'var(--gold)':'var(--dim)'}">#${idx+1}</div><div><div class="fw tg" style="font-size:1.2rem">T${s.term}${isLS?' 📌':''}</div><div class="fxs td">Global:${s.global}x | Reciente:${s.recent}x | Mom:${s.momentum}x</div><div class="vib-meter" style="width:100px"><div class="vib-fill ${s.momentum>1.2?'vib-high':s.momentum>0.8?'vib-med':'vib-low'}" style="width:${Math.min(100,s.momentum*50)}%"></div></div></div></div>`}).join('');document.getElementById('termContent').innerHTML=html}
 
 // ===== MATRIX =====
 let curMatView='dec';
 function matView(v,btn){curMatView=v;document.querySelectorAll('#sec-matrix .sub-tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');rMat()}
-function rMat(){
-    const data=LD();
-    if(!data.length){document.getElementById('matContent').innerHTML='<div class="empty"><div class="ei">🧮</div><p>Sin datos</p></div>';return}
-    renderLsBanner('lsBannerMatrix');
-    if(curMatView==='dec')rMatDec(data);
-    else if(curMatView==='term')rMatTerm(data);
-    else rMatTrans(data);
-}
-function rMatDec(data){
-    document.getElementById('matTitle').textContent='🧮 Matrix Decenas (Mayor a Menor)';
-    const ls=getLastSorteoMes();const lsDec=ls?getDec(ls.number):null;
-    const decFreq={};for(let i=0;i<=9;i++)decFreq[i]=0;
-    data.forEach(d=>decFreq[getDec(d.number)]++);
-    const sorted=Object.entries(decFreq).sort((a,b)=>b[1]-a[1]);
-    let html='<div style="overflow-x:auto"><div class="matrix"><div class="matrix-row"><div class="matrix-cell matrix-header">DEC</div><div class="matrix-cell matrix-header">FREQ</div><div class="matrix-cell matrix-header">%</div><div class="matrix-cell matrix-header">NIVEL</div></div>';
-    sorted.forEach(([d,c],idx)=>{const pct=((c/data.length)*100).toFixed(1);let cls='normal';if(idx===0)cls='hot-1';else if(idx<=2)cls='hot-2';else if(idx<=4)cls='hot-3';else if(idx>=8)cls='cold-1';const isLS=parseInt(d)===lsDec;html+=`<div class="matrix-row"><div class="matrix-cell ${cls}" style="font-weight:800${isLS?';color:var(--gold2)':''}">${d}0s${isLS?' 📌':''}</div><div class="matrix-cell ${cls}">${c}x</div><div class="matrix-cell ${cls}">${pct}%</div><div class="matrix-cell ${cls}">${idx<3?'🔥':idx<7?'➡️':'❄️'}</div></div>`;});
-    html+='</div></div>';document.getElementById('matContent').innerHTML=html;
-}
-function rMatTerm(data){
-    document.getElementById('matTitle').textContent='🧮 Matrix Terminales (Mayor a Menor)';
-    const ls=getLastSorteoMes();const lsTerm=ls?getTerm(ls.number):null;
-    const termFreq={};for(let i=0;i<=9;i++)termFreq[i]=0;
-    data.forEach(d=>termFreq[getTerm(d.number)]++);
-    const sorted=Object.entries(termFreq).sort((a,b)=>b[1]-a[1]);
-    let html='<div style="overflow-x:auto"><div class="matrix"><div class="matrix-row"><div class="matrix-cell matrix-header">TERM</div><div class="matrix-cell matrix-header">FREQ</div><div class="matrix-cell matrix-header">%</div><div class="matrix-cell matrix-header">NIVEL</div></div>';
-    sorted.forEach(([t,c],idx)=>{const pct=((c/data.length)*100).toFixed(1);let cls='normal';if(idx===0)cls='hot-1';else if(idx<=2)cls='hot-2';else if(idx<=4)cls='hot-3';else if(idx>=8)cls='cold-1';const isLS=parseInt(t)===lsTerm;html+=`<div class="matrix-row"><div class="matrix-cell ${cls}" style="font-weight:800${isLS?';color:var(--gold2)':''}">${t}${isLS?' 📌':''}</div><div class="matrix-cell ${cls}">${c}x</div><div class="matrix-cell ${cls}">${pct}%</div><div class="matrix-cell ${cls}">${idx<3?'🔥':idx<7?'➡️':'❄️'}</div></div>`;});
-    html+='</div></div>';document.getElementById('matContent').innerHTML=html;
-}
-function rMatTrans(data){
-    document.getElementById('matTitle').textContent='🧮 Matrix Transiciones Decena→Decena';
-    const pairs=getTransitions(data,'all');const freq=getDecTransFreq(pairs);
-    let html='<div style="overflow-x:auto"><div class="trans-grid"><div class="trans-cell trans-header">→</div>';
-    for(let j=0;j<=9;j++)html+=`<div class="trans-cell trans-header">${j}0s</div>`;
-    for(let i=0;i<=9;i++){html+=`<div class="trans-cell trans-header">${i}0s</div>`;const rowMax=Math.max(...Array.from({length:10},(_,j)=>freq[`${i}->${j}`]));for(let j=0;j<=9;j++){const c=freq[`${i}->${j}`];let bg='';if(c===rowMax&&c>0)bg='background:rgba(255,71,87,0.3);color:var(--red);font-weight:800';else if(c>rowMax*0.7)bg='background:rgba(255,140,0,0.2);color:var(--orange)';else if(c>0)bg='color:var(--text)';else bg='color:var(--border)';html+=`<div class="trans-cell" style="${bg}">${c||'·'}</div>`}}
-    html+='</div></div><div class="fxs td mt">🔴 Mayor frecuencia por fila</div>';document.getElementById('matContent').innerHTML=html;
-}
+function rMat(){const data=LD();if(!data.length){document.getElementById('matContent').innerHTML='<div class="empty"><div class="ei">🧮</div><p>Sin datos</p></div>';return}renderLsBanner('lsBannerMatrix');if(curMatView==='dec')rMatDec(data);else if(curMatView==='term')rMatTerm(data);else rMatTrans(data)}
+function rMatDec(data){document.getElementById('matTitle').textContent='🧮 Matrix Decenas';const ls=getLastSorteoMes();const lsD=ls?getDec(ls.number):null;const dF={};for(let i=0;i<=9;i++)dF[i]=0;data.forEach(d=>dF[getDec(d.number)]++);const sorted=Object.entries(dF).sort((a,b)=>b[1]-a[1]);let html='<div style="overflow-x:auto"><div class="matrix"><div class="matrix-row"><div class="matrix-cell matrix-header">DEC</div><div class="matrix-cell matrix-header">FREQ</div><div class="matrix-cell matrix-header">%</div><div class="matrix-cell matrix-header">🔥</div></div>';sorted.forEach(([d,c],idx)=>{const pct=((c/data.length)*100).toFixed(1);let cls='normal';if(idx===0)cls='hot-1';else if(idx<=2)cls='hot-2';else if(idx<=4)cls='hot-3';else if(idx>=8)cls='cold-1';const isLS=parseInt(d)===lsD;html+=`<div class="matrix-row"><div class="matrix-cell ${cls}" style="font-weight:800${isLS?';color:var(--gold2)':''}">${d}0s${isLS?' 📌':''}</div><div class="matrix-cell ${cls}">${c}x</div><div class="matrix-cell ${cls}">${pct}%</div><div class="matrix-cell ${cls}">${idx<3?'🔥':idx<7?'➡️':'❄️'}</div></div>`});html+='</div></div>';document.getElementById('matContent').innerHTML=html}
+function rMatTerm(data){document.getElementById('matTitle').textContent='🧮 Matrix Terminales';const ls=getLastSorteoMes();const lsT=ls?getTerm(ls.number):null;const tF={};for(let i=0;i<=9;i++)tF[i]=0;data.forEach(d=>tF[getTerm(d.number)]++);const sorted=Object.entries(tF).sort((a,b)=>b[1]-a[1]);let html='<div style="overflow-x:auto"><div class="matrix"><div class="matrix-row"><div class="matrix-cell matrix-header">TERM</div><div class="matrix-cell matrix-header">FREQ</div><div class="matrix-cell matrix-header">%</div><div class="matrix-cell matrix-header">🔥</div></div>';sorted.forEach(([t,c],idx)=>{const pct=((c/data.length)*100).toFixed(1);let cls='normal';if(idx===0)cls='hot-1';else if(idx<=2)cls='hot-2';else if(idx<=4)cls='hot-3';else if(idx>=8)cls='cold-1';const isLS=parseInt(t)===lsT;html+=`<div class="matrix-row"><div class="matrix-cell ${cls}" style="font-weight:800${isLS?';color:var(--gold2)':''}">T${t}${isLS?' 📌':''}</div><div class="matrix-cell ${cls}">${c}x</div><div class="matrix-cell ${cls}">${pct}%</div><div class="matrix-cell ${cls}">${idx<3?'🔥':idx<7?'➡️':'❄️'}</div></div>`});html+='</div></div>';document.getElementById('matContent').innerHTML=html}
+function rMatTrans(data){document.getElementById('matTitle').textContent='🧮 Transiciones Dec→Dec';const pairs=getTransitions(data,'all');const freq=getDecTransFreq(pairs);let html='<div style="overflow-x:auto"><div class="trans-grid"><div class="trans-cell trans-header">→</div>';for(let j=0;j<=9;j++)html+=`<div class="trans-cell trans-header">${j}0s</div>`;for(let i=0;i<=9;i++){html+=`<div class="trans-cell trans-header">${i}0s</div>`;const rM=Math.max(...Array.from({length:10},(_,j)=>freq[`${i}->${j}`]));for(let j=0;j<=9;j++){const c=freq[`${i}->${j}`];let bg='';if(c===rM&&c>0)bg='background:rgba(255,71,87,0.3);color:var(--red);font-weight:800';else if(c>rM*0.7)bg='background:rgba(255,140,0,0.2);color:var(--orange)';else if(c>0)bg='color:var(--text)';else bg='color:var(--border)';html+=`<div class="trans-cell" style="${bg}">${c||'·'}</div>`}}html+='</div></div>';document.getElementById('matContent').innerHTML=html}
 
 // ===== VIBRACIONES =====
 let curVibView='nums';
 function vibView(v,btn){curVibView=v;document.querySelectorAll('#sec-vib .sub-tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');rVib()}
-function rVib(){
-    const data=LD();
-    if(!data.length){document.getElementById('vibContent').innerHTML='<div class="empty"><div class="ei">📡</div><p>Sin datos</p></div>';return}
-    renderLsBanner('lsBannerVib');
-    if(curVibView==='nums')rVibNums(data);
-    else if(curVibView==='decs')rVibDecs(data);
-    else rVibTerms(data);
-}
-function rVibNums(data){
-    document.getElementById('vibTitle').textContent='📡 Vibración por Número';
-    const ls=getLastSorteoMes();const next=getNextTurno();
-    const results=[];for(let i=0;i<=99;i++){const n=String(i).padStart(2,'0');results.push({num:n,vib:calcVibration(data,n,20)})}
-    results.sort((a,b)=>b.vib.level-a.vib.level);
-    let html='';
-    if(ls){
-        const lsVib=results.find(r=>r.num===ls.number);
-        html+=`<div class="rec-box"><h4>🎯 Próximo: ${next.label} | Último: ${ls.number} (${lsVib?lsVib.vib.label:''})</h4>`;
-        const topSameShift=results.filter(r=>r.vib.level>60).slice(0,6);
-        if(topSameShift.length){html+='<div class="fxs td mb">Con alta vibración ahora:</div><div class="rec-nums">';topSameShift.forEach(r=>{html+=`<div class="rec-item"><span>${r.num}</span> (${r.vib.level}%)</div>`});html+='</div>'}
-        html+='</div>';
-    }
-    html+=`<p class="fxs td mb">Mayor barra = más activo recientemente</p>${results.slice(0,20).map(r=>`<div class="fb"><div class="n">${r.num}</div><div class="track"><div class="vib-fill ${r.vib.cls}" style="width:${r.vib.level}%;height:100%;border-radius:9px"><span style="font-size:0.6rem;color:var(--bg);font-weight:700;padding-left:4px">${r.vib.label}</span></div></div></div>`).join('')}`;
-    html+=`<div class="divider"></div><div class="card-t fxs mb">💤 Menos Vibración</div>${results.slice(-10).reverse().map(r=>`<div class="fb"><div class="n">${r.num}</div><div class="track"><div class="vib-fill ${r.vib.cls}" style="width:${Math.max(r.vib.level,3)}%;height:100%;border-radius:9px"><span style="font-size:0.6rem;color:var(--bg);font-weight:700;padding-left:4px">${r.vib.label}</span></div></div></div>`).join('')}`;
-    document.getElementById('vibContent').innerHTML=html;
-}
-function rVibDecs(data){
-    document.getElementById('vibTitle').textContent='📡 Vibración por Decena';
-    const ls=getLastSorteoMes();const next=getNextTurno();
-    const sorted=[...data].sort((a,b)=>b.drawDate.localeCompare(a.drawDate));
-    const recent=sorted.slice(0,Math.min(20,sorted.length));
-    const gDec={},rDec={};for(let i=0;i<=9;i++){gDec[i]=0;rDec[i]=0}
-    data.forEach(d=>gDec[getDec(d.number)]++);recent.forEach(d=>rDec[getDec(d.number)]++);
-    const results=[];
-    for(let i=0;i<=9;i++){const gPct=gDec[i]/data.length,rPct=rDec[i]/recent.length;const ratio=rPct/Math.max(gPct,0.001);const level=Math.min(100,Math.round(ratio*50));let cls=ratio>1.2?'vib-high':ratio>0.8?'vib-med':'vib-low';let label=ratio>1.5?'🔥 MUY ALTA':ratio>1?'⚡ ALTA':ratio>0.5?'➡️ MEDIA':'💤 BAJA';results.push({dec:i,level,cls,label})}
-    results.sort((a,b)=>b.level-a.level);
-    let html='';
-    if(ls){
-        const lsDec=getDec(ls.number);
-        html+=`<div class="rec-box"><h4>🎯 Próximo: ${next.label} | Último dec: ${lsDec}0s</h4>`;
-        html+='<div class="fxs td mb">Decenas con mayor vibración:</div><div class="rec-nums">';
-        results.slice(0,5).forEach(r=>{const isLS=r.dec===lsDec;html+=`<div class="rec-item" style="${isLS?'border-color:var(--gold);':''}"><span>${r.dec}0s${isLS?' 📌':''}</span> (${r.level}%)</div>`});
-        html+='</div></div>';
-    }
-    html+=results.map(r=>{const isLS=ls&&r.dec===getDec(ls.number);return`<div class="fb"><div class="n" style="${isLS?'color:var(--gold2)':''}">${r.dec}0s${isLS?' 📌':''}</div><div class="track"><div class="vib-fill ${r.cls}" style="width:${r.level}%;height:100%;border-radius:9px"><span style="font-size:0.6rem;color:var(--bg);font-weight:700;padding-left:4px">${r.label}</span></div></div></div>`}).join('');
-    document.getElementById('vibContent').innerHTML=html;
-}
-function rVibTerms(data){
-    document.getElementById('vibTitle').textContent='📡 Vibración por Terminal';
-    const ls=getLastSorteoMes();const next=getNextTurno();
-    const sorted=[...data].sort((a,b)=>b.drawDate.localeCompare(a.drawDate));
-    const recent=sorted.slice(0,Math.min(20,sorted.length));
-    const gT={},rT={};for(let i=0;i<=9;i++){gT[i]=0;rT[i]=0}
-    data.forEach(d=>gT[getTerm(d.number)]++);recent.forEach(d=>rT[getTerm(d.number)]++);
-    const results=[];
-    for(let i=0;i<=9;i++){const gPct=gT[i]/data.length,rPct=rT[i]/recent.length;const ratio=rPct/Math.max(gPct,0.001);const level=Math.min(100,Math.round(ratio*50));let cls=ratio>1.2?'vib-high':ratio>0.8?'vib-med':'vib-low';let label=ratio>1.5?'🔥 MUY ALTA':ratio>1?'⚡ ALTA':ratio>0.5?'➡️ MEDIA':'💤 BAJA';results.push({term:i,level,cls,label})}
-    results.sort((a,b)=>b.level-a.level);
-    let html='';
-    if(ls){
-        const lsTerm=getTerm(ls.number);
-        html+=`<div class="rec-box"><h4>🎯 Próximo: ${next.label} | Último term: T${lsTerm}</h4>`;
-        html+='<div class="fxs td mb">Terminales con mayor vibración:</div><div class="rec-nums">';
-        results.slice(0,5).forEach(r=>{const isLS=r.term===lsTerm;html+=`<div class="rec-item" style="${isLS?'border-color:var(--gold);':''}"><span>T${r.term}${isLS?' 📌':''}</span> (${r.level}%)</div>`});
-        html+='</div></div>';
-    }
-    html+=results.map(r=>{const isLS=ls&&r.term===getTerm(ls.number);return`<div class="fb"><div class="n" style="${isLS?'color:var(--gold2)':''}">T${r.term}${isLS?' 📌':''}</div><div class="track"><div class="vib-fill ${r.cls}" style="width:${r.level}%;height:100%;border-radius:9px"><span style="font-size:0.6rem;color:var(--bg);font-weight:700;padding-left:4px">${r.label}</span></div></div></div>`}).join('');
-    document.getElementById('vibContent').innerHTML=html;
-}
+function rVib(){const data=LD();if(!data.length){document.getElementById('vibContent').innerHTML='<div class="empty"><div class="ei">📡</div><p>Sin datos</p></div>';return}renderLsBanner('lsBannerVib');if(curVibView==='nums')rVibNums(data);else if(curVibView==='decs')rVibDecs(data);else rVibTerms(data)}
+function rVibNums(data){document.getElementById('vibTitle').textContent='📡 Vibración por Número';const ls=getLastSorteoMes();const next=getNextTurno();const results=[];for(let i=0;i<=99;i++){const n=p2(i);results.push({num:n,vib:calcVibration(data,n,20)})}results.sort((a,b)=>b.vib.level-a.vib.level);let html='';if(ls){html+=`<div class="rec-box"><h4>🎯 Próximo: ${next.label} | Último: ${ls.number}</h4><div class="fxs td mb">Alta vibración:</div><div class="rec-nums">`;results.filter(r=>r.vib.level>60).slice(0,6).forEach(r=>html+=`<div class="rec-item"><span>${r.num}</span>(${r.vib.level}%)</div>`);html+='</div></div>'}html+=results.slice(0,20).map(r=>`<div class="fb"><div class="n">${r.num}</div><div class="track"><div class="vib-fill ${r.vib.cls}" style="width:${r.vib.level}%;height:100%;border-radius:9px"><span style="font-size:0.6rem;color:var(--bg);font-weight:700;padding-left:4px">${r.vib.label}</span></div></div></div>`).join('');html+=`<div class="divider"></div><div class="card-t fxs mb">💤 Menos Vibración</div>`;html+=results.slice(-10).reverse().map(r=>`<div class="fb"><div class="n">${r.num}</div><div class="track"><div class="vib-fill ${r.vib.cls}" style="width:${Math.max(r.vib.level,3)}%;height:100%;border-radius:9px"><span style="font-size:0.6rem;color:var(--bg);font-weight:700;padding-left:4px">${r.vib.label}</span></div></div></div>`).join('');document.getElementById('vibContent').innerHTML=html}
+function rVibDecs(data){document.getElementById('vibTitle').textContent='📡 Vibración por Decena';const ls=getLastSorteoMes();const next=getNextTurno();const sorted=[...data].sort((a,b)=>b.drawDate.localeCompare(a.drawDate));const recent=sorted.slice(0,Math.min(20,sorted.length));const gD={},rD={};for(let i=0;i<=9;i++){gD[i]=0;rD[i]=0}data.forEach(d=>gD[getDec(d.number)]++);recent.forEach(d=>rD[getDec(d.number)]++);const results=[];for(let i=0;i<=9;i++){const gP=gD[i]/data.length,rP=rD[i]/recent.length;const ratio=rP/Math.max(gP,0.001);const level=Math.min(100,Math.round(ratio*50));let cls=ratio>1.2?'vib-high':ratio>0.8?'vib-med':'vib-low';let label=ratio>1.5?'🔥 MUY ALTA':ratio>1?'⚡ ALTA':ratio>0.5?'➡️ MEDIA':'💤 BAJA';results.push({dec:i,level,cls,label})}results.sort((a,b)=>b.level-a.level);let html='';if(ls){const lsD=getDec(ls.number);html+=`<div class="rec-box"><h4>🎯 Próximo: ${next.label} | Dec: ${lsD}0s</h4><div class="rec-nums">`;results.slice(0,5).forEach(r=>{const isLS=r.dec===lsD;html+=`<div class="rec-item" style="${isLS?'border-color:var(--gold);':''}"><span>${r.dec}0s${isLS?' 📌':''}</span>(${r.level}%)</div>`});html+='</div></div>'}html+=results.map(r=>{const isLS=ls&&r.dec===getDec(ls.number);return`<div class="fb"><div class="n" style="${isLS?'color:var(--gold2)':''}">${r.dec}0s${isLS?' 📌':''}</div><div class="track"><div class="vib-fill ${r.cls}" style="width:${r.level}%;height:100%;border-radius:9px"><span style="font-size:0.6rem;color:var(--bg);font-weight:700;padding-left:4px">${r.label}</span></div></div></div>`}).join('');document.getElementById('vibContent').innerHTML=html}
+function rVibTerms(data){document.getElementById('vibTitle').textContent='📡 Vibración por Terminal';const ls=getLastSorteoMes();const next=getNextTurno();const sorted=[...data].sort((a,b)=>b.drawDate.localeCompare(a.drawDate));const recent=sorted.slice(0,Math.min(20,sorted.length));const gT={},rT={};for(let i=0;i<=9;i++){gT[i]=0;rT[i]=0}data.forEach(d=>gT[getTerm(d.number)]++);recent.forEach(d=>rT[getTerm(d.number)]++);const results=[];for(let i=0;i<=9;i++){const gP=gT[i]/data.length,rP=rT[i]/recent.length;const ratio=rP/Math.max(gP,0.001);const level=Math.min(100,Math.round(ratio*50));let cls=ratio>1.2?'vib-high':ratio>0.8?'vib-med':'vib-low';let label=ratio>1.5?'🔥 MUY ALTA':ratio>1?'⚡ ALTA':ratio>0.5?'➡️ MEDIA':'💤 BAJA';results.push({term:i,level,cls,label})}results.sort((a,b)=>b.level-a.level);let html='';if(ls){const lsT=getTerm(ls.number);html+=`<div class="rec-box"><h4>🎯 Próximo: ${next.label} | Term: T${lsT}</h4><div class="rec-nums">`;results.slice(0,5).forEach(r=>{const isLS=r.term===lsT;html+=`<div class="rec-item" style="${isLS?'border-color:var(--gold);':''}"><span>T${r.term}${isLS?' 📌':''}</span>(${r.level}%)</div>`});html+='</div></div>'}html+=results.map(r=>{const isLS=ls&&r.term===getTerm(ls.number);return`<div class="fb"><div class="n" style="${isLS?'color:var(--gold2)':''}">T${r.term}${isLS?' 📌':''}</div><div class="track"><div class="vib-fill ${r.cls}" style="width:${r.level}%;height:100%;border-radius:9px"><span style="font-size:0.6rem;color:var(--bg);font-weight:700;padding-left:4px">${r.label}</span></div></div></div>`}).join('');document.getElementById('vibContent').innerHTML=html}
 
 // ===== CONEXIONES =====
 let curPullView='nums';
 function pullView(v,btn){curPullView=v;document.querySelectorAll('#sec-pull .sub-tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');rPull()}
-function rPull(){
-    const data=LD();
-    if(!data.length){document.getElementById('pullContent').innerHTML='<div class="empty"><div class="ei">🧲</div><p>Sin datos</p></div>';return}
-    if(curPullView==='nums')rPullNums(data);
-    else if(curPullView==='decs')rPullDecs(data);
-    else rPullTerms(data);
-}
-function rPullNums(data){
-    document.getElementById('pullTitle').textContent='🧲 Qué Número Hala a Otro';
-    const conns=getPullConnections(data,25);
-    const sorted=[...data].sort((a,b)=>b.drawDate.localeCompare(a.drawDate));
-    const lastNum=sorted[0]?.number;
-    let html='';
-    if(lastNum){const allFromLast=getPullConnections(data,1000).filter(c=>c.from===lastNum).slice(0,5);if(allFromLast.length){html+=`<div class="card-t fxs mb">🎯 Después del ${lastNum} suele salir:</div>`;html+=allFromLast.map(c=>`<div class="pull-box"><div class="pull-from">${c.from}</div><div class="pull-arrow">→</div><div class="pull-to">${c.to}</div><div class="pull-info"></div><div class="pull-count">${c.count}x</div></div>`).join('');html+='<div class="divider"></div>'}}
-    html+=`<div class="card-t fxs mb">🔝 Conexiones más fuertes</div>`;
-    html+=conns.map(c=>`<div class="pull-box"><div class="pull-from">${c.from}</div><div class="pull-arrow">→</div><div class="pull-to">${c.to}</div><div class="pull-info"></div><div class="pull-count">${c.count}x</div></div>`).join('');
-    document.getElementById('pullContent').innerHTML=html;
-}
-function rPullDecs(data){
-    document.getElementById('pullTitle').textContent='🧲 Conexiones entre Decenas';
-    const pairs=getTransitions(data,'all');const freq=getDecTransFreq(pairs);
-    const sorted=Object.entries(freq).sort((a,b)=>b[1]-a[1]).filter(([,c])=>c>0).slice(0,15);
-    const lastNum=([...data].sort((a,b)=>b.drawDate.localeCompare(a.drawDate))[0])?.number;
-    const lastDec=lastNum?getDec(lastNum):null;
-    let html='';
-    if(lastDec!==null){const fromLast=Object.entries(freq).filter(([k])=>k.startsWith(`${lastDec}->`)).sort((a,b)=>b[1]-a[1]).filter(([,c])=>c>0).slice(0,5);if(fromLast.length){html+=`<div class="card-t fxs mb">🎯 Después de decena ${lastDec}0s va:</div>`;html+=fromLast.map(([k,c])=>{const[,t]=k.split('->');return`<div class="pull-box"><div class="pull-from">${lastDec}0s</div><div class="pull-arrow">→</div><div class="pull-to">${t}0s</div><div class="pull-info"></div><div class="pull-count">${c}x</div></div>`}).join('');html+='<div class="divider"></div>'}}
-    html+=`<div class="card-t fxs mb">🔝 Conexiones más fuertes</div>`;
-    html+=sorted.map(([k,c])=>{const[f,t]=k.split('->');return`<div class="pull-box"><div class="pull-from">${f}0s</div><div class="pull-arrow">→</div><div class="pull-to">${t}0s</div><div class="pull-info"></div><div class="pull-count">${c}x</div></div>`}).join('');
-    document.getElementById('pullContent').innerHTML=html;
-}
-function rPullTerms(data){
-    document.getElementById('pullTitle').textContent='🧲 Conexiones entre Terminales';
-    const pairs=getTransitions(data,'all');const freq=getTermTransFreq(pairs);
-    const sorted=Object.entries(freq).sort((a,b)=>b[1]-a[1]).filter(([,c])=>c>0).slice(0,15);
-    const lastNum=([...data].sort((a,b)=>b.drawDate.localeCompare(a.drawDate))[0])?.number;
-    const lastTerm=lastNum?getTerm(lastNum):null;
-    let html='';
-    if(lastTerm!==null){const fromLast=Object.entries(freq).filter(([k])=>k.startsWith(`${lastTerm}->`)).sort((a,b)=>b[1]-a[1]).filter(([,c])=>c>0).slice(0,5);if(fromLast.length){html+=`<div class="card-t fxs mb">🎯 Después de T${lastTerm} va:</div>`;html+=fromLast.map(([k,c])=>{const[,t]=k.split('->');return`<div class="pull-box"><div class="pull-from">T${lastTerm}</div><div class="pull-arrow">→</div><div class="pull-to">T${t}</div><div class="pull-info"></div><div class="pull-count">${c}x</div></div>`}).join('');html+='<div class="divider"></div>'}}
-    html+=`<div class="card-t fxs mb">🔝 Conexiones más fuertes</div>`;
-    html+=sorted.map(([k,c])=>{const[f,t]=k.split('->');return`<div class="pull-box"><div class="pull-from">T${f}</div><div class="pull-arrow">→</div><div class="pull-to">T${t}</div><div class="pull-info"></div><div class="pull-count">${c}x</div></div>`}).join('');
-    document.getElementById('pullContent').innerHTML=html;
-}
+function rPull(){const data=LD();if(!data.length){document.getElementById('pullContent').innerHTML='<div class="empty"><div class="ei">🧲</div><p>Sin datos</p></div>';return}if(curPullView==='nums')rPullNums(data);else if(curPullView==='decs')rPullDecs(data);else rPullTerms(data)}
+function rPullNums(data){document.getElementById('pullTitle').textContent='🧲 Qué Número Hala a Otro';const conns=getPullConnections(data,25);const sorted=[...data].sort((a,b)=>b.drawDate.localeCompare(a.drawDate));const lastNum=sorted[0]?.number;let html='';if(lastNum){const fl=getPullConnections(data,1000).filter(c=>c.from===lastNum).slice(0,5);if(fl.length){html+=`<div class="card-t fxs mb">🎯 Después del ${lastNum}:</div>`;html+=fl.map(c=>`<div class="pull-box"><div class="pull-from">${c.from}</div><div class="pull-arrow">→</div><div class="pull-to">${c.to}</div><div class="pull-info"></div><div class="pull-count">${c.count}x</div></div>`).join('');html+='<div class="divider"></div>'}}html+='<div class="card-t fxs mb">🔝 Top Conexiones</div>';html+=conns.map(c=>`<div class="pull-box"><div class="pull-from">${c.from}</div><div class="pull-arrow">→</div><div class="pull-to">${c.to}</div><div class="pull-info"></div><div class="pull-count">${c.count}x</div></div>`).join('');document.getElementById('pullContent').innerHTML=html}
+function rPullDecs(data){document.getElementById('pullTitle').textContent='🧲 Conexiones Decenas';const pairs=getTransitions(data,'all');const freq=getDecTransFreq(pairs);const sorted=Object.entries(freq).sort((a,b)=>b[1]-a[1]).filter(([,c])=>c>0).slice(0,15);const lastNum=([...data].sort((a,b)=>b.drawDate.localeCompare(a.drawDate))[0])?.number;const lD=lastNum?getDec(lastNum):null;let html='';if(lD!==null){const fl=Object.entries(freq).filter(([k])=>k.startsWith(`${lD}->`)).sort((a,b)=>b[1]-a[1]).filter(([,c])=>c>0).slice(0,5);if(fl.length){html+=`<div class="card-t fxs mb">🎯 Después de ${lD}0s:</div>`;html+=fl.map(([k,c])=>{const[,t]=k.split('->');return`<div class="pull-box"><div class="pull-from">${lD}0s</div><div class="pull-arrow">→</div><div class="pull-to">${t}0s</div><div class="pull-info"></div><div class="pull-count">${c}x</div></div>`}).join('');html+='<div class="divider"></div>'}}html+='<div class="card-t fxs mb">🔝 Top</div>';html+=sorted.map(([k,c])=>{const[f,t]=k.split('->');return`<div class="pull-box"><div class="pull-from">${f}0s</div><div class="pull-arrow">→</div><div class="pull-to">${t}0s</div><div class="pull-info"></div><div class="pull-count">${c}x</div></div>`}).join('');document.getElementById('pullContent').innerHTML=html}
+function rPullTerms(data){document.getElementById('pullTitle').textContent='🧲 Conexiones Terminales';const pairs=getTransitions(data,'all');const freq=getTermTransFreq(pairs);const sorted=Object.entries(freq).sort((a,b)=>b[1]-a[1]).filter(([,c])=>c>0).slice(0,15);const lastNum=([...data].sort((a,b)=>b.drawDate.localeCompare(a.drawDate))[0])?.number;const lT=lastNum?getTerm(lastNum):null;let html='';if(lT!==null){const fl=Object.entries(freq).filter(([k])=>k.startsWith(`${lT}->`)).sort((a,b)=>b[1]-a[1]).filter(([,c])=>c>0).slice(0,5);if(fl.length){html+=`<div class="card-t fxs mb">🎯 Después de T${lT}:</div>`;html+=fl.map(([k,c])=>{const[,t]=k.split('->');return`<div class="pull-box"><div class="pull-from">T${lT}</div><div class="pull-arrow">→</div><div class="pull-to">T${t}</div><div class="pull-info"></div><div class="pull-count">${c}x</div></div>`}).join('');html+='<div class="divider"></div>'}}html+='<div class="card-t fxs mb">🔝 Top</div>';html+=sorted.map(([k,c])=>{const[f,t]=k.split('->');return`<div class="pull-box"><div class="pull-from">T${f}</div><div class="pull-arrow">→</div><div class="pull-to">T${t}</div><div class="pull-info"></div><div class="pull-count">${c}x</div></div>`}).join('');document.getElementById('pullContent').innerHTML=html}
 
 // ===== POR AÑO =====
 let selYear=null;
-function rYear(){
-    const data=LD();
-    if(!data.length){document.getElementById('yTabs').innerHTML='<span class="td fs">Sin datos</span>';document.getElementById('yearContent').innerHTML='';document.getElementById('yearCompare').innerHTML='';return}
-    renderLsBanner('lsBannerYear');
-    const years=[...new Set(data.map(d=>d.drawDate.substring(0,4)))].sort().reverse();
-    if(!selYear||!years.includes(selYear))selYear=years[0];
-    document.getElementById('yTabs').innerHTML=years.map(y=>`<button class="ybtn ${y===selYear?'active':''}" onclick="selY('${y}')">${y}</button>`).join('');
-    rYearContent(data,selYear);
-    rYearCompare(data);
-}
+function rYear(){const data=LD();if(!data.length){document.getElementById('yTabs').innerHTML='Sin datos';document.getElementById('yearContent').innerHTML='';document.getElementById('yearCompare').innerHTML='';return}renderLsBanner('lsBannerYear');const years=[...new Set(data.map(d=>d.drawDate.substring(0,4)))].sort().reverse();if(!selYear||!years.includes(selYear))selYear=years[0];document.getElementById('yTabs').innerHTML=years.map(y=>`<button class="ybtn ${y===selYear?'active':''}" onclick="selY('${y}')">${y}</button>`).join('');rYC(data,selYear);rYComp(data)}
 function selY(y){selYear=y;rYear()}
-function rYearContent(data,year){
-    const yd=data.filter(d=>d.drawDate.startsWith(year));
-    if(!yd.length){document.getElementById('yearContent').innerHTML='<div class="empty"><p>Sin datos</p></div>';return}
-    const ls=getLastSorteoMes();
-    const freq=gFreq(yd),sf=sFreq(freq);const top5=sf.slice(0,5);const maxC=top5[0]?top5[0][1]:1;
-    const decFreq={},termFreq2={};for(let i=0;i<=9;i++){decFreq[i]=0;termFreq2[i]=0}
-    yd.forEach(d=>{decFreq[getDec(d.number)]++;termFreq2[getTerm(d.number)]++});
-    const topDec=Object.entries(decFreq).sort((a,b)=>b[1]-a[1]);
-    const topTerm=Object.entries(termFreq2).sort((a,b)=>b[1]-a[1]);
-    const months={};yd.forEach(d=>{const m=d.drawDate.substring(5,7);if(!months[m])months[m]=[];months[m].push(d)});
-    const mn=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-    const lastOfYear=[...yd].sort((a,b)=>b.drawDate.localeCompare(a.drawDate))[0];
-    const last2=[...yd].sort((a,b)=>b.drawDate.localeCompare(a.drawDate)).slice(0,2);
-    const lsDec=ls?getDec(ls.number):null,lsTerm=ls?getTerm(ls.number):null;
-    document.getElementById('yearContent').innerHTML=`
-        <div class="g2 mb"><div class="stat-box"><div class="v">${yd.length}</div><div class="l">Sorteos ${year}</div></div><div class="stat-box"><div class="v">${Object.keys(months).length}</div><div class="l">Meses</div></div><div class="stat-box"><div class="v">${yd.filter(d=>d.shift==='midday').length}</div><div class="l">Mediodías</div></div><div class="stat-box"><div class="v">${yd.filter(d=>d.shift==='evening').length}</div><div class="l">Noches</div></div></div>
-        ${lastOfYear?`<div class="card" style="background:var(--bg3);margin-bottom:12px"><div class="card-t fxs">🎯 Últimos de ${year}</div><div class="g2"><div class="ai"><div class="al">Último</div><div class="av tg" style="font-size:1.5rem">${lastOfYear.number}</div></div><div class="ai"><div class="al">Fecha</div><div class="av fxs">${fmtD(lastOfYear.drawDate)} ${lastOfYear.shift==='midday'?'☀️':'🌙'}</div></div>${last2.length>1?`<div class="ai"><div class="al">Penúltimo</div><div class="av tgr" style="font-size:1.5rem">${last2[1].number}</div></div><div class="ai"><div class="al">Transición</div><div class="av fxs">Dec: ${getDec(last2[1].number)}0s→${getDec(lastOfYear.number)}0s | T: T${getTerm(last2[1].number)}→T${getTerm(lastOfYear.number)}</div></div>`:''}</div></div>`:''}
-        <div class="card-t fxs mb">🔥 Top 5 en ${year}</div>
-        ${top5.map(([n,c])=>`<div class="fb"><div class="n">${n}</div><div class="track"><div class="fill fill-green" style="width:${maxC>0?(c/maxC*100):0}%"><span>${c}</span></div></div><div class="c">${c}x</div></div>`).join('')}
-        <div class="divider"></div>
-        <div class="g2 mb">
-            <div><div class="card-t fxs mb">🔢 Top Decenas</div>${topDec.slice(0,5).map(([d,c])=>`<div class="fxs mb">${d}0s — <span class="tg fw">${c}x</span>${lsDec!==null&&parseInt(d)===lsDec?' 📌':''}</div>`).join('')}</div>
-            <div><div class="card-t fxs mb">🎯 Top Terminales</div>${topTerm.slice(0,5).map(([t,c])=>`<div class="fxs mb">T${t} — <span class="tgr fw">${c}x</span>${lsTerm!==null&&parseInt(t)===lsTerm?' 📌':''}</div>`).join('')}</div>
-        </div>
-        <div class="divider"></div>
-        <div class="card-t fxs mb">📆 Por Mes</div>
-        <div class="g3">${Object.entries(months).sort().map(([m,arr])=>{const mTop=sFreq(gFreq(arr))[0];return`<div class="stat-box" style="padding:8px"><div style="font-size:0.7rem;color:var(--gold);font-weight:700">${mn[parseInt(m)-1]}</div><div style="font-size:1rem;font-weight:800;color:var(--green)">${arr.length}</div><div class="fxs td">Top: ${mTop?mTop[0]:'-'}</div></div>`}).join('')}</div>`;
-}
-function rYearCompare(data){
-    const container=document.getElementById('yearCompare');
-    const ls=getLastSorteoMes();
-    if(!ls){container.innerHTML='<span class="td fxs">Sin último sorteo del mes.</span>';return}
-    const next=getNextTurno();
-    const lsDec=getDec(ls.number),lsTerm=getTerm(ls.number);
-    const years=[...new Set(data.map(d=>d.drawDate.substring(0,4)))].sort().reverse();
-    const aggD={},aggT={};
-    years.forEach(year=>{
-        const yd=data.filter(d=>d.drawDate.startsWith(year));
-        for(let i=0;i<yd.length-1;i++){
-            if(getDec(yd[i].number)===lsDec){const nd=getDec(yd[i+1].number);aggD[nd]=(aggD[nd]||0)+1}
-            if(getTerm(yd[i].number)===lsTerm){const nt=getTerm(yd[i+1].number);aggT[nt]=(aggT[nt]||0)+1}
-        }
-    });
-    const bestD=Object.entries(aggD).sort((a,b)=>b[1]-a[1]).slice(0,8);
-    const bestT=Object.entries(aggT).sort((a,b)=>b[1]-a[1]).slice(0,8);
-    const maxD=bestD.length?bestD[0][1]:1,maxT=bestT.length?bestT[0][1]:1;
-    let html=`<div class="fxs td mb">📌 Último mes: <span class="tg fw">${ls.number}</span> (Dec:${lsDec}0s Term:T${lsTerm}) → Próximo: <span class="tg fw">${next.label}</span></div>`;
-    html+=`<div class="card-t fxs mb">Decenas que siguen a ${lsDec}0s (todos los años)</div>`;
-    html+=bestD.map(([d,c])=>`<div class="fb"><div class="n">${d}0s</div><div class="track"><div class="fill fill-hot" style="width:${(c/maxD*100)}%"><span>${c}</span></div></div><div class="c">${c}x</div></div>`).join('');
-    html+=`<div class="divider"></div><div class="card-t fxs mb">Terminales que siguen a T${lsTerm} (todos los años)</div>`;
-    html+=bestT.map(([t,c])=>`<div class="fb"><div class="n">T${t}</div><div class="track"><div class="fill fill-blue" style="width:${(c/maxT*100)}%"><span>${c}</span></div></div><div class="c">${c}x</div></div>`).join('');
-    html+='<div class="divider"></div><div class="card-t fxs mb">Desglose por año</div>';
-    years.forEach(year=>{
-        const yd=data.filter(d=>d.drawDate.startsWith(year));
-        const yD={},yT={};
-        for(let i=0;i<yd.length-1;i++){if(getDec(yd[i].number)===lsDec){const nd=getDec(yd[i+1].number);yD[nd]=(yD[nd]||0)+1}if(getTerm(yd[i].number)===lsTerm){const nt=getTerm(yd[i+1].number);yT[nt]=(yT[nt]||0)+1}}
-        const topYD=Object.entries(yD).sort((a,b)=>b[1]-a[1]).slice(0,4);
-        const topYT=Object.entries(yT).sort((a,b)=>b[1]-a[1]).slice(0,4);
-        if(topYD.length||topYT.length){
-            html+=`<div class="collapsible-h" onclick="this.nextElementSibling.classList.toggle('open')"><span>${year}</span><span>▼</span></div>`;
-            html+='<div class="collapsible-b">';
-            if(topYD.length){html+=`<div class="fxs tg mb">Dec tras ${lsDec}0s:</div><div class="rec-nums">`;topYD.forEach(([d,c])=>{html+=`<div class="rec-item"><span>${d}0s</span>(${c}x)</div>`});html+='</div>'}
-            if(topYT.length){html+=`<div class="fxs tg mt mb">Term tras T${lsTerm}:</div><div class="rec-nums">`;topYT.forEach(([t,c])=>{html+=`<div class="rec-item"><span>T${t}</span>(${c}x)</div>`});html+='</div>'}
-            html+='</div>';
-        }
-    });
-    container.innerHTML=html;
-}
+function rYC(data,year){const yd=data.filter(d=>d.drawDate.startsWith(year));if(!yd.length){document.getElementById('yearContent').innerHTML='<div class="empty"><p>Sin datos</p></div>';return}const ls=getLastSorteoMes();const freq=gFreq(yd),sf=sFreq(freq);const top5=sf.slice(0,5);const maxC=top5[0]?top5[0][1]:1;const dF={},tF={};for(let i=0;i<=9;i++){dF[i]=0;tF[i]=0}yd.forEach(d=>{dF[getDec(d.number)]++;tF[getTerm(d.number)]++});const tD=Object.entries(dF).sort((a,b)=>b[1]-a[1]);const tT=Object.entries(tF).sort((a,b)=>b[1]-a[1]);const months={};yd.forEach(d=>{const m=d.drawDate.substring(5,7);if(!months[m])months[m]=[];months[m].push(d)});const mn=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];const lsD=ls?getDec(ls.number):null,lsT=ls?getTerm(ls.number):null;document.getElementById('yearContent').innerHTML=`<div class="g2 mb"><div class="stat-box"><div class="v">${yd.length}</div><div class="l">Sorteos ${year}</div></div><div class="stat-box"><div class="v">${Object.keys(months).length}</div><div class="l">Meses</div></div><div class="stat-box"><div class="v">${yd.filter(d=>d.shift==='midday').length}</div><div class="l">☀️Med</div></div><div class="stat-box"><div class="v">${yd.filter(d=>d.shift==='evening').length}</div><div class="l">🌙Noc</div></div></div><div class="card-t fxs mb">🔥 Top 5 en ${year}</div>${top5.map(([n,c])=>`<div class="fb"><div class="n">${n}</div><div class="track"><div class="fill fill-green" style="width:${maxC>0?(c/maxC*100):0}%"><span>${c}</span></div></div><div class="c">${c}x</div></div>`).join('')}<div class="divider"></div><div class="g2 mb"><div><div class="card-t fxs mb">🔢 Top Dec</div>${tD.slice(0,5).map(([d,c])=>`<div class="fxs mb">${d}0s — <span class="tg fw">${c}x</span>${lsD!==null&&parseInt(d)===lsD?' 📌':''}</div>`).join('')}</div><div><div class="card-t fxs mb">🎯 Top Term</div>${tT.slice(0,5).map(([t,c])=>`<div class="fxs mb">T${t} — <span class="tgr fw">${c}x</span>${lsT!==null&&parseInt(t)===lsT?' 📌':''}</div>`).join('')}</div></div><div class="divider"></div><div class="card-t fxs mb">📆 Por Mes</div><div class="g3">${Object.entries(months).sort().map(([m,arr])=>{const mTop=sFreq(gFreq(arr))[0];return`<div class="stat-box" style="padding:8px"><div style="font-size:0.7rem;color:var(--gold);font-weight:700">${mn[parseInt(m)-1]}</div><div style="font-size:1rem;font-weight:800;color:var(--green)">${arr.length}</div><div class="fxs td">Top:${mTop?mTop[0]:'-'}</div></div>`}).join('')}</div>`}
+function rYComp(data){const c=document.getElementById('yearCompare');const ls=getLastSorteoMes();if(!ls){c.innerHTML='Sin último sorteo';return}const next=getNextTurno();const lsD=getDec(ls.number),lsT=getTerm(ls.number);const years=[...new Set(data.map(d=>d.drawDate.substring(0,4)))].sort().reverse();const aD={},aT={};years.forEach(y=>{const yd=[...data.filter(d=>d.drawDate.startsWith(y))].sort((a,b)=>a.drawDate.localeCompare(b.drawDate));for(let i=0;i<yd.length-1;i++){if(getDec(yd[i].number)===lsD){const nd=getDec(yd[i+1].number);aD[nd]=(aD[nd]||0)+1}if(getTerm(yd[i].number)===lsT){const nt=getTerm(yd[i+1].number);aT[nt]=(aT[nt]||0)+1}}});const bD=Object.entries(aD).sort((a,b)=>b[1]-a[1]).slice(0,8);const bT=Object.entries(aT).sort((a,b)=>b[1]-a[1]).slice(0,8);const mxD=bD.length?bD[0][1]:1,mxT=bT.length?bT[0][1]:1;let html=`<div class="fxs td mb">📌 Último: <span class="tg fw">${ls.number}</span> → Próximo: <span class="tg fw">${next.label}</span></div>`;html+=`<div class="card-t fxs mb">Dec tras ${lsD}0s</div>`;html+=bD.map(([d,cnt])=>`<div class="fb"><div class="n">${d}0s</div><div class="track"><div class="fill fill-hot" style="width:${(cnt/mxD*100)}%"><span>${cnt}</span></div></div><div class="c">${cnt}x</div></div>`).join('');html+=`<div class="divider"></div><div class="card-t fxs mb">Term tras T${lsT}</div>`;html+=bT.map(([t,cnt])=>`<div class="fb"><div class="n">T${t}</div><div class="track"><div class="fill fill-blue" style="width:${(cnt/mxT*100)}%"><span>${cnt}</span></div></div><div class="c">${cnt}x</div></div>`).join('');c.innerHTML=html}
 
 // ===== ÚLTIMA SEMANA =====
-function rSemana(){
-    const container=document.getElementById('semanaContent');
-    const data=LD();
-    if(!data.length){container.innerHTML='<div class="empty"><div class="ei">📆</div><p>Sin datos</p></div>';return}
-    renderLsBanner('lsBannerSemana');
-    const ls=getLastSorteoMes();
-    if(!ls){container.innerHTML='<div class="empty"><p>Sin sorteos este mes</p></div>';return}
-    const next=getNextTurno();
-    const lastDate=new Date(ls.drawDate+'T12:00:00');
-    const weekAgo=new Date(lastDate);weekAgo.setDate(weekAgo.getDate()-7);
-    const weekStr=weekAgo.toISOString().split('T')[0];
-    const weekData=data.filter(d=>d.drawDate>=weekStr&&d.drawDate<=ls.drawDate);
-    const dayNames=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
-    let html=`<p class="fxs td mb">Del ${weekStr} al ${ls.drawDate} — ${weekData.length} sorteos</p>`;
-    html+='<div class="week-grid">';
-    weekData.forEach(s=>{const d=new Date(s.drawDate+'T12:00:00');html+=`<div class="week-card"><div class="wc-day">${dayNames[d.getDay()]} ${s.drawDate.substring(5)}</div><div class="wc-num">${s.number}</div><div class="wc-info">${s.shift==='midday'?'☀️Med':'🌙Noc'} | ${getDec(s.number)}0s T${getTerm(s.number)}</div></div>`});
-    html+='</div>';
-    const dF={},tF={},dgFreq={};
-    for(let i=0;i<=9;i++){dF[i]=0;tF[i]=0;dgFreq[i]=0}
-    weekData.forEach(s=>{dF[getDec(s.number)]++;tF[getTerm(s.number)]++;const n=parseInt(s.number,10);dgFreq[Math.floor(n/10)]++;dgFreq[n%10]++});
-    const topD=Object.entries(dF).sort((a,b)=>b[1]-a[1]).slice(0,5);
-    const topT=Object.entries(tF).sort((a,b)=>b[1]-a[1]).slice(0,5);
-    const lsDec=getDec(ls.number),lsTerm=getTerm(ls.number);
-    html+=`<div class="rec-box"><h4>📊 Decenas de la semana</h4><div class="rec-nums">`;
-    topD.forEach(([d,c])=>{const isLS=parseInt(d)===lsDec;html+=`<div class="rec-item" style="${isLS?'border-color:var(--gold);':''}"><span>${d}0s${isLS?' 📌':''}</span>(${c}x)</div>`});
-    html+=`</div></div><div class="rec-box"><h4>📊 Terminales de la semana</h4><div class="rec-nums">`;
-    topT.forEach(([t,c])=>{const isLS=parseInt(t)===lsTerm;html+=`<div class="rec-item" style="${isLS?'border-color:var(--gold);':''}"><span>T${t}${isLS?' 📌':''}</span>(${c}x)</div>`});
-    html+='</div></div>';
-    const maxDG=Math.max(...Object.values(dgFreq),1);
-    html+='<div class="card-t fxs mt mb">🔢 Dígitos calientes esta semana</div><div>';
-    for(let i=0;i<=9;i++){const p=dgFreq[i]/maxDG*100;html+=`<div class="fb"><div class="n">${i}</div><div class="track"><div class="fill ${p>60?'fill-hot':p>30?'fill-gold':'fill-blue'}" style="width:${Math.max(p,2)}%"><span>${dgFreq[i]}</span></div></div></div>`}
-    html+='</div>';
-    html+=`<div class="rec-box"><h4>🎯 Recomendación semanal → ${next.label}</h4><div class="rec-nums">`;
-    topD.slice(0,3).forEach(([d])=>{topT.slice(0,3).forEach(([t])=>{html+=`<div class="rec-item">Dec:<span>${d}0s</span> Term:<span>T${t}</span></div>`})});
-    html+='</div></div>';
-    container.innerHTML=html;
-}
+function rSemana(){const c=document.getElementById('semanaContent');const data=LD();if(!data.length){c.innerHTML='<div class="empty"><div class="ei">📆</div><p>Sin datos</p></div>';return}renderLsBanner('lsBannerSemana');const ls=getLastSorteoMes();if(!ls){c.innerHTML='Sin sorteos';return}const next=getNextTurno();const lDate=new Date(ls.drawDate+'T12:00:00');const wAgo=new Date(lDate);wAgo.setDate(wAgo.getDate()-7);const wStr=wAgo.toISOString().split('T')[0];const wData=data.filter(d=>d.drawDate>=wStr&&d.drawDate<=ls.drawDate).sort((a,b)=>a.drawDate.localeCompare(b.drawDate));let html=`<p class="fxs td mb">${wStr} al ${ls.drawDate} — ${wData.length} sorteos</p><div class="week-grid">`;wData.forEach(s=>{const d=new Date(s.drawDate+'T12:00:00');html+=`<div class="week-card"><div class="wc-day">${getDayName(s.drawDate)} ${s.drawDate.substring(5)}</div><div class="wc-num">${s.number}</div><div class="wc-info">${s.shift==='midday'?'☀️':'🌙'} ${getDec(s.number)}0s T${getTerm(s.number)}</div></div>`});html+='</div>';const dF={},tF={};for(let i=0;i<=9;i++){dF[i]=0;tF[i]=0}wData.forEach(s=>{dF[getDec(s.number)]++;tF[getTerm(s.number)]++});const topD=Object.entries(dF).sort((a,b)=>b[1]-a[1]).slice(0,5);const topT=Object.entries(tF).sort((a,b)=>b[1]-a[1]).slice(0,5);const lsD=getDec(ls.number),lsT=getTerm(ls.number);html+=`<div class="rec-box"><h4>📊 Dec semana</h4><div class="rec-nums">`;topD.forEach(([d,cnt])=>{const isLS=parseInt(d)===lsD;html+=`<div class="rec-item" style="${isLS?'border-color:var(--gold);':''}"><span>${d}0s${isLS?' 📌':''}</span>(${cnt}x)</div>`});html+=`</div></div><div class="rec-box"><h4>📊 Term semana</h4><div class="rec-nums">`;topT.forEach(([t,cnt])=>{const isLS=parseInt(t)===lsT;html+=`<div class="rec-item" style="${isLS?'border-color:var(--gold);':''}"><span>T${t}${isLS?' 📌':''}</span>(${cnt}x)</div>`});html+='</div></div>';html+=`<div class="rec-box"><h4>🎯 Recomendación → ${next.label}</h4><div class="rec-nums">`;topD.slice(0,3).forEach(([d])=>{topT.slice(0,3).forEach(([t])=>{html+=`<div class="rec-item">D:<span>${d}0s</span> T:<span>T${t}</span></div>`})});html+='</div></div>';c.innerHTML=html}
 
-// ===== ANÁLISIS → PRÓXIMO SORTEO =====
-function rAnalisis(){
-    const container=document.getElementById('analisisContent');
-    const data=LD();
-    if(data.length<5){container.innerHTML='<div class="empty"><p>Necesitas al menos 5 sorteos.</p></div>';return}
-    renderLsBanner('lsBannerAnalisis');
-    const ls=getLastSorteoMes();
-    if(!ls){container.innerHTML='<div class="empty"><p>Sin sorteos este mes.</p></div>';return}
-    const next=getNextTurno();
-    const lsDec=getDec(ls.number),lsTerm=getTerm(ls.number);
-    const now=new Date();const ym=`${now.getFullYear()}-${p2(now.getMonth()+1)}`;
-    const monthData=data.filter(d=>d.drawDate.startsWith(ym));
-    const sorted=[...data].sort((a,b)=>a.drawDate.localeCompare(b.drawDate)||(a.shift==='midday'?-1:1));
-    const decAfter={},termAfter={},decAfterT={midday:{},evening:{}},termAfterT={midday:{},evening:{}};
-    for(let i=0;i<sorted.length-1;i++){
-        const c=sorted[i],n=sorted[i+1];
-        const cd=getDec(c.number),nd=getDec(n.number);
-        const ct=getTerm(c.number),nt=getTerm(n.number);
-        if(cd===lsDec){decAfter[nd]=(decAfter[nd]||0)+1;decAfterT[n.shift][nd]=(decAfterT[n.shift][nd]||0)+1}
-        if(ct===lsTerm){termAfter[nt]=(termAfter[nt]||0)+1;termAfterT[n.shift][nt]=(termAfterT[n.shift][nt]||0)+1}
-    }
-    const mDF={},mTF={};for(let i=0;i<=9;i++){mDF[i]=0;mTF[i]=0}
-    monthData.forEach(d=>{mDF[getDec(d.number)]++;mTF[getTerm(d.number)]++});
-    const decScores={},termScores={};for(let i=0;i<=9;i++){decScores[i]=0;termScores[i]=0}
-    Object.entries(decAfter).forEach(([k,v])=>{decScores[parseInt(k)]=(decScores[parseInt(k)]||0)+v*3});
-    Object.entries(termAfter).forEach(([k,v])=>{termScores[parseInt(k)]=(termScores[parseInt(k)]||0)+v*3});
-    Object.entries(decAfterT[next.shift]||{}).forEach(([k,v])=>{decScores[parseInt(k)]=(decScores[parseInt(k)]||0)+v*2});
-    Object.entries(termAfterT[next.shift]||{}).forEach(([k,v])=>{termScores[parseInt(k)]=(termScores[parseInt(k)]||0)+v*2});
-    Object.entries(mDF).forEach(([k,v])=>{decScores[parseInt(k)]=(decScores[parseInt(k)]||0)+v*1.5});
-    Object.entries(mTF).forEach(([k,v])=>{termScores[parseInt(k)]=(termScores[parseInt(k)]||0)+v*1.5});
-    // Vibración
-    const recentData=[...data].sort((a,b)=>b.drawDate.localeCompare(a.drawDate)).slice(0,20);
-    const gD={},rD={},gT={},rT={};for(let i=0;i<=9;i++){gD[i]=0;rD[i]=0;gT[i]=0;rT[i]=0}
-    data.forEach(d=>{gD[getDec(d.number)]++;gT[getTerm(d.number)]++});
-    recentData.forEach(d=>{rD[getDec(d.number)]++;rT[getTerm(d.number)]++});
-    for(let i=0;i<=9;i++){
-        const dRatio=(rD[i]/Math.max(gD[i],0.1))/(recentData.length/data.length||1);
-        const tRatio=(rT[i]/Math.max(gT[i],0.1))/(recentData.length/data.length||1);
-        decScores[i]=(decScores[i]||0)+Math.min(dRatio*2,4);
-        termScores[i]=(termScores[i]||0)+Math.min(tRatio*2,4);
-    }
-    const bestDecs=Object.entries(decScores).sort((a,b)=>b[1]-a[1]);
-    const bestTerms=Object.entries(termScores).sort((a,b)=>b[1]-a[1]);
-    const mxDS=bestDecs[0]?bestDecs[0][1]:1,mxTS=bestTerms[0]?bestTerms[0][1]:1;
-    let html=`<div class="rec-box"><h4>🎰 Último: ${ls.number} (${ls.shift==='midday'?'☀️Mediodía':'🌙Noche'}) → Próximo: ${next.label}</h4><div class="fxs td">Dec:${lsDec}0s | Term:T${lsTerm} | ${fmtD(ls.drawDate)}</div></div>`;
-    html+=`<div class="card-t fxs mt mb">🎯 Mejores Decenas para ${next.label}</div><div>`;
-    bestDecs.forEach(([num,score])=>{const pct=Math.round(score/mxDS*100);const cls=pct>70?'prob-high':pct>40?'prob-med':'prob-low';const isLS=parseInt(num)===lsDec;html+=`<div class="fb"><div class="n" style="${isLS?'color:var(--gold2)':''}">${num}0s${isLS?' 📌':''}</div><div style="flex:1"><div class="prob-bar"><div class="prob-fill ${cls}" style="width:${pct}%"></div></div></div><div class="c">${pct}%</div></div>`});
-    html+='</div>';
-    html+=`<div class="card-t fxs mt mb">🎯 Mejores Terminales para ${next.label}</div><div>`;
-    bestTerms.forEach(([num,score])=>{const pct=Math.round(score/mxTS*100);const cls=pct>70?'prob-high':pct>40?'prob-med':'prob-low';const isLS=parseInt(num)===lsTerm;html+=`<div class="fb"><div class="n" style="${isLS?'color:var(--gold2)':''}">T${num}${isLS?' 📌':''}</div><div style="flex:1"><div class="prob-bar"><div class="prob-fill ${cls}" style="width:${pct}%"></div></div></div><div class="c">${pct}%</div></div>`});
-    html+='</div>';
-    // Combinaciones
-    const combos=[];
-    bestDecs.slice(0,5).forEach(([d,ds])=>{bestTerms.slice(0,5).forEach(([t,ts])=>{combos.push({dec:parseInt(d),term:parseInt(t),score:ds+ts})})});
-    combos.sort((a,b)=>b.score-a.score);
-    html+=`<div class="rec-box mt"><h4>🏆 Top Combinaciones Dec+Term para ${next.label}</h4><div class="rec-nums">`;
-    combos.slice(0,12).forEach((c,i)=>{const em=i<3?['🥇','🥈','🥉'][i]:'';html+=`<div class="rec-item">${em} <span>${c.dec}0s</span>+<span>T${c.term}</span></div>`});
-    html+='</div></div>';
-    // Desglose por turno
-    html+='<div class="card-t fxs mt mb">📊 Desglose por Turno</div>';
-    ['midday','evening'].forEach(turno=>{
-        const tL=turno==='midday'?'☀️ Mediodía':'🌙 Noche';
-        const isNext=turno===next.shift;
-        const tD=Object.entries(decAfterT[turno]||{}).sort((a,b)=>b[1]-a[1]).slice(0,5);
-        const tT=Object.entries(termAfterT[turno]||{}).sort((a,b)=>b[1]-a[1]).slice(0,5);
-        html+=`<div class="collapsible-h" onclick="this.nextElementSibling.classList.toggle('open')"><span>${isNext?'⭐ ':''}${tL}${isNext?' (PRÓXIMO)':''}</span><span>▼</span></div>`;
-        html+=`<div class="collapsible-b ${isNext?'open':''}">`;
-        if(tD.length){html+=`<div class="fxs tg mb">Dec tras ${lsDec}0s:</div><div class="rec-nums">`;tD.forEach(([d,c])=>{html+=`<div class="rec-item"><span>${d}0s</span>(${c}x)</div>`});html+='</div>'}
-        if(tT.length){html+=`<div class="fxs tg mt mb">Term tras T${lsTerm}:</div><div class="rec-nums">`;tT.forEach(([t,c])=>{html+=`<div class="rec-item"><span>T${t}</span>(${c}x)</div>`});html+='</div>'}
-        if(!tD.length&&!tT.length)html+='<span class="td fxs">Sin datos suficientes</span>';
-        html+='</div>';
-    });
-    container.innerHTML=html;
-}
+// ===== ANÁLISIS =====
+let curAnalView='auto';
+function analView(v,btn){curAnalView=v;document.querySelectorAll('#sec-analisis .sub-tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');rAnalisis()}
+function rAnalisis(){const c=document.getElementById('analisisContent');const data=LD();if(data.length<5){c.innerHTML='<div class="empty"><p>Necesitas al menos 5 sorteos</p></div>';return}renderLsBanner('lsBannerAnalisis');const ls=getLastSorteoMes();if(!ls){c.innerHTML='Sin sorteos este mes';return}if(curAnalView==='auto'){const next=getNextTurno();document.getElementById('analTitle').textContent=`🎯 Análisis → ${next.label}`;c.innerHTML=buildAnal(data,ls,next.shift,next.label)}else if(curAnalView==='midday'){document.getElementById('analTitle').textContent='☀️ Análisis Solo Mediodía';c.innerHTML=buildAnal(data,ls,'midday','Mediodía')}else if(curAnalView==='evening'){document.getElementById('analTitle').textContent='🌙 Análisis Solo Noche';c.innerHTML=buildAnal(data,ls,'evening','Noche')}else{document.getElementById('analTitle').textContent='📊 Comparar Med vs Noc';c.innerHTML=buildComp(data,ls)}}
+function buildAnal(data,ls,tShift,tLabel){const lsD=getDec(ls.number),lsT=getTerm(ls.number);const now=new Date();const ym=`${now.getFullYear()}-${p2(now.getMonth()+1)}`;const mData=data.filter(d=>d.drawDate.startsWith(ym));const sorted=[...data].sort((a,b)=>a.drawDate.localeCompare(b.drawDate)||(a.shift==='midday'?-1:1));const dA={},tA={},dAT={},tAT={};for(let i=0;i<sorted.length-1;i++){const c=sorted[i],n=sorted[i+1];const cd=getDec(c.number),nd=getDec(n.number),ct=getTerm(c.number),nt=getTerm(n.number);if(cd===lsD){dA[nd]=(dA[nd]||0)+1;if(n.shift===tShift)dAT[nd]=(dAT[nd]||0)+1}if(ct===lsT){tA[nt]=(tA[nt]||0)+1;if(n.shift===tShift)tAT[nt]=(tAT[nt]||0)+1}}const sData=data.filter(d=>d.shift===tShift);const sDec={},sTerm={};for(let i=0;i<=9;i++){sDec[i]=0;sTerm[i]=0}sData.forEach(d=>{sDec[getDec(d.number)]++;sTerm[getTerm(d.number)]++});const mS=mData.filter(d=>d.shift===tShift);const mD={},mT={};for(let i=0;i<=9;i++){mD[i]=0;mT[i]=0}mS.forEach(d=>{mD[getDec(d.number)]++;mT[getTerm(d.number)]++});const dScores={},tScores={};for(let i=0;i<=9;i++){dScores[i]=0;tScores[i]=0}Object.entries(dA).forEach(([k,v])=>{dScores[parseInt(k)]+=v*3});Object.entries(tA).forEach(([k,v])=>{tScores[parseInt(k)]+=v*3});Object.entries(dAT).forEach(([k,v])=>{dScores[parseInt(k)]+=v*2.5});Object.entries(tAT).forEach(([k,v])=>{tScores[parseInt(k)]+=v*2.5});Object.entries(sDec).forEach(([k,v])=>{dScores[parseInt(k)]+=v*0.05});Object.entries(sTerm).forEach(([k,v])=>{tScores[parseInt(k)]+=v*0.05});Object.entries(mD).forEach(([k,v])=>{dScores[parseInt(k)]+=v*1.5});Object.entries(mT).forEach(([k,v])=>{tScores[parseInt(k)]+=v*1.5});const rS=[...sData].sort((a,b)=>b.drawDate.localeCompare(a.drawDate)).slice(0,20);const gD={},rD={},gTT={},rTT={};for(let i=0;i<=9;i++){gD[i]=0;rD[i]=0;gTT[i]=0;rTT[i]=0}sData.forEach(d=>{gD[getDec(d.number)]++;gTT[getTerm(d.number)]++});rS.forEach(d=>{rD[getDec(d.number)]++;rTT[getTerm(d.number)]++});for(let i=0;i<=9;i++){const dr=rS.length>0?(rD[i]/Math.max(gD[i],0.1))/(rS.length/Math.max(sData.length,1)):0;const tr=rS.length>0?(rTT[i]/Math.max(gTT[i],0.1))/(rS.length/Math.max(sData.length,1)):0;dScores[i]+=Math.min(dr*2,4);tScores[i]+=Math.min(tr*2,4)}const bD=Object.entries(dScores).sort((a,b)=>b[1]-a[1]);const bT=Object.entries(tScores).sort((a,b)=>b[1]-a[1]);const mxD=bD[0]?bD[0][1]:1,mxT=bT[0]?bT[0][1]:1;let html=`<div class="rec-box"><h4>🎰 Último: ${ls.number} (${ls.shift==='midday'?'☀️':'🌙'}) → ${tLabel}</h4><div class="fxs td">Dec:${lsD}0s | T:T${lsT} | ${fmtD(ls.drawDate)}</div><div class="fxs mt" style="color:var(--green)">Sorteos ${tLabel}: ${sData.length} total | ${mS.length} este mes</div></div>`;html+=`<div class="card-t fxs mt mb">🎯 Mejores Decenas → ${tLabel}</div><div>`;bD.forEach(([num,score])=>{const pct=Math.round(score/mxD*100);const cls=pct>70?'prob-high':pct>40?'prob-med':'prob-low';const isLS=parseInt(num)===lsD;const tc=dAT[parseInt(num)]||0;html+=`<div class="fb"><div class="n" style="${isLS?'color:var(--gold2)':''}">${num}0s${isLS?' 📌':''}</div><div style="flex:1"><div class="prob-bar"><div class="prob-fill ${cls}" style="width:${pct}%"></div></div></div><div class="c" style="width:50px">${pct}% (${tc}x)</div></div>`});html+='</div>';html+=`<div class="card-t fxs mt mb">🎯 Mejores Terminales → ${tLabel}</div><div>`;bT.forEach(([num,score])=>{const pct=Math.round(score/mxT*100);const cls=pct>70?'prob-high':pct>40?'prob-med':'prob-low';const isLS=parseInt(num)===lsT;const tc=tAT[parseInt(num)]||0;html+=`<div class="fb"><div class="n" style="${isLS?'color:var(--gold2)':''}">T${num}${isLS?' 📌':''}</div><div style="flex:1"><div class="prob-bar"><div class="prob-fill ${cls}" style="width:${pct}%"></div></div></div><div class="c" style="width:50px">${pct}% (${tc}x)</div></div>`});html+='</div>';const combos=[];bD.slice(0,5).forEach(([d,ds])=>{bT.slice(0,5).forEach(([t,ts])=>{combos.push({dec:d,term:t,score:ds+ts})})});combos.sort((a,b)=>b.score-a.score);html+=`<div class="rec-box mt"><h4>🏆 Top Combinaciones → ${tLabel}</h4><div class="rec-nums">`;combos.slice(0,12).forEach((c,i)=>{const em=i<3?['🥇','🥈','🥉'][i]:'';html+=`<div class="rec-item">${em} <span>${c.dec}0s</span>+<span>T${c.term}</span></div>`});html+='</div></div>';const nScores={};for(let i=0;i<=99;i++){const n=p2(i);nScores[n]=(dScores[getDec(n)]||0)+(tScores[getTerm(n)]||0)}const bN=Object.entries(nScores).sort((a,b)=>b[1]-a[1]).slice(0,15);html+=`<div class="card-t fxs mt mb">🔢 Números más probables → ${tLabel}</div><div class="rec-nums">`;bN.forEach(([n,s],i)=>{const isLS=n===ls.number;html+=`<div class="rec-item" style="${isLS?'border-color:var(--gold);':''}${i<3?'background:rgba(255,71,87,0.15);':''}"><span>${n}</span>${isLS?' 📌':''}</div>`});html+='</div>';return html}
+function buildComp(data,ls){const lsD=getDec(ls.number),lsT=getTerm(ls.number);const sorted=[...data].sort((a,b)=>a.drawDate.localeCompare(b.drawDate)||(a.shift==='midday'?-1:1));const dBS={midday:{},evening:{}},tBS={midday:{},evening:{}};for(let i=0;i<sorted.length-1;i++){const c=sorted[i],n=sorted[i+1];if(getDec(c.number)===lsD){const nd=getDec(n.number);dBS[n.shift][nd]=(dBS[n.shift][nd]||0)+1}if(getTerm(c.number)===lsT){const nt=getTerm(n.number);tBS[n.shift][nt]=(tBS[n.shift][nt]||0)+1}}const midD=data.filter(d=>d.shift==='midday'),eveD=data.filter(d=>d.shift==='evening');let html=`<div class="rec-box"><h4>📊 Comparar: ${ls.number} (Dec:${lsD}0s Term:T${lsT})</h4><div class="fxs td">☀️Med: ${midD.length} | 🌙Noc: ${eveD.length}</div></div>`;html+=`<div class="card-t fxs mt mb">🔢 Dec tras ${lsD}0s</div><div class="tw"><table><thead><tr><th>Dec</th><th>☀️Med</th><th>🌙Noc</th><th>Total</th><th>Mejor</th></tr></thead><tbody>`;for(let i=0;i<=9;i++){const mC=dBS.midday[i]||0,eC=dBS.evening[i]||0,total=mC+eC;if(!total)continue;const mejor=mC>eC?'☀️':eC>mC?'🌙':'⚖️';const isLS=i===lsD;html+=`<tr style="${isLS?'color:var(--gold);font-weight:700':''}"><td>${i}0s${isLS?' 📌':''}</td><td>${mC}x</td><td>${eC}x</td><td class="fw">${total}x</td><td>${mejor}</td></tr>`}html+='</tbody></table></div>';html+=`<div class="card-t fxs mt mb">🎯 Term tras T${lsT}</div><div class="tw"><table><thead><tr><th>Term</th><th>☀️Med</th><th>🌙Noc</th><th>Total</th><th>Mejor</th></tr></thead><tbody>`;for(let i=0;i<=9;i++){const mC=tBS.midday[i]||0,eC=tBS.evening[i]||0,total=mC+eC;if(!total)continue;const mejor=mC>eC?'☀️':eC>mC?'🌙':'⚖️';const isLS=i===lsT;html+=`<tr style="${isLS?'color:var(--gold);font-weight:700':''}"><td>T${i}${isLS?' 📌':''}</td><td>${mC}x</td><td>${eC}x</td><td class="fw">${total}x</td><td>${mejor}</td></tr>`}html+='</tbody></table></div>';html+='<div class="divider"></div><div class="g2">';const mF=gFreq(midD),eF=gFreq(eveD);html+='<div><div class="card-t fxs mb">☀️ Top Med</div><div class="rec-nums">';sFreq(mF).slice(0,8).forEach(([n,c])=>{html+=`<div class="rec-item"><span>${n}</span>(${c}x)</div>`});html+='</div></div><div><div class="card-t fxs mb">🌙 Top Noc</div><div class="rec-nums">';sFreq(eF).slice(0,8).forEach(([n,c])=>{html+=`<div class="rec-item"><span>${n}</span>(${c}x)</div>`});html+='</div></div></div>';return html}
 
 // ===== NAVEGACIÓN =====
-function goTab(id,btn){
-    document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
-    document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
-    document.getElementById('sec-'+id).classList.add('active');
-    btn.classList.add('active');
-    const renders={hist:rHist,freq:rFreq,dec:rDec,term:rTerm,matrix:rMat,vib:rVib,pull:rPull,year:rYear,semana:rSemana,analisis:rAnalisis};
-    if(renders[id])renders[id]();
-}
-
-function rAll(){
-    rHome();
-    const active=document.querySelector('.sec.active');
-    if(active){
-        const id=active.id.replace('sec-','');
-        const renders={hist:rHist,freq:rFreq,dec:rDec,term:rTerm,matrix:rMat,vib:rVib,pull:rPull,year:rYear,semana:rSemana,analisis:rAnalisis};
-        if(renders[id])renders[id]();
-    }
-}
-
-window.addEventListener('load',()=>{
-    document.getElementById('aDate').value=new Date().toISOString().substring(0,10);
-    updOffStatus();rAll();
-});
+function goTab(id,btn){document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));document.getElementById('sec-'+id).classList.add('active');btn.classList.add('active');const renders={hist:rHist,freq:rFreq,dec:rDec,term:rTerm,matrix:rMat,vib:rVib,pull:rPull,year:rYear,semana:rSemana,analisis:rAnalisis};if(renders[id])renders[id]()}
+function rAll(){rHome();const active=document.querySelector('.sec.active');if(active){const id=active.id.replace('sec-','');const renders={hist:rHist,freq:rFreq,dec:rDec,term:rTerm,matrix:rMat,vib:rVib,pull:rPull,year:rYear,semana:rSemana,analisis:rAnalisis};if(renders[id])renders[id]()}}
+window.addEventListener('load',()=>{document.getElementById('aDate').value=new Date().toISOString().substring(0,10);updOffStatus();rAll()});
 </script>
 </body>
 </html>
