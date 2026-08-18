@@ -977,7 +977,7 @@ function rDecBest(data){
     scores.sort((a,b)=>b.momentum-a.momentum);
     let html='';
     if(ls)html+=`<div class="fxs td mb">📌 Último sorteo del mes: <span class="tg fw">${ls.number}</span> — Dec: <span class="tg fw">${getDec(ls.number)}0s</span></div>`;
-    html+=scores.map((s,idx)=>{const isLS=ls&&s.dec===getDec(ls.number);return`<div class="pull-box" style="${isLS?'border-color:var(--gold);':'}"><div style="font-size:1.5rem;font-weight:900;color:${idx<3?'var(--gold)':'var(--dim)'}">#${idx+1}</div><div><div class="fw tg" style="font-size:1.2rem">${s.dec}0s${isLS?' 📌':''}</div><div class="fxs td">Global: ${s.global}x | Reciente: ${s.recent}x | Momentum: ${s.momentum}x</div><div class="vib-meter" style="width:100px"><div class="vib-fill ${s.momentum>1.2?'vib-high':s.momentum>0.8?'vib-med':'vib-low'}" style="width:${Math.min(100,s.momentum*50)}%"></div></div></div></div>`}).join('');
+    html+=scores.map((s,idx)=>{const isLS=ls&&s.dec===getDec(ls.number);return`<div class="pull-box" style="${isLS?'border-color:var(--gold);':''}"><div style="font-size:1.5rem;font-weight:900;color:${idx<3?'var(--gold)':'var(--dim)'}">#${idx+1}</div><div><div class="fw tg" style="font-size:1.2rem">${s.dec}0s${isLS?' 📌':''}</div><div class="fxs td">Global: ${s.global}x | Reciente: ${s.recent}x | Momentum: ${s.momentum}x</div><div class="vib-meter" style="width:100px"><div class="vib-fill ${s.momentum>1.2?'vib-high':s.momentum>0.8?'vib-med':'vib-low'}" style="width:${Math.min(100,s.momentum*50)}%"></div></div></div></div>`}).join('');
     document.getElementById('decContent').innerHTML=html;
 }
 
