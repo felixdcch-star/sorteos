@@ -1,1175 +1,2202 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#0a0a1a">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>Super Análisis de Sorteos</title>
-    <link rel="manifest" href="manifest.json">
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <style>
-        *{margin:0;padding:0;box-sizing:border-box}
-        :root{
-            --bg:#0a0a1a;--bg2:#111128;--bg3:#1a1a3e;--accent:#0f3460;
-            --gold:#f5a623;--gold2:#ffcc02;--green:#00d4aa;--red:#ff4757;
-            --blue:#3498db;--purple:#9b59b6;--orange:#ff8c00;
-            --text:#e8e8f0;--dim:#6a6a8a;--card:#141430;--border:#252550;
-        }
-        body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;padding-bottom:60px}
-        .header{background:linear-gradient(135deg,#0a0a2e,#1a0a3e,#0a1a3e);padding:18px;text-align:center;border-bottom:2px solid var(--gold);position:sticky;top:0;z-index:100}
-        .header h1{color:var(--gold);font-size:1.3rem;letter-spacing:3px}
-        .header p{color:var(--dim);font-size:0.75rem;margin-top:4px}
-        .nav{display:flex;background:var(--bg2);overflow-x:auto;border-bottom:1px solid var(--border);scrollbar-width:none;position:sticky;top:62px;z-index:99}
-        .nav::-webkit-scrollbar{display:none}
-        .nav button{flex:none;padding:11px 16px;background:none;border:none;color:var(--dim);cursor:pointer;font-size:0.78rem;white-space:nowrap;border-bottom:3px solid transparent;transition:all .3s}
-        .nav button.active{color:var(--gold);border-bottom-color:var(--gold);background:rgba(245,166,35,0.08)}
-        .sec{display:none;padding:14px;max-width:960px;margin:0 auto}
-        .sec.active{display:block}
-        .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:14px}
-        .card-t{color:var(--gold);font-size:0.85rem;font-weight:700;margin-bottom:12px;text-transform:uppercase;letter-spacing:1.5px}
-        .g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-        .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
-        .draw-box{background:linear-gradient(135deg,var(--accent),var(--bg3));border-radius:12px;padding:16px;text-align:center;border:1px solid var(--border)}
-        .draw-box .lbl{color:var(--dim);font-size:0.7rem;text-transform:uppercase}
-        .draw-box .num{font-size:3.2rem;font-weight:900;color:var(--gold);line-height:1;margin:8px 0}
-        .draw-box .dt{color:var(--green);font-size:0.78rem}
-        .stat-box{background:var(--bg3);border-radius:10px;padding:12px;text-align:center;border:1px solid var(--border)}
-        .stat-box .v{font-size:1.6rem;font-weight:800;color:var(--green)}
-        .stat-box .l{font-size:0.65rem;color:var(--dim);text-transform:uppercase;margin-top:2px}
-        .fb{display:flex;align-items:center;gap:8px;margin-bottom:6px}
-        .fb .n{width:28px;text-align:center;font-weight:700;color:var(--gold);font-size:0.85rem}
-        .fb .track{flex:1;height:18px;background:var(--border);border-radius:9px;overflow:hidden}
-        .fb .fill{height:100%;border-radius:9px;display:flex;align-items:center;padding-left:6px;transition:width .5s}
-        .fb .fill span{font-size:0.6rem;color:var(--bg);font-weight:700}
-        .fb .c{width:30px;text-align:right;font-size:0.75rem;color:var(--dim)}
-        .fill-hot{background:linear-gradient(90deg,var(--red),var(--orange))}
-        .fill-green{background:linear-gradient(90deg,var(--green),var(--gold))}
-        .fill-blue{background:linear-gradient(90deg,var(--blue),var(--purple))}
-        .fill-gold{background:linear-gradient(90deg,var(--gold),var(--gold2))}
-        .tw{overflow-x:auto;border-radius:10px}
-        table{width:100%;border-collapse:collapse;font-size:0.8rem}
-        th{background:var(--bg3);color:var(--gold);padding:10px 6px;text-align:left;font-size:0.7rem;text-transform:uppercase}
-        td{padding:8px 6px;border-bottom:1px solid var(--border)}
-        .badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:0.7rem;font-weight:700}
-        .badge-m{background:rgba(245,166,35,0.15);color:var(--gold)}
-        .badge-e{background:rgba(0,212,170,0.15);color:var(--green)}
-        .pill{background:var(--bg3);padding:3px 10px;border-radius:20px;font-weight:700;font-size:0.95rem;color:var(--gold)}
-        .hc{border-radius:10px;padding:14px}
-        .hc.hot{background:rgba(255,71,87,0.08);border:1px solid rgba(255,71,87,0.3)}
-        .hc.cold{background:rgba(0,212,170,0.08);border:1px solid rgba(0,212,170,0.3)}
-        .hc-t{font-size:0.75rem;font-weight:700;margin-bottom:10px;text-transform:uppercase}
-        .hc.hot .hc-t{color:var(--red)}
-        .hc.cold .hc-t{color:var(--green)}
-        .hc-nums{display:flex;flex-wrap:wrap;gap:6px}
-        .hc-n{padding:5px 10px;border-radius:20px;font-weight:700;font-size:0.8rem;text-align:center;min-width:45px}
-        .hot .hc-n{background:rgba(255,71,87,0.25);color:var(--red)}
-        .cold .hc-n{background:rgba(0,212,170,0.25);color:var(--green)}
-        .matrix{border-radius:10px;overflow:hidden;border:1px solid var(--border)}
-        .matrix-row{display:flex}
-        .matrix-cell{flex:1;padding:8px 4px;text-align:center;font-size:0.75rem;font-weight:600;border-right:1px solid var(--border);border-bottom:1px solid var(--border);min-width:40px}
-        .matrix-header{background:var(--bg3);color:var(--gold);font-size:0.65rem;text-transform:uppercase}
-        .matrix-cell.hot-1{background:rgba(255,71,87,0.4);color:#fff}
-        .matrix-cell.hot-2{background:rgba(255,71,87,0.25);color:var(--red)}
-        .matrix-cell.hot-3{background:rgba(255,140,0,0.2);color:var(--orange)}
-        .matrix-cell.cold-1{background:rgba(0,212,170,0.15);color:var(--green)}
-        .matrix-cell.normal{background:var(--card);color:var(--dim)}
-        .btn{padding:10px 18px;border:none;border-radius:10px;cursor:pointer;font-size:0.82rem;font-weight:600;transition:all .3s;display:inline-flex;align-items:center;gap:6px}
-        .btn-gold{background:linear-gradient(135deg,var(--gold),var(--orange));color:var(--bg)}
-        .btn-green{background:var(--green);color:var(--bg)}
-        .btn-red{background:var(--red);color:#fff}
-        .btn-outline{background:transparent;border:1px solid var(--border);color:var(--text)}
-        .btn-blue{background:var(--blue);color:#fff}
-        .btn-purple{background:var(--purple);color:#fff}
-        .btn-row{display:flex;gap:8px;flex-wrap:wrap}
-        .fg{display:flex;flex-direction:column;gap:5px}
-        .fg label{font-size:0.7rem;color:var(--dim);text-transform:uppercase}
-        .fg input,.fg select{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--text);font-size:0.85rem}
-        .imp-area{border:2px dashed var(--border);border-radius:14px;padding:24px;text-align:center;cursor:pointer;transition:all .3s;margin-bottom:12px}
-        .imp-area:hover{border-color:var(--gold);background:rgba(245,166,35,0.03)}
-        .imp-area .ic{font-size:2.2rem;margin-bottom:6px}
-        .imp-area.excel{border-color:var(--green)}
-        .imp-area.excel:hover{background:rgba(0,212,170,0.05)}
-        .imp-area.json{border-color:var(--blue)}
-        .imp-area.json:hover{background:rgba(52,152,219,0.05)}
-        .ytabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
-        .ybtn{padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--dim);cursor:pointer;font-size:0.78rem}
-        .ybtn.active{background:var(--gold);color:var(--bg);border-color:var(--gold);font-weight:700}
-        .alert{padding:12px;border-radius:8px;margin-bottom:12px;font-size:0.82rem;display:none;word-wrap:break-word}
-        .alert-s{background:rgba(0,212,170,0.12);border:1px solid var(--green);color:var(--green)}
-        .alert-e{background:rgba(255,71,87,0.12);border:1px solid var(--red);color:var(--red)}
-        .alert-i{background:rgba(52,152,219,0.12);border:1px solid var(--blue);color:var(--blue)}
-        .ai{background:var(--bg3);border-radius:8px;padding:11px;border:1px solid var(--border)}
-        .ai .al{font-size:0.65rem;color:var(--dim);text-transform:uppercase;margin-bottom:3px}
-        .ai .av{font-size:1rem;font-weight:700}
-        .tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:0.68rem;font-weight:700;margin:2px}
-        .tag-hot{background:rgba(255,71,87,0.25);color:var(--red)}
-        .tag-cold{background:rgba(0,212,170,0.25);color:var(--green)}
-        .tag-norm{background:rgba(255,255,255,0.08);color:var(--dim)}
-        .vib-meter{height:6px;border-radius:3px;background:var(--border);overflow:hidden;margin-top:4px}
-        .vib-fill{height:100%;border-radius:3px;transition:width .5s}
-        .vib-high{background:linear-gradient(90deg,var(--red),var(--orange))}
-        .vib-med{background:linear-gradient(90deg,var(--gold),var(--gold2))}
-        .vib-low{background:linear-gradient(90deg,var(--blue),var(--green))}
-        .pull-box{background:var(--bg3);border-radius:8px;padding:10px;margin-bottom:6px;display:flex;align-items:center;gap:10px;border:1px solid var(--border)}
-        .pull-arrow{font-size:1.2rem}
-        .pull-from{font-weight:700;color:var(--gold);font-size:1.1rem;min-width:28px;text-align:center}
-        .pull-to{font-weight:700;color:var(--green);font-size:1.1rem;min-width:28px;text-align:center}
-        .pull-info{flex:1;font-size:0.75rem;color:var(--dim)}
-        .pull-count{font-weight:700;color:var(--text);font-size:0.9rem}
-        .overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:999;justify-content:center;align-items:center;flex-direction:column;gap:14px}
-        .overlay.show{display:flex}
-        .spin{width:50px;height:50px;border:4px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:sp .8s linear infinite}
-        @keyframes sp{to{transform:rotate(360deg)}}
-        .pag{display:flex;justify-content:center;align-items:center;gap:10px;margin-top:10px}
-        .pag-info{color:var(--dim);font-size:0.78rem}
-        .sbar{display:flex;gap:8px;margin-bottom:10px}
-        .sbar input{flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--text);font-size:0.85rem}
-        .sbar select{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--text)}
-        .trans-grid{display:grid;grid-template-columns:repeat(11,1fr);gap:1px;background:var(--border);border-radius:8px;overflow:hidden;font-size:0.6rem}
-        .trans-cell{padding:6px 2px;text-align:center;background:var(--card);font-weight:600}
-        .trans-header{background:var(--bg3);color:var(--gold);font-weight:700}
-        .empty{text-align:center;padding:40px 20px;color:var(--dim)}
-        .empty .ei{font-size:3rem;margin-bottom:10px}
-        .divider{height:1px;background:var(--border);margin:12px 0}
-        .tg{color:var(--gold)}.tgr{color:var(--green)}.tr{color:var(--red)}.td{color:var(--dim)}.tc{text-align:center}
-        .mt{margin-top:8px}.mb{margin-bottom:8px}
-        .fw{font-weight:700}.fs{font-size:0.78rem}.fxs{font-size:0.7rem}
-        .sub-tabs{display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;scrollbar-width:none}
-        .sub-tabs::-webkit-scrollbar{display:none}
-        .sub-tab{padding:7px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--dim);cursor:pointer;font-size:0.75rem;white-space:nowrap}
-        .sub-tab.active{background:var(--gold);color:var(--bg);border-color:var(--gold);font-weight:700}
-        .format-example{background:var(--bg2);padding:12px;border-radius:8px;border:1px solid var(--border);margin-top:10px}
-        .format-example table{margin:0}
-        .format-example th,.format-example td{padding:6px 10px;font-size:0.75rem}
-        .offline-status{position:fixed;bottom:10px;right:10px;padding:6px 12px;border-radius:20px;font-size:0.7rem;font-weight:700;z-index:98;transition:all .3s}
-        .offline-status.online{background:var(--green);color:var(--bg)}
-        .offline-status.offline{background:var(--red);color:#fff}
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scale=no">
+<title>Pick 3 Analyzer Pro</title>
+<meta name="description" content="Análisis avanzado de sorteos Pick 3">
+<meta name="theme-color" content="#1a1a2e">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root {
+  --bg-primary: #0a0a1a;
+  --bg-secondary: #1a1a2e;
+  --bg-card: #16213e;
+  --bg-card-alt: #1a2744;
+  --accent: #e94560;
+  --accent2: #0f3460;
+  --accent3: #00d2ff;
+  --text: #eee;
+  --text-dim: #999;
+  --gold: #ffd700;
+  --green: #00e676;
+  --red: #ff5252;
+  --orange: #ff9800;
+  --purple: #bb86fc;
+  --cyan: #00bcd4;
+  --border: rgba(255,255,255,0.08);
+  --shadow: 0 4px 24px rgba(0,0,0,0.4);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  padding-bottom: 70px;
+}
+.header {
+  background: linear-gradient(135deg, var(--bg-secondary), var(--accent2));
+  padding: 15px 20px;
+  text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow);
+}
+.header h1 {
+  font-size: 1.4em;
+  background: linear-gradient(90deg, var(--accent3), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.header small { color: var(--text-dim); font-size: 0.75em; }
+
+/* Tabs */
+.tabs-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+}
+.tabs-wrapper::-webkit-scrollbar { display: none; }
+.tabs {
+  display: flex;
+  min-width: max-content;
+  padding: 0 5px;
+}
+.tab-btn {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  padding: 12px 16px;
+  font-size: 0.8em;
+  cursor: pointer;
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  transition: all 0.3s;
+  font-weight: 500;
+}
+.tab-btn.active {
+  color: var(--accent3);
+  border-bottom-color: var(--accent3);
+  background: rgba(0,210,255,0.05);
+}
+.tab-btn:hover { color: var(--text); }
+
+/* Tab content */
+.tab-content { display: none; padding: 15px; animation: fadeIn 0.3s; }
+.tab-content.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Cards */
+.card {
+  background: var(--bg-card);
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 15px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+.card h3 {
+  color: var(--accent3);
+  margin-bottom: 12px;
+  font-size: 1em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card h4 {
+  color: var(--gold);
+  margin: 10px 0 6px;
+  font-size: 0.9em;
+}
+
+/* Buttons */
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85em;
+  transition: all 0.3s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-primary { background: linear-gradient(135deg, var(--accent), #c23152); color: #fff; }
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 15px rgba(233,69,96,0.4); }
+.btn-secondary { background: var(--accent2); color: var(--text); }
+.btn-success { background: linear-gradient(135deg, #00c853, #009624); color: #fff; }
+.btn-warning { background: linear-gradient(135deg, var(--orange), #e65100); color: #fff; }
+.btn-info { background: linear-gradient(135deg, var(--cyan), #0097a7); color: #fff; }
+.btn-small { padding: 6px 12px; font-size: 0.75em; }
+.btn-danger { background: linear-gradient(135deg, var(--red), #b71c1c); color: #fff; }
+
+/* Forms */
+.form-group { margin-bottom: 12px; }
+.form-group label { display: block; margin-bottom: 5px; color: var(--text-dim); font-size: 0.85em; }
+.form-group input, .form-group select {
+  width: 100%;
+  padding: 10px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 0.9em;
+}
+.form-row { display: flex; gap: 10px; }
+.form-row .form-group { flex: 1; }
+
+/* Tables */
+.table-container { overflow-x: auto; margin: 10px 0; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8em;
+}
+th, td {
+  padding: 8px 10px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+}
+th { background: var(--accent2); color: var(--accent3); font-weight: 600; position: sticky; top: 0; }
+tr:hover { background: rgba(255,255,255,0.03); }
+
+/* Number badges */
+.num-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--accent2);
+  color: var(--accent3);
+  font-weight: 700;
+  font-size: 0.85em;
+  margin: 3px;
+  border: 2px solid var(--accent3);
+}
+.num-badge.hot { border-color: var(--red); color: var(--red); background: rgba(255,82,82,0.15); }
+.num-badge.cold { border-color: #64b5f6; color: #64b5f6; background: rgba(100,181,246,0.15); }
+.num-badge.gold { border-color: var(--gold); color: var(--gold); background: rgba(255,215,0,0.15); }
+
+/* Stats grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 10px;
+  margin: 10px 0;
+}
+.stat-item {
+  background: var(--bg-card-alt);
+  padding: 12px;
+  border-radius: 8px;
+  text-align: center;
+}
+.stat-item .value { font-size: 1.5em; font-weight: 700; color: var(--accent3); }
+.stat-item .label { font-size: 0.7em; color: var(--text-dim); margin-top: 4px; }
+
+/* Bar chart */
+.bar-chart { margin: 10px 0; }
+.bar-row {
+  display: flex;
+  align-items: center;
+  margin: 4px 0;
+  font-size: 0.8em;
+}
+.bar-label { width: 30px; text-align: right; margin-right: 8px; color: var(--text-dim); font-weight: 600; }
+.bar-fill {
+  height: 22px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--accent2), var(--accent3));
+  transition: width 0.5s;
+  display: flex;
+  align-items: center;
+  padding-left: 8px;
+  font-size: 0.75em;
+  color: #fff;
+  font-weight: 600;
+  min-width: 2px;
+}
+.bar-fill.hot { background: linear-gradient(90deg, #c62828, var(--red)); }
+.bar-fill.med { background: linear-gradient(90deg, #e65100, var(--orange)); }
+.bar-fill.cold { background: linear-gradient(90deg, #1565c0, #42a5f5); }
+
+/* Matrix */
+.matrix-grid {
+  display: grid;
+  gap: 2px;
+  font-size: 0.65em;
+}
+.matrix-cell {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  font-weight: 700;
+  cursor: default;
+  min-width: 28px;
+  min-height: 28px;
+}
+.matrix-header {
+  background: var(--accent2);
+  color: var(--accent3);
+  font-weight: 700;
+}
+
+/* Rec box */
+.rec-box {
+  background: linear-gradient(135deg, rgba(233,69,96,0.15), rgba(0,210,255,0.1));
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  padding: 15px;
+  margin: 10px 0;
+}
+.rec-box h4 { color: var(--accent); margin-bottom: 8px; }
+.rec-nums {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0;
+}
+.rec-item {
+  background: rgba(0,0,0,0.3);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.85em;
+}
+.rec-item span { color: var(--gold); font-weight: 700; }
+
+/* Modal */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.7);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+}
+.modal-overlay.active { display: flex; }
+.modal {
+  background: var(--bg-card);
+  border-radius: 16px;
+  padding: 25px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 80vh;
+  overflow-y: auto;
+  border: 1px solid var(--border);
+}
+.modal h3 { color: var(--accent3); margin-bottom: 15px; }
+.modal-actions { display: flex; gap: 10px; margin-top: 15px; justify-content: flex-end; }
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: var(--accent2);
+  color: var(--text);
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 0.85em;
+  z-index: 300;
+  transition: transform 0.3s;
+  border: 1px solid var(--accent3);
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* Guide styles */
+.guide-section {
+  margin-bottom: 20px;
+  padding: 15px;
+  background: var(--bg-card-alt);
+  border-radius: 10px;
+  border-left: 3px solid var(--accent3);
+}
+.guide-section h4 { color: var(--accent3); margin-bottom: 8px; }
+.guide-section p, .guide-section li { color: var(--text-dim); font-size: 0.85em; line-height: 1.6; }
+.guide-section ul { margin-left: 20px; margin-top: 5px; }
+
+/* Collapsible */
+.collapsible-header {
+  cursor: pointer;
+  padding: 10px;
+  background: var(--bg-card-alt);
+  border-radius: 8px;
+  margin: 5px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+  font-size: 0.9em;
+}
+.collapsible-header:hover { background: rgba(255,255,255,0.05); }
+.collapsible-body { padding: 10px; display: none; }
+.collapsible-body.open { display: block; }
+
+/* Highlights */
+.highlight-green { color: var(--green); font-weight: 700; }
+.highlight-red { color: var(--red); font-weight: 700; }
+.highlight-gold { color: var(--gold); font-weight: 700; }
+.highlight-cyan { color: var(--accent3); font-weight: 700; }
+
+/* Last sorteo banner */
+.last-sorteo-banner {
+  background: linear-gradient(135deg, rgba(0,210,255,0.1), rgba(233,69,96,0.1));
+  border: 1px solid var(--accent3);
+  border-radius: 10px;
+  padding: 12px 15px;
+  margin-bottom: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.last-sorteo-banner .ls-label { font-size: 0.75em; color: var(--text-dim); }
+.last-sorteo-banner .ls-num { font-size: 1.4em; font-weight: 700; color: var(--gold); }
+.last-sorteo-banner .ls-info { font-size: 0.8em; color: var(--accent3); }
+
+/* Responsive adjustments */
+@media (max-width: 400px) {
+  .form-row { flex-direction: column; gap: 5px; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .tab-btn { padding: 10px 12px; font-size: 0.72em; }
+  .header h1 { font-size: 1.2em; }
+}
+
+/* Week grid */
+.week-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 8px;
+}
+.week-day-card {
+  background: var(--bg-card-alt);
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+}
+.week-day-card .day-name { font-size: 0.75em; color: var(--text-dim); margin-bottom: 4px; }
+.week-day-card .day-nums { font-size: 1.1em; font-weight: 700; color: var(--accent3); }
+.week-day-card .day-turno { font-size: 0.65em; color: var(--orange); }
+
+/* Probability meter */
+.prob-meter {
+  width: 100%;
+  height: 8px;
+  background: var(--bg-primary);
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 4px 0;
+}
+.prob-meter-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.5s;
+}
+.prob-high { background: linear-gradient(90deg, var(--green), #69f0ae); }
+.prob-med { background: linear-gradient(90deg, var(--orange), #ffcc02); }
+.prob-low { background: linear-gradient(90deg, var(--red), #ff8a80); }
+
+/* Edit row highlight */
+tr.editing { background: rgba(233,69,96,0.15) !important; }
+
+/* Scrollable tables */
+.scroll-table { max-height: 400px; overflow-y: auto; }
+.scroll-table thead th { position: sticky; top: 0; z-index: 2; }
+</style>
 </head>
 <body>
 
-<div class="overlay" id="ov"><div class="spin"></div><div class="tg" id="ovt">Procesando...</div></div>
-
 <div class="header">
-    <h1>🎯 SUPER ANÁLISIS DE SORTEOS</h1>
-    <p id="hsub">Cargando...</p>
+  <h1>🎰 Pick 3 Analyzer Pro</h1>
+  <small>Análisis avanzado de sorteos Pick 3</small>
 </div>
 
-<div class="nav">
-    <button class="active" onclick="goTab('home',this)">🏠 Inicio</button>
-    <button onclick="goTab('hist',this)">📋 Historial</button>
-    <button onclick="goTab('freq',this)">📊 Frecuencias</button>
-    <button onclick="goTab('dec',this)">🔢 Decenas</button>
-    <button onclick="goTab('term',this)">🎯 Terminales</button>
-    <button onclick="goTab('matrix',this)">🧮 Matrix</button>
-    <button onclick="goTab('vib',this)">📡 Vibraciones</button>
-    <button onclick="goTab('pull',this)">🧲 Conexiones</button>
-    <button onclick="goTab('year',this)">📅 Por Año</button>
-    <button onclick="goTab('day',this)">📆 Por Día</button>
-    <button onclick="goTab('add',this)">➕ Agregar</button>
-    <button onclick="goTab('imp',this)">📥 Importar</button>
+<div class="tabs-wrapper">
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="inicio">🏠 Inicio</button>
+    <button class="tab-btn" data-tab="historial">📋 Historial</button>
+    <button class="tab-btn" data-tab="frecuencias">📊 Frecuencias</button>
+    <button class="tab-btn" data-tab="decterm">🔢 Dec/Term</button>
+    <button class="tab-btn" data-tab="matrix">🧮 Matrix</button>
+    <button class="tab-btn" data-tab="vibraciones">🔮 Vibraciones</button>
+    <button class="tab-btn" data-tab="conexiones">🔗 Conexiones</button>
+    <button class="tab-btn" data-tab="semana">📅 Semana</button>
+    <button class="tab-btn" data-tab="anual">📆 Por Año</button>
+    <button class="tab-btn" data-tab="analisis">🎯 Análisis</button>
+    <button class="tab-btn" data-tab="guia">📖 Guía</button>
+  </div>
 </div>
 
-<div class="sec active" id="sec-home">
-    <div class="card"><div class="card-t">🎯 Último Sorteo</div><div class="g2" id="lastDraw"><div class="empty" style="grid-column:1/-1"><div class="ei">🎲</div><p>Importa datos para comenzar</p></div></div></div>
-    <div class="card" id="lastAnalCard" style="display:none"><div class="card-t">🔍 Análisis Último Número</div><div id="lastAnal"></div></div>
-    <div class="card"><div class="card-t">📈 Estadísticas Generales</div><div class="g2" id="genStats"></div></div>
-    <div class="card"><div class="card-t">🔥 Calientes & ❄️ Fríos</div><div class="g2"><div class="hc hot"><div class="hc-t">🔥 Top 5 Calientes</div><div class="hc-nums" id="hotN"></div></div><div class="hc cold"><div class="hc-t">❄️ Top 5 Fríos</div><div class="hc-nums" id="coldN"></div></div></div></div>
-    <div class="card"><div class="card-t">📊 Resumen Últimos 2 Meses</div><div id="last2months"></div></div>
-    <div class="card"><div class="card-t">⏱️ Racha</div><div id="streak" class="td fs">Sin datos</div></div>
-</div>
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
 
-<div class="sec" id="sec-hist">
-    <div class="card"><div class="card-t">📋 Historial Completo</div>
-        <div class="sbar"><input type="text" id="sI" placeholder="Buscar..." oninput="rHist()"><select id="sF" onchange="rHist()"><option value="">Todos</option><option value="midday">Mediodía</option><option value="evening">Noche</option></select></div>
-        <div class="tw"><table><thead><tr><th>Fecha</th><th>Turno</th><th>Número</th><th>🗑️</th></tr></thead><tbody id="hBody"></tbody></table></div>
-        <div class="pag"><button class="btn btn-outline" onclick="cPage(-1)">◀</button><span class="pag-info" id="pInfo">0/0</span><button class="btn btn-outline" onclick="cPage(1)">▶</button></div>
+<!-- MODAL EDITAR -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <h3>✏️ Editar Sorteo</h3>
+    <div class="form-group">
+      <label>Fecha</label>
+      <input type="date" id="editFecha">
     </div>
+    <div class="form-group">
+      <label>Turno</label>
+      <select id="editTurno">
+        <option value="M">Mediodía (M)</option>
+        <option value="N">Noche (N)</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>D1</label><input type="number" id="editD1" min="0" max="9"></div>
+      <div class="form-group"><label>D2</label><input type="number" id="editD2" min="0" max="9"></div>
+      <div class="form-group"><label>D3</label><input type="number" id="editD3" min="0" max="9"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeEditModal()">Cancelar</button>
+      <button class="btn btn-success" onclick="saveEdit()">💾 Guardar</button>
+    </div>
+  </div>
+</div><!-- ============ TAB: INICIO ============ -->
+<div class="tab-content active" id="tab-inicio">
+  <div class="card">
+    <h3>📥 Importar Datos</h3>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+      <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">📂 Excel/CSV</button>
+      <button class="btn btn-info" onclick="document.getElementById('jsonInput').click()">📄 JSON</button>
+      <button class="btn btn-warning" onclick="exportJSON()">💾 Exportar</button>
+      <button class="btn btn-danger btn-small" onclick="clearAllData()">🗑️ Borrar Todo</button>
+    </div>
+    <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" style="display:none" onchange="importFile(event)">
+    <input type="file" id="jsonInput" accept=".json" style="display:none" onchange="importJSON(event)">
+    <div id="importStatus"></div>
+  </div>
+
+  <div class="card">
+    <h3>➕ Agregar Sorteo Manual</h3>
+    <div class="form-group">
+      <label>Fecha</label>
+      <input type="date" id="addFecha">
+    </div>
+    <div class="form-group">
+      <label>Turno</label>
+      <select id="addTurno">
+        <option value="M">Mediodía (M)</option>
+        <option value="N">Noche (N)</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>D1</label><input type="number" id="addD1" min="0" max="9" placeholder="0-9"></div>
+      <div class="form-group"><label>D2</label><input type="number" id="addD2" min="0" max="9" placeholder="0-9"></div>
+      <div class="form-group"><label>D3</label><input type="number" id="addD3" min="0" max="9" placeholder="0-9"></div>
+    </div>
+    <button class="btn btn-success" onclick="addSorteo()">✅ Agregar</button>
+  </div>
+
+  <!-- Últimos 2 meses -->
+  <div id="inicio-resumen"></div>
 </div>
 
-<div class="sec" id="sec-freq">
-    <div class="sub-tabs" id="freqTabs">
-        <button class="sub-tab active" onclick="freqView('top',this)">🔥 Top 15</button>
-        <button class="sub-tab" onclick="freqView('bottom',this)">❄️ Bottom 15</button>
-        <button class="sub-tab" onclick="freqView('midday',this)">☀️ Mediodía</button>
-        <button class="sub-tab" onclick="freqView('evening',this)">🌙 Noche</button>
-        <button class="sub-tab" onclick="freqView('all100',this)">📊 Los 100</button>
+<!-- ============ TAB: HISTORIAL ============ -->
+<div class="tab-content" id="tab-historial">
+  <div class="card">
+    <h3>📋 Historial de Sorteos</h3>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+      <select id="filtroAnio" onchange="renderHistorial()" style="padding:8px;background:var(--bg-primary);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.85em;">
+        <option value="">Todos los años</option>
+      </select>
+      <select id="filtroMes" onchange="renderHistorial()" style="padding:8px;background:var(--bg-primary);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.85em;">
+        <option value="">Todos los meses</option>
+        <option value="01">Enero</option><option value="02">Febrero</option>
+        <option value="03">Marzo</option><option value="04">Abril</option>
+        <option value="05">Mayo</option><option value="06">Junio</option>
+        <option value="07">Julio</option><option value="08">Agosto</option>
+        <option value="09">Septiembre</option><option value="10">Octubre</option>
+        <option value="11">Noviembre</option><option value="12">Diciembre</option>
+      </select>
+      <select id="filtroTurno" onchange="renderHistorial()" style="padding:8px;background:var(--bg-primary);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.85em;">
+        <option value="">Todos</option>
+        <option value="M">Mediodía</option>
+        <option value="N">Noche</option>
+      </select>
     </div>
-    <div class="card"><div class="card-t" id="freqTitle">📊 Top 15 Más Frecuentes</div><div id="freqContent"></div></div>
+    <div id="historialCount" style="color:var(--text-dim);font-size:0.8em;margin-bottom:8px;"></div>
+    <div class="scroll-table">
+      <div id="historialTable"></div>
+    </div>
+  </div>
 </div>
 
-<div class="sec" id="sec-dec">
-    <div class="sub-tabs">
-        <button class="sub-tab active" onclick="decView('general',this)">📊 General</button>
-        <button class="sub-tab" onclick="decView('dd',this)">☀️→☀️ M-M</button>
-        <button class="sub-tab" onclick="decView('nn',this)">🌙→🌙 N-N</button>
-        <button class="sub-tab" onclick="decView('dn',this)">☀️→🌙 M-N</button>
-        <button class="sub-tab" onclick="decView('nd',this)">🌙→☀️ N-M</button>
-        <button class="sub-tab" onclick="decView('best',this)">🏆 Mejores</button>
+<!-- ============ TAB: FRECUENCIAS ============ -->
+<div class="tab-content" id="tab-frecuencias">
+  <div id="lastSorteoBannerFreq"></div>
+  <div class="card">
+    <h3>📊 Frecuencias de Números (0-9)</h3>
+    <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
+      <button class="btn btn-small btn-primary active" onclick="setFreqFilter('all',this)">Todos</button>
+      <button class="btn btn-small btn-secondary" onclick="setFreqFilter('M',this)">Mediodía</button>
+      <button class="btn btn-small btn-secondary" onclick="setFreqFilter('N',this)">Noche</button>
     </div>
-    <div class="card"><div class="card-t" id="decTitle">🔢 Análisis de Decenas</div><div id="decContent"></div></div>
+    <div id="freqChart"></div>
+  </div>
+  <div class="card">
+    <h3>📊 Frecuencia por Posición</h3>
+    <div id="freqByPos"></div>
+  </div>
+  <div class="card">
+    <h3>🔢 Frecuencias por Decenas (00-99)</h3>
+    <div id="freqDecenas"></div>
+  </div>
+  <div class="card">
+    <h3>🔢 Frecuencias por Terminales (00-99)</h3>
+    <div id="freqTerminales"></div>
+  </div>
 </div>
 
-<div class="sec" id="sec-term">
-    <div class="sub-tabs">
-        <button class="sub-tab active" onclick="termView('general',this)">📊 General</button>
-        <button class="sub-tab" onclick="termView('dd',this)">☀️→☀️ M-M</button>
-        <button class="sub-tab" onclick="termView('nn',this)">🌙→🌙 N-N</button>
-        <button class="sub-tab" onclick="termView('dn',this)">☀️→🌙 M-N</button>
-        <button class="sub-tab" onclick="termView('nd',this)">🌙→☀️ N-M</button>
-        <button class="sub-tab" onclick="termView('best',this)">🏆 Mejores</button>
+<!-- ============ TAB: DEC/TERM ============ -->
+<div class="tab-content" id="tab-decterm">
+  <div id="lastSorteoBannerDT"></div>
+  <div class="card">
+    <h3>🔢 Decenas y Terminales - General</h3>
+    <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
+      <button class="btn btn-small btn-primary active" onclick="setDTView('general',this)">General</button>
+      <button class="btn btn-small btn-secondary" onclick="setDTView('MM',this)">M→M</button>
+      <button class="btn btn-small btn-secondary" onclick="setDTView('NN',this)">N→N</button>
+      <button class="btn btn-small btn-secondary" onclick="setDTView('MN',this)">M→N</button>
+      <button class="btn btn-small btn-secondary" onclick="setDTView('NM',this)">N→M</button>
+      <button class="btn btn-small btn-secondary" onclick="setDTView('best',this)">⭐ Mejores</button>
     </div>
-    <div class="card"><div class="card-t" id="termTitle">🎯 Análisis de Terminales</div><div id="termContent"></div></div>
+    <div id="dtContent"></div>
+  </div>
+</div><!-- ============ TAB: MATRIX ============ -->
+<div class="tab-content" id="tab-matrix">
+  <div id="lastSorteoBannerMatrix"></div>
+  <div class="card">
+    <h3>🧮 Matrix de Decenas</h3>
+    <p style="font-size:0.75em;color:var(--text-dim);margin-bottom:10px;">Filas=D1, Columnas=D2. Color según frecuencia.</p>
+    <div id="matrixDecenas"></div>
+  </div>
+  <div class="card">
+    <h3>🧮 Matrix de Terminales</h3>
+    <p style="font-size:0.75em;color:var(--text-dim);margin-bottom:10px;">Filas=D2, Columnas=D3. Color según frecuencia.</p>
+    <div id="matrixTerminales"></div>
+  </div>
 </div>
 
-<div class="sec" id="sec-matrix">
-    <div class="sub-tabs">
-        <button class="sub-tab active" onclick="matView('dec',this)">🔢 Decenas</button>
-        <button class="sub-tab" onclick="matView('term',this)">🎯 Terminales</button>
-        <button class="sub-tab" onclick="matView('trans',this)">🔄 Transiciones</button>
-    </div>
-    <div class="card"><div class="card-t" id="matTitle">🧮 Matrix de Decenas</div><div id="matContent"></div></div>
+<!-- ============ TAB: VIBRACIONES ============ -->
+<div class="tab-content" id="tab-vibraciones">
+  <div id="lastSorteoBannerVib"></div>
+  <div class="card">
+    <h3>🔮 Vibraciones del Último Sorteo</h3>
+    <p style="font-size:0.75em;color:var(--text-dim);margin-bottom:10px;">
+      Relación entre el último sorteo, las matrices de decenas/terminales y las frecuencias históricas.
+    </p>
+    <div id="vibContent"></div>
+  </div>
 </div>
 
-<div class="sec" id="sec-vib">
-    <div class="sub-tabs">
-        <button class="sub-tab active" onclick="vibView('nums',this)">🔢 Números</button>
-        <button class="sub-tab" onclick="vibView('decs',this)">📊 Decenas</button>
-        <button class="sub-tab" onclick="vibView('terms',this)">🎯 Terminales</button>
+<!-- ============ TAB: CONEXIONES ============ -->
+<div class="tab-content" id="tab-conexiones">
+  <div class="card">
+    <h3>🔗 Conexiones (¿Qué número hala a otro?)</h3>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Número (000-999)</label>
+        <input type="text" id="connNum" placeholder="Ej: 123" maxlength="3">
+      </div>
+      <div class="form-group" style="display:flex;align-items:flex-end;">
+        <button class="btn btn-primary" onclick="buscarConexiones()">🔍 Buscar</button>
+      </div>
     </div>
-    <div class="card"><div class="card-t" id="vibTitle">📡 Vibraciones</div><div id="vibContent"></div></div>
+    <div id="connResults"></div>
+  </div>
 </div>
 
-<div class="sec" id="sec-pull">
-    <div class="sub-tabs">
-        <button class="sub-tab active" onclick="pullView('nums',this)">🔢 Números</button>
-        <button class="sub-tab" onclick="pullView('decs',this)">📊 Decenas</button>
-        <button class="sub-tab" onclick="pullView('terms',this)">🎯 Terminales</button>
-    </div>
-    <div class="card"><div class="card-t" id="pullTitle">🧲 Conexiones</div><div id="pullContent"></div></div>
+<!-- ============ TAB: ÚLTIMA SEMANA ============ -->
+<div class="tab-content" id="tab-semana">
+  <div id="lastSorteoBannerSemana"></div>
+  <div class="card">
+    <h3>📅 Análisis de Última Semana</h3>
+    <p style="font-size:0.75em;color:var(--text-dim);margin-bottom:10px;">
+      Sorteos de los últimos 7 días antes del próximo sorteo, con análisis de decenas y terminales.
+    </p>
+    <div id="semanaContent"></div>
+  </div>
 </div>
 
-<div class="sec" id="sec-year">
-    <div class="card"><div class="card-t">📅 Análisis por Año</div>
-        <div class="ytabs" id="yTabs"></div>
-        <div id="yearContent"></div>
+<!-- ============ TAB: POR AÑO ============ -->
+<div class="tab-content" id="tab-anual">
+  <div id="lastSorteoBannerAnual"></div>
+  <div class="card">
+    <h3>📆 Análisis por Año</h3>
+    <div class="form-group">
+      <label>Seleccionar Año</label>
+      <select id="anualYear" onchange="renderAnual()">
+        <option value="">Seleccione...</option>
+      </select>
     </div>
+    <div id="anualContent"></div>
+  </div>
+  <div class="card">
+    <h3>📊 Comparar Años y Recomendar</h3>
+    <p style="font-size:0.75em;color:var(--text-dim);margin-bottom:10px;">
+      Compara estadísticas de todos los años con el último sorteo del mes actual para recomendar.
+    </p>
+    <div id="anualCompare"></div>
+  </div>
 </div>
 
-<div class="sec" id="sec-day">
-    <div class="card"><div class="card-t">📆 Análisis por Día de Semana</div><div id="dayContent"></div></div>
+<!-- ============ TAB: ANÁLISIS ============ -->
+<div class="tab-content" id="tab-analisis">
+  <div id="lastSorteoBannerAnalisis"></div>
+  <div class="card">
+    <h3>🎯 Análisis del Último Sorteo → Próximo Sorteo</h3>
+    <p style="font-size:0.75em;color:var(--text-dim);margin-bottom:10px;">
+      Busca las mejores decenas y terminales con mayor probabilidad para el PRÓXIMO sorteo,
+      basado en historial completo y tendencias del mes actual.
+    </p>
+    <div id="analisisContent"></div>
+  </div>
 </div>
 
-<div class="sec" id="sec-add">
-    <div class="card"><div class="card-t">➕ Agregar Resultado Manual</div>
-        <div id="addA" class="alert"></div>
-        <div class="g2 mb">
-            <div class="fg" style="grid-column:1/-1"><label>Fecha</label><input type="date" id="aDate"></div>
-            <div class="fg"><label>Turno</label><select id="aShift"><option value="midday">☀️ Mediodía</option><option value="evening">🌙 Noche</option></select></div>
-            <div class="fg"><label>Número (00-99)</label><input type="text" id="aNum" placeholder="07" maxlength="2" inputmode="numeric"></div>
-        </div>
-        <button class="btn btn-gold" onclick="addR()">💾 Guardar</button>
+<!-- ============ TAB: GUÍA ============ -->
+<div class="tab-content" id="tab-guia">
+  <div class="card">
+    <h3>📖 Guía Completa de la App</h3>
+
+    <div class="guide-section">
+      <h4>🏠 Inicio</h4>
+      <p>Pantalla principal donde puedes:</p>
+      <ul>
+        <li><strong>Importar datos:</strong> Carga archivos Excel (.xlsx/.xls), CSV o JSON con tu historial de sorteos Pick 3.</li>
+        <li><strong>Agregar sorteos manualmente:</strong> Ingresa fecha, turno (M=mediodía, N=noche) y los 3 dígitos.</li>
+        <li><strong>Exportar:</strong> Descarga tus datos como JSON para respaldo.</li>
+        <li><strong>Resumen 2 meses:</strong> Muestra las mejores decenas y terminales de los últimos 2 meses comparados con el último sorteo.</li>
+      </ul>
     </div>
-    <div class="card"><div class="card-t">🗂️ Gestión de Datos</div>
-        <div class="btn-row">
-            <button class="btn btn-green" onclick="expData()">📤 Exportar JSON</button>
-            <button class="btn btn-blue" onclick="expExcel()">📊 Exportar Excel</button>
-            <button class="btn btn-purple" onclick="downTemplate()">📋 Plantilla Excel</button>
-            <button class="btn btn-red" onclick="clearAll()">🗑️ Borrar Todo</button>
-        </div>
+
+    <div class="guide-section">
+      <h4>📋 Historial</h4>
+      <p>Vista completa de todos los sorteos cargados. Permite:</p>
+      <ul>
+        <li><strong>Filtrar:</strong> Por año, mes y turno.</li>
+        <li><strong>Editar:</strong> Modificar cualquier sorteo sin necesidad de borrarlo usando el botón ✏️.</li>
+        <li><strong>Eliminar:</strong> Borrar sorteos individuales con el botón 🗑️.</li>
+      </ul>
     </div>
-</div>
 
-<div class="sec" id="sec-imp">
-    <div class="card"><div class="card-t">📥 Importar Datos</div>
-        <div id="impA" class="alert"></div>
-        
-        <div class="imp-area excel" onclick="document.getElementById('fExcel').click()">
-            <div class="ic">📊</div>
-            <p><strong style="color:var(--green)">EXCEL / CSV</strong></p>
-            <p class="fxs td mt">Toca aquí — Acepta .xlsx, .xls, .csv</p>
-        </div>
-        <input type="file" id="fExcel" accept=".xlsx,.xls,.csv" style="display:none" onchange="hExcel(event)">
-        
-        <div class="imp-area json" onclick="document.getElementById('fJson').click()">
-            <div class="ic">📂</div>
-            <p><strong style="color:var(--blue)">JSON</strong></p>
-            <p class="fxs td mt">Toca aquí para subir archivo .json</p>
-        </div>
-        <input type="file" id="fJson" accept=".json" style="display:none" onchange="hFile(event)">
-        
-        <div class="divider"></div>
-        <p class="fs td mb">📋 O pega JSON aquí:</p>
-        <textarea id="jPaste" rows="5" style="width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--text);font-size:0.75rem;font-family:monospace" placeholder='{"results":[...]}'></textarea>
-        <div class="mt"><button class="btn btn-gold" onclick="impPaste()">📥 Importar JSON</button></div>
+    <div class="guide-section">
+      <h4>📊 Frecuencias</h4>
+      <p>Muestra cuántas veces aparece cada dígito (0-9) en el historial:</p>
+      <ul>
+        <li><strong>General, Mediodía, Noche:</strong> Filtra las frecuencias por turno.</li>
+        <li><strong>Por posición:</strong> Frecuencia de cada dígito en posición D1, D2, D3.</li>
+        <li><strong>Por Decenas:</strong> Frecuencia de combinaciones D1+D2 (00-99).</li>
+        <li><strong>Por Terminales:</strong> Frecuencia de combinaciones D2+D3 (00-99).</li>
+      </ul>
     </div>
-    
-    <div class="card">
-        <div class="card-t">📋 Formato del Excel/CSV</div>
-        <p class="fxs td mb">El Excel debe tener 3 columnas: <strong class="tg">Fecha</strong>, <strong class="tg">Turno</strong>, <strong class="tg">Numero</strong></p>
-        <div class="format-example">
-            <table>
-                <thead><tr><th>Fecha</th><th>Turno</th><th>Numero</th></tr></thead>
-                <tbody>
-                    <tr><td>2024-01-01</td><td>Mediodía</td><td>91</td></tr>
-                    <tr><td>2024-01-01</td><td>Noche</td><td>38</td></tr>
-                </tbody>
-            </table>
-        </div>
-        <div class="mt fxs td">
-            <p>✅ Funciona 100% sin internet</p>
-            <p>✅ Detecta automáticamente la pestaña con datos</p>
-            <p>✅ Acepta: Mediodía, Día, Noche, D, N (con o sin tilde)</p>
-        </div>
-        <div class="mt"><button class="btn btn-purple" onclick="downTemplate()">📥 Descargar Plantilla</button></div>
+
+    <div class="guide-section">
+      <h4>🔢 Decenas y Terminales</h4>
+      <p>Análisis detallado de las combinaciones de 2 dígitos:</p>
+      <ul>
+        <li><strong>General:</strong> Todas las decenas y terminales más frecuentes.</li>
+        <li><strong>M→M:</strong> Qué decena/terminal de mediodía sigue a otra de mediodía.</li>
+        <li><strong>N→N:</strong> Noche sigue a noche.</li>
+        <li><strong>M→N:</strong> Qué sale en noche después de mediodía.</li>
+        <li><strong>N→M:</strong> Qué sale en mediodía después de noche.</li>
+        <li><strong>Mejores:</strong> Las combinaciones con mayor frecuencia general.</li>
+        <li>Cada vista compara con el último sorteo del mes actual.</li>
+      </ul>
     </div>
-</div>
 
-<div class="offline-status" id="offStatus">🌐 Cargando...</div>
+    <div class="guide-section">
+      <h4>🧮 Matrix</h4>
+      <p>Matrices visuales 10x10 que muestran:</p>
+      <ul>
+        <li><strong>Matrix de Decenas:</strong> Cruza D1 (fila) con D2 (columna). El color indica la frecuencia.</li>
+        <li><strong>Matrix de Terminales:</strong> Cruza D2 (fila) con D3 (columna).</li>
+        <li>🟢 Verde = Alta frecuencia, 🟡 Amarillo = Media, 🔴 Rojo = Baja, Gris = Nunca.</li>
+      </ul>
+    </div>
 
-<script>
-// ===== REGISTRAR SERVICE WORKER =====
-if('serviceWorker' in navigator){
-    window.addEventListener('load',()=>{
-        navigator.serviceWorker.register('./sw.js').then(reg=>{
-            console.log('✅ Service Worker registrado');
-        }).catch(err=>console.log('SW error:',err));
-    });
-}
+    <div class="guide-section">
+      <h4>🔮 Vibraciones</h4>
+      <p>Toma el último sorteo del mes actual y analiza:</p>
+      <ul>
+        <li>Qué decenas y terminales "vibran" con ese número según las matrices.</li>
+        <li>Frecuencias históricas de esas combinaciones.</li>
+        <li>Sugiere las combinaciones más fuertes para el próximo sorteo.</li>
+      </ul>
+    </div>
 
-function updOffStatus(){
-    const el=document.getElementById('offStatus');
-    if(navigator.onLine){
-        el.className='offline-status online';
-        el.textContent='🌐 En línea';
-        setTimeout(()=>el.style.opacity='0.5',2000);
-    }else{
-        el.className='offline-status offline';
-        el.textContent='📴 Sin conexión — Funcionando';
-        el.style.opacity='1';
-    }
-}
-window.addEventListener('online',updOffStatus);
-window.addEventListener('offline',updOffStatus);
+    <div class="guide-section">
+      <h4>🔗 Conexiones</h4>
+      <p>Ingresa un número de 3 dígitos y descubre:</p>
+      <ul>
+        <li>Qué números salieron DESPUÉS de ese número en el historial.</li>
+        <li>Se muestra separado por turno (M→M, M→N, N→N, N→M).</li>
+        <li>Útil para ver "qué jala" cada número.</li>
+      </ul>
+    </div>
 
-const SK='sorteos_super_v10';
-const LD=()=>{try{const r=localStorage.getItem(SK);return r?JSON.parse(r):[]}catch(e){return[]}};
-const SD=a=>localStorage.setItem(SK,JSON.stringify(a));
+    <div class="guide-section">
+      <h4>📅 Última Semana</h4>
+      <p>Analiza los sorteos de los últimos 7 días antes del próximo sorteo:</p>
+      <ul>
+        <li>Muestra cada sorteo de la semana con su decena y terminal.</li>
+        <li>Calcula las decenas y terminales más repetidas esa semana.</li>
+        <li>Compara con el último sorteo para dar recomendaciones.</li>
+      </ul>
+    </div>
 
-function noTilde(s){
-    if(!s)return '';
-    return String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
-}
+    <div class="guide-section">
+      <h4>📆 Por Año</h4>
+      <p>Estadísticas anuales que incluyen:</p>
+      <ul>
+        <li>Frecuencias de decenas y terminales de cada año.</li>
+        <li>Comparación entre todos los años disponibles.</li>
+        <li>Recomendación de mejores decenas y terminales comparando con el último sorteo del mes actual.</li>
+      </ul>
+    </div>
 
-function parseDate(input){
-    if(input===null||input===undefined||input==='')return null;
-    if(input instanceof Date && !isNaN(input.getTime())){
-        const y=input.getFullYear();
-        const m=String(input.getMonth()+1).padStart(2,'0');
-        const d=String(input.getDate()).padStart(2,'0');
-        return `${y}-${m}-${d}`;
-    }
-    let s=String(input).trim();
-    if(!s)return null;
-    if(/^\d+(\.\d+)?$/.test(s)){
-        const num=parseFloat(s);
-        if(num>25569&&num<80000){
-            const excelDate=new Date((num-25569)*86400*1000);
-            if(!isNaN(excelDate.getTime())){
-                const y=excelDate.getUTCFullYear();
-                const m=String(excelDate.getUTCMonth()+1).padStart(2,'0');
-                const d=String(excelDate.getUTCDate()).padStart(2,'0');
-                return `${y}-${m}-${d}`;
-            }
-        }
-    }
-    s=s.replace(/T.*$/,'').replace(/\s+\d.*$/,'').trim();
-    let m=s.match(/^(\d{4})[-\/\.](\d{1,2})[-\/\.](\d{1,2})$/);
-    if(m)return `${m[1]}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}`;
-    m=s.match(/^(\d{1,2})[-\/\.](\d{1,2})[-\/\.](\d{4})$/);
-    if(m){
-        const d=parseInt(m[1]),mo=parseInt(m[2]);
-        if(d>12)return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
-        if(mo>12)return `${m[3]}-${m[1].padStart(2,'0')}-${m[2].padStart(2,'0')}`;
-        return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
-    }
-    m=s.match(/^(\d{1,2})[-\/\.](\d{1,2})[-\/\.](\d{2})$/);
-    if(m){
-        const d=parseInt(m[1]),mo=parseInt(m[2]);
-        const yr=parseInt(m[3])>50?'19'+m[3]:'20'+m[3];
-        if(d>12)return `${yr}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
-        if(mo>12)return `${yr}-${m[1].padStart(2,'0')}-${m[2].padStart(2,'0')}`;
-        return `${yr}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
-    }
-    const meses={ene:'01',feb:'02',mar:'03',abr:'04',may:'05',jun:'06',jul:'07',ago:'08',sep:'09',oct:'10',nov:'11',dic:'12',
-                 enero:'01',febrero:'02',marzo:'03',abril:'04',mayo:'05',junio:'06',julio:'07',agosto:'08',septiembre:'09',octubre:'10',noviembre:'11',diciembre:'12'};
-    const sl=noTilde(s);
-    m=sl.match(/(\d{1,2})[-\/\s]([a-z]+)[-\/\s](\d{2,4})/);
-    if(m){
-        const mn=meses[m[2].substring(0,3)]||meses[m[2]];
-        if(mn){
-            const yr=m[3].length===2?(parseInt(m[3])>50?'19':'20')+m[3]:m[3];
-            return `${yr}-${mn}-${m[1].padStart(2,'0')}`;
-        }
-    }
-    try{
-        const d=new Date(s);
-        if(!isNaN(d.getTime())){
-            const y=d.getFullYear();
-            const mo=String(d.getMonth()+1).padStart(2,'0');
-            const dd=String(d.getDate()).padStart(2,'0');
-            return `${y}-${mo}-${dd}`;
-        }
-    }catch(e){}
-    return null;
-}
+    <div class="guide-section">
+      <h4>🎯 Análisis</h4>
+      <p>El análisis más completo:</p>
+      <ul>
+        <li>Toma el último sorteo del mes actual.</li>
+        <li>Busca en todo el historial las mejores decenas y terminales para el PRÓXIMO sorteo.</li>
+        <li>Considera: frecuencias históricas, tendencias del mes, matrices, conexiones y vibraciones.</li>
+        <li>Muestra barras de probabilidad para cada recomendación.</li>
+        <li>Separa recomendaciones para Mediodía y Noche.</li>
+      </ul>
+    </div>
 
-function parseShift(input){
-    if(input===null||input===undefined)return null;
-    const s=noTilde(input);
-    if(!s)return null;
-    const midday=['dia','d','day','midday','mediodia','md','tarde','manana','am','1','m','matutino'];
-    const evening=['noche','n','night','evening','eve','ev','pm','2','e','nocturno','vespertino'];
-    if(midday.indexOf(s)>=0)return 'midday';
-    if(evening.indexOf(s)>=0)return 'evening';
-    if(s.indexOf('medio')>=0||s.indexOf('dia')>=0||s.indexOf('day')>=0||s.indexOf('mid')>=0||s.indexOf('tarde')>=0||s.indexOf('manan')>=0||s.indexOf('matut')>=0)return 'midday';
-    if(s.indexOf('noche')>=0||s.indexOf('night')>=0||s.indexOf('even')>=0||s.indexOf('nite')>=0||s.indexOf('noct')>=0||s.indexOf('vesper')>=0)return 'evening';
-    return null;
-}
+    <div class="guide-section">
+      <h4>💡 Consejos de Uso</h4>
+      <ul>
+        <li>Importa la mayor cantidad de historial posible para mejores análisis.</li>
+        <li>Revisa las pestañas Vibraciones y Análisis antes de cada sorteo.</li>
+        <li>Combina la información de varias pestañas para tomar decisiones.</li>
+        <li>La app funciona 100% offline una vez cargada.</li>
+        <li>Exporta tu JSON regularmente como respaldo.</li>
+      </ul>
+    </div>
+  </div>
+</div><script>
+// ===== DATOS Y ESTADO =====
+let sorteos = [];
+let editIndex = -1;
+let freqFilter = 'all';
+let dtView = 'general';
 
-function norm(r){
-    let dateVal=null;
-    const dateKeys=['drawDate','date','fecha','Fecha','FECHA','DATE'];
-    for(const k of dateKeys){if(r[k]!==undefined&&r[k]!==null&&r[k]!==''){dateVal=r[k];break}}
-    const rd=parseDate(dateVal);
-    if(!rd||!/^\d{4}-\d{2}-\d{2}$/.test(rd))return null;
-    let numVal=null;
-    const numKeys=['number','numero','Numero','NUMERO','Número','NÚMERO','num','Num','NUM','n','N'];
-    for(const k of numKeys){if(r[k]!==undefined&&r[k]!==null&&r[k]!==''){numVal=r[k];break}}
-    const ni=parseInt(String(numVal),10);
-    if(isNaN(ni)||ni<0||ni>99)return null;
-    const n=String(ni).padStart(2,'0');
-    let shiftVal=null;
-    const shiftKeys=['shift','turno','Turno','TURNO','periodo','período','Periodo','Período','SHIFT'];
-    for(const k of shiftKeys){if(r[k]!==undefined&&r[k]!==null&&r[k]!==''){shiftVal=r[k];break}}
-    const s=parseShift(shiftVal);
-    if(!s)return null;
-    return {id:`${rd}_${s}`,drawDate:rd,shift:s,number:n,createdAt:r.createdAt||Date.now()};
-}
-
-function procImp(txt,src){
-    showOv('Procesando JSON...');
-    setTimeout(()=>{
-        try{
-            const p=JSON.parse(txt.trim());
-            let items=Array.isArray(p)?p:(p.results&&Array.isArray(p.results))?p.results:null;
-            if(!items)throw new Error('Formato JSON no reconocido');
-            if(!items.length)throw new Error('Sin resultados');
-            processItems(items,src);
-        }catch(e){hideOv();sAlert(src,`❌ ${e.message}`,'e')}
-    },200);
-}
-
-function processItems(items,src){
-    const norms=items.map(norm).filter(Boolean);
-    if(!norms.length){
-        hideOv();
-        const firstRow=items[0]?JSON.stringify(items[0]).substring(0,200):'vacío';
-        sAlert(src,`❌ Ningún dato válido. Primera fila: ${firstRow}`,'e');
-        return;
-    }
-    const ex=LD();
-    const map={};
-    ex.forEach(e=>map[e.id]=e);
-    let a=0,u=0;
-    norms.forEach(nr=>{if(map[nr.id])u++;else a++;map[nr.id]=nr});
-    const final=Object.values(map).sort((a,b)=>b.drawDate.localeCompare(a.drawDate));
-    SD(final);rAll();hideOv();
-    sAlert(src,`✅ ${a} nuevos, ${u} actualizados. Total: ${final.length} sorteos`,'s');
-}
-
-function extractItemsFromSheet(sheet){
-    const allRows=XLSX.utils.sheet_to_json(sheet,{header:1,raw:false,defval:''});
-    if(!allRows.length)return [];
-    const firstRow=allRows[0]||[];
-    const firstStr=firstRow.map(x=>noTilde(String(x||''))).join('|');
-    const hasHeaders=firstStr.indexOf('fecha')>=0||firstStr.indexOf('turno')>=0||firstStr.indexOf('numero')>=0||firstStr.indexOf('date')>=0||firstStr.indexOf('shift')>=0;
-    const startIdx=hasHeaders?1:0;
-    const items=[];
-    for(let i=startIdx;i<allRows.length;i++){
-        const row=allRows[i];
-        if(!row||row.length===0)continue;
-        const nonEmpty=[];
-        for(let j=0;j<row.length;j++){
-            const val=row[j];
-            if(val!==null&&val!==undefined&&String(val).trim()!==''){
-                nonEmpty.push(val);
-            }
-        }
-        if(nonEmpty.length<3)continue;
-        items.push({Fecha:nonEmpty[0],Turno:nonEmpty[1],Numero:nonEmpty[2]});
-    }
-    return items;
-}
-
-function hExcel(ev){
-    const f=ev.target.files[0];if(!f)return;
-    if(typeof XLSX==='undefined'){
-        sAlert('impA','❌ La librería Excel no está disponible. Conecta a internet una vez para descargarla.','e');
-        return;
-    }
-    showOv('Leyendo Excel...');
-    const reader=new FileReader();
-    reader.onload=e=>{
-        try{
-            const data=new Uint8Array(e.target.result);
-            const wb=XLSX.read(data,{type:'array',cellDates:true,cellNF:false});
-            if(!wb.SheetNames||!wb.SheetNames.length){hideOv();sAlert('impA','❌ Excel sin hojas','e');return}
-            let bestSheet=null,bestItems=[],bestValidCount=0,sheetInfo=[];
-            for(const sheetName of wb.SheetNames){
-                const sheet=wb.Sheets[sheetName];
-                const items=extractItemsFromSheet(sheet);
-                const validCount=items.map(norm).filter(Boolean).length;
-                sheetInfo.push(`"${sheetName}": ${items.length} filas, ${validCount} válidas`);
-                if(validCount>bestValidCount){bestValidCount=validCount;bestSheet=sheetName;bestItems=items}
-            }
-            if(!bestItems.length||bestValidCount===0){
-                hideOv();
-                sAlert('impA',`❌ Sin datos válidos. Pestañas: ${sheetInfo.join(' | ')}`,'e');
-                return;
-            }
-            showOv(`Leyendo "${bestSheet}"...`);
-            setTimeout(()=>processItems(bestItems,'impA'),200);
-        }catch(err){hideOv();sAlert('impA',`❌ Error: ${err.message}`,'e')}
-    };
-    reader.onerror=()=>{hideOv();sAlert('impA','❌ No se pudo leer','e')};
-    reader.readAsArrayBuffer(f);
-    ev.target.value='';
-}
-
-function hFile(ev){
-    const f=ev.target.files[0];if(!f)return;
-    const r=new FileReader();
-    r.onload=e=>procImp(e.target.result,'impA');
-    r.readAsText(f);ev.target.value='';
-}
-
-function impPaste(){
-    const t=document.getElementById('jPaste').value.trim();
-    if(!t){sAlert('impA','⚠️ Pega el JSON primero','e');return}
-    procImp(t,'impA');
-}
-
-function addR(){
-    const d=document.getElementById('aDate').value;
-    const s=document.getElementById('aShift').value;
-    const nr=document.getElementById('aNum').value.trim();
-    if(!d){sAlert('addA','⚠️ Selecciona fecha','e');return}
-    if(!nr){sAlert('addA','⚠️ Ingresa número','e');return}
-    const ni=parseInt(nr,10);
-    if(isNaN(ni)||ni<0||ni>99){sAlert('addA','⚠️ Número 00-99','e');return}
-    const n=String(ni).padStart(2,'0');
-    const id=`${d}_${s}`;const data=LD();
-    const idx=data.findIndex(x=>x.id===id);
-    const entry={id,drawDate:d,shift:s,number:n,createdAt:Date.now()};
-    if(idx>=0){data[idx]=entry;sAlert('addA','✅ Actualizado','s')}
-    else{data.push(entry);sAlert('addA','✅ Guardado','s')}
-    data.sort((a,b)=>b.drawDate.localeCompare(a.drawDate));
-    SD(data);rAll();document.getElementById('aNum').value='';
-}
-
-function delR(id){
-    if(!confirm('¿Eliminar este sorteo?'))return;
-    SD(LD().filter(d=>d.id!==id));rAll();rHist();
-}
-
-function expData(){
-    const d=LD();if(!d.length){alert('Sin datos');return}
-    const b=new Blob([JSON.stringify({version:1,exportDate:new Date().toISOString(),results:d},null,2)],{type:'application/json'});
-    const a=document.createElement('a');a.href=URL.createObjectURL(b);
-    a.download=`sorteos_${new Date().toISOString().substring(0,10)}.json`;a.click();
-}
-
-function expExcel(){
-    const d=LD();if(!d.length){alert('Sin datos');return}
-    if(typeof XLSX==='undefined'){alert('Librería Excel no disponible');return}
-    const rows=d.map(x=>({Fecha:x.drawDate,Turno:x.shift==='midday'?'Mediodía':'Noche',Numero:x.number}));
-    const ws=XLSX.utils.json_to_sheet(rows);
-    const wb=XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb,ws,'Sorteos');
-    XLSX.writeFile(wb,`sorteos_${new Date().toISOString().substring(0,10)}.xlsx`);
-}
-
-function downTemplate(){
-    if(typeof XLSX==='undefined'){alert('Librería Excel no disponible');return}
-    const rows=[
-        {Fecha:'2024-01-01',Turno:'Mediodía',Numero:'91'},
-        {Fecha:'2024-01-01',Turno:'Noche',Numero:'38'},
-        {Fecha:'2024-01-02',Turno:'Mediodía',Numero:'56'},
-        {Fecha:'2024-01-02',Turno:'Noche',Numero:'84'}
-    ];
-    const ws=XLSX.utils.json_to_sheet(rows);
-    const wb=XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb,ws,'Sorteos');
-    XLSX.writeFile(wb,'plantilla_sorteos.xlsx');
-}
-
-function clearAll(){
-    if(!confirm('⚠️ ¿BORRAR TODO el historial? NO se puede deshacer.\n\nRecomendado: exportar antes.'))return;
-    if(!confirm('⚠️ ¿COMPLETAMENTE seguro?'))return;
-    localStorage.removeItem(SK);rAll();alert('✅ Todo borrado');
-}
-
-function gFreq(data){const f={};for(let i=0;i<=99;i++)f[String(i).padStart(2,'0')]=0;data.forEach(d=>{if(f[d.number]!==undefined)f[d.number]++});return f}
-function sFreq(f){return Object.entries(f).sort((a,b)=>b[1]-a[1])}
-function getDec(n){return Math.floor(parseInt(n,10)/10)}
-function getTerm(n){return parseInt(n,10)%10}
-function fmtD(d){if(!d)return'-';const[y,m,dd]=d.split('-');const mn=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];return`${parseInt(dd)} ${mn[parseInt(m)-1]} ${y}`}
-function diffD(a,b){return Math.abs(Math.round((new Date(b+'T00:00:00')-new Date(a+'T00:00:00'))/86400000))}
-function getDayName(d){const days=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];return days[new Date(d+'T12:00:00').getDay()]}
-
-function getTransitions(data,type){
-    const sorted=[...data].sort((a,b)=>a.drawDate.localeCompare(b.drawDate)||a.shift.localeCompare(b.shift));
-    const pairs=[];
-    for(let i=0;i<sorted.length-1;i++){
-        const curr=sorted[i],next=sorted[i+1];let match=false;
-        if(type==='dd'&&curr.shift==='midday'&&next.shift==='midday')match=true;
-        if(type==='nn'&&curr.shift==='evening'&&next.shift==='evening')match=true;
-        if(type==='dn'&&curr.shift==='midday'&&next.shift==='evening'&&curr.drawDate===next.drawDate)match=true;
-        if(type==='nd'&&curr.shift==='evening'&&next.shift==='midday')match=true;
-        if(type==='all')match=true;
-        if(match)pairs.push({from:curr,to:next});
-    }
-    return pairs;
-}
-function getDecTransFreq(pairs){const freq={};for(let i=0;i<=9;i++)for(let j=0;j<=9;j++)freq[`${i}->${j}`]=0;pairs.forEach(p=>{freq[`${getDec(p.from.number)}->${getDec(p.to.number)}`]++});return freq}
-function getTermTransFreq(pairs){const freq={};for(let i=0;i<=9;i++)for(let j=0;j<=9;j++)freq[`${i}->${j}`]=0;pairs.forEach(p=>{freq[`${getTerm(p.from.number)}->${getTerm(p.to.number)}`]++});return freq}
-
-function calcVibration(data,num,recentCount){
-    const total=data.length;
-    if(total<10)return{level:0,label:'Sin datos',cls:'vib-low'};
-    const recent=data.slice(0,recentCount||20);
-    const freq=gFreq(data);const rFreq=gFreq(recent);
-    const expected=total/100;const rExpected=recent.length/100;
-    const actual=freq[num]||0;const rActual=rFreq[num]||0;
-    const ratio=(rActual/Math.max(rExpected,0.1))/(Math.max(actual,1)/Math.max(expected,0.1));
-    const pct=Math.min(100,Math.round(ratio*50));
-    let label,cls;
-    if(ratio>1.5){label='🔥 MUY ALTA';cls='vib-high'}
-    else if(ratio>1){label='⚡ ALTA';cls='vib-high'}
-    else if(ratio>0.5){label='➡️ MEDIA';cls='vib-med'}
-    else{label='💤 BAJA';cls='vib-low'}
-    return{level:pct,label,cls};
-}
-
-function getPullConnections(data,limit){
-    const sorted=[...data].sort((a,b)=>a.drawDate.localeCompare(b.drawDate)||(a.shift==='midday'?-1:1));
-    const connections={};
-    for(let i=0;i<sorted.length-1;i++){
-        const from=sorted[i].number,to=sorted[i+1].number;
-        const key=`${from}->${to}`;
-        if(!connections[key])connections[key]={from,to,count:0};
-        connections[key].count++;
-    }
-    return Object.values(connections).sort((a,b)=>b.count-a.count).slice(0,limit||20);
-}
-
-function rHome(){
-    const data=LD();const t=data.length;
-    document.getElementById('hsub').textContent=t>0?`${t} sorteos registrados`:'Sin datos — Ve a Importar';
-    if(!t){
-        document.getElementById('lastDraw').innerHTML='<div class="empty" style="grid-column:1/-1"><div class="ei">🎲</div><p>Importa datos</p></div>';
-        document.getElementById('lastAnalCard').style.display='none';
-        document.getElementById('hotN').innerHTML='<span class="td fs">-</span>';
-        document.getElementById('coldN').innerHTML='<span class="td fs">-</span>';
-        document.getElementById('genStats').innerHTML='';
-        document.getElementById('last2months').innerHTML='<span class="td fs">Sin datos</span>';
-        document.getElementById('streak').textContent='Sin datos';
-        return;
-    }
-    const s=[...data].sort((a,b)=>b.drawDate.localeCompare(a.drawDate));
-    const lm=s.find(d=>d.shift==='midday'),le=s.find(d=>d.shift==='evening');
-    let h='';
-    if(lm)h+=`<div class="draw-box"><div class="lbl">☀️ Último Mediodía</div><div class="num">${lm.number}</div><div class="dt">${fmtD(lm.drawDate)}</div></div>`;
-    if(le)h+=`<div class="draw-box"><div class="lbl">🌙 Última Noche</div><div class="num">${le.number}</div><div class="dt">${fmtD(le.drawDate)}</div></div>`;
-    document.getElementById('lastDraw').innerHTML=h;
-    const freq=gFreq(data),sf=sFreq(freq);
-    const top5=sf.slice(0,5),cold5=[...sf].sort((a,b)=>a[1]-b[1]).slice(0,5);
-    document.getElementById('hotN').innerHTML=top5.map(([n,c])=>`<span class="hc-n">${n}<br><span style="font-size:0.6rem">${c}x</span></span>`).join('');
-    document.getElementById('coldN').innerHTML=cold5.map(([n,c])=>`<span class="hc-n">${n}<br><span style="font-size:0.6rem">${c}x</span></span>`).join('');
-    const years=new Set(data.map(d=>d.drawDate.substring(0,4))).size;
-    const mf=sf[0],lf=[...sf].sort((a,b)=>a[1]-b[1])[0];
-    document.getElementById('genStats').innerHTML=`
-        <div class="stat-box"><div class="v">${t}</div><div class="l">Total Sorteos</div></div>
-        <div class="stat-box"><div class="v">${years}</div><div class="l">Años</div></div>
-        <div class="stat-box"><div class="v">${mf[0]}</div><div class="l">Más Frecuente (${mf[1]}x)</div></div>
-        <div class="stat-box"><div class="v">${lf[0]}</div><div class="l">Menos Frecuente (${lf[1]}x)</div></div>`;
-    rLastAnal(s[0],data,freq,sf);rStreak(s);rLast2Months(data);
-}
-
-function rLastAnal(last,data,freq,sf){
-    if(!last)return;
-    document.getElementById('lastAnalCard').style.display='block';
-    const n=last.number,c=freq[n]||0,pct=((c/data.length)*100).toFixed(1);
-    const rank=sf.findIndex(([x])=>x===n)+1;
-    const ni=parseInt(n,10),par=ni%2===0?'Par':'Impar';
-    const dec=getDec(n),term=getTerm(n);
-    let tag=rank<=10?'<span class="tag tag-hot">🔥 Caliente</span>':rank>=90?'<span class="tag tag-cold">❄️ Frío</span>':'<span class="tag tag-norm">⚖️ Normal</span>';
-    const vib=calcVibration(data,n,20);
-    const prev=data.filter(d=>d.number===n&&d.id!==last.id).sort((a,b)=>b.drawDate.localeCompare(a.drawDate))[0];
-    const sorted=[...data].sort((a,b)=>b.drawDate.localeCompare(a.drawDate));
-    const penult=sorted[1];
-    let transInfo='';
-    if(penult){
-        const pDec=getDec(penult.number),pTerm=getTerm(penult.number);
-        const cDec=getDec(n),cTerm=getTerm(n);
-        transInfo=`<div class="divider"></div><div class="card-t fxs mb">🔄 Transición desde sorteo anterior</div><div class="g2">
-            <div class="ai"><div class="al">Anterior</div><div class="av tg">${penult.number} <span class="fxs td">(${penult.shift==='midday'?'☀️':'🌙'})</span></div></div>
-            <div class="ai"><div class="al">Actual</div><div class="av tgr">${n} <span class="fxs td">(${last.shift==='midday'?'☀️':'🌙'})</span></div></div>
-            <div class="ai"><div class="al">Decena</div><div class="av">${pDec}0s → ${cDec}0s</div></div>
-            <div class="ai"><div class="al">Terminal</div><div class="av">${pTerm} → ${cTerm}</div></div>
-        </div>`;
-    }
-    document.getElementById('lastAnal').innerHTML=`
-        <div class="g2">
-            <div class="ai"><div class="al">Número</div><div class="av tg" style="font-size:2rem">${n}</div></div>
-            <div class="ai"><div class="al">Clasificación</div><div class="av">${tag}</div></div>
-            <div class="ai"><div class="al">Apariciones</div><div class="av">${c} (${pct}%)</div></div>
-            <div class="ai"><div class="al">Ranking</div><div class="av">#${rank}/100</div></div>
-            <div class="ai"><div class="al">Decena/Terminal</div><div class="av">${dec}0s / T${term}</div></div>
-            <div class="ai"><div class="al">Paridad</div><div class="av">${par}</div></div>
-            <div class="ai"><div class="al">Vibración</div><div class="av">${vib.label}<div class="vib-meter"><div class="vib-fill ${vib.cls}" style="width:${vib.level}%"></div></div></div></div>
-            <div class="ai"><div class="al">Suma Dígitos</div><div class="av">${Math.floor(ni/10)+ni%10}</div></div>
-        </div>
-        <div class="mt fs td">📅 ${last.shift==='midday'?'☀️ Mediodía':'🌙 Noche'} — ${fmtD(last.drawDate)}
-        ${prev?`<br>🔁 Anterior: ${fmtD(prev.drawDate)} (hace ${diffD(prev.drawDate,last.drawDate)} días)`:'<br>🆕 Primera aparición'}</div>
-        ${transInfo}`;
-}
-
-function rStreak(sorted){
-    if(sorted.length<2){document.getElementById('streak').textContent='Necesitas más datos';return}
-    const n=sorted[0].number;let streak=0;
-    for(let i=1;i<sorted.length;i++){if(sorted[i].number!==n)streak++;else break}
-    document.getElementById('streak').innerHTML=`<span class="tg fw">Número ${n}</span> — ${streak>0?`No había salido en los ${streak} sorteos anteriores`:'También salió en el sorteo anterior'}.<div class="mt">Total apariciones: <span class="tgr fw">${sorted.filter(d=>d.number===n).length}</span></div>`;
-}
-
-function rLast2Months(data){
-    if(!data.length){document.getElementById('last2months').innerHTML='Sin datos';return}
-    const sorted=[...data].sort((a,b)=>b.drawDate.localeCompare(a.drawDate));
-    const lastDate=sorted[0].drawDate,lastMonth=lastDate.substring(0,7);
-    const[ly,lm]=lastMonth.split('-').map(Number);
-    const months=[];
-    for(let i=1;i<=2;i++){let m=lm-i,y=ly;if(m<=0){m+=12;y--}months.push(`${y}-${String(m).padStart(2,'0')}`)}
-    months.unshift(lastMonth);
-    const mn=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-    let html='<div class="g3">';
-    months.forEach(ym=>{
-        const mData=data.filter(d=>d.drawDate.startsWith(ym));
-        const[y,m]=ym.split('-');
-        if(!mData.length){html+=`<div class="stat-box"><div style="font-size:0.7rem;color:var(--gold);font-weight:700">${mn[parseInt(m)-1]} ${y}</div><div class="v" style="font-size:1rem">0</div><div class="l">Sin datos</div></div>`;return}
-        const mFreq=gFreq(mData);const top3=sFreq(mFreq).slice(0,3);
-        html+=`<div class="stat-box"><div style="font-size:0.7rem;color:var(--gold);font-weight:700">${mn[parseInt(m)-1]} ${y}</div><div class="v" style="font-size:1.2rem">${mData.length}</div><div class="l">sorteos</div><div class="fxs td mt">${top3.map(([n,c])=>`<span class="tg">${n}</span>(${c})`).join(' ')}</div></div>`;
-    });
-    html+='</div>';document.getElementById('last2months').innerHTML=html;
-}
-
-let cP=1;const pP=25;
-function gFilt(){
-    const d=LD(),s=document.getElementById('sI').value.toLowerCase(),f=document.getElementById('sF').value;
-    let r=[...d].sort((a,b)=>b.drawDate.localeCompare(a.drawDate));
-    if(s)r=r.filter(x=>x.number.includes(s)||x.drawDate.includes(s));
-    if(f)r=r.filter(x=>x.shift===f);
-    return r;
-}
-function rHist(){
-    const f=gFilt(),tp=Math.max(1,Math.ceil(f.length/pP));
-    if(cP>tp)cP=tp;
-    const pg=f.slice((cP-1)*pP,cP*pP);
-    const tb=document.getElementById('hBody');
-    if(!pg.length){tb.innerHTML='<tr><td colspan="4" class="tc td" style="padding:30px">Sin resultados</td></tr>'}
-    else{tb.innerHTML=pg.map(d=>`<tr><td>${fmtD(d.drawDate)}</td><td><span class="badge badge-${d.shift==='midday'?'m':'e'}">${d.shift==='midday'?'☀️ Mediodía':'🌙 Noche'}</span></td><td><span class="pill">${d.number}</span></td><td><button class="btn btn-red" style="padding:3px 8px;font-size:0.7rem" onclick="delR('${d.id}')">🗑️</button></td></tr>`).join('')}
-    document.getElementById('pInfo').textContent=`${cP}/${tp} (${f.length})`;
-}
-function cPage(dir){const f=gFilt(),tp=Math.max(1,Math.ceil(f.length/pP));cP=Math.max(1,Math.min(tp,cP+dir));rHist()}
-
-let curFreqView='top';
-function freqView(v,btn){curFreqView=v;document.querySelectorAll('#freqTabs .sub-tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');rFreq()}
-function rFreq(){
-    const data=LD();
-    if(!data.length){document.getElementById('freqContent').innerHTML='<div class="empty"><div class="ei">📊</div><p>Sin datos</p></div>';return}
-    let fData=data,title='';
-    if(curFreqView==='midday'){fData=data.filter(d=>d.shift==='midday');title='☀️ Frecuencias Mediodía'}
-    else if(curFreqView==='evening'){fData=data.filter(d=>d.shift==='evening');title='🌙 Frecuencias Noche'}
-    else if(curFreqView==='top')title='🔥 Top 15 Más Frecuentes';
-    else if(curFreqView==='bottom')title='❄️ Top 15 Menos Frecuentes';
-    else title='📊 Los 100 Números';
-    document.getElementById('freqTitle').textContent=title;
-    const freq=gFreq(fData),sf=sFreq(freq);const maxC=sf[0][1];
-    let items;
-    if(curFreqView==='bottom')items=[...sf].sort((a,b)=>a[1]-b[1]).slice(0,15);
-    else if(curFreqView==='all100')items=sf;
-    else items=sf.slice(0,15);
-    const fillCls=curFreqView==='bottom'?'fill-hot':'fill-green';
-    document.getElementById('freqContent').innerHTML=items.map(([n,c])=>`<div class="fb"><div class="n">${n}</div><div class="track"><div class="fill ${fillCls}" style="width:${maxC>0?(c/maxC*100):0}%"><span>${c}</span></div></div><div class="c">${c}x</div></div>`).join('');
-}
-
-let curDecView='general';
-function decView(v,btn){curDecView=v;document.querySelectorAll('#sec-dec .sub-tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');rDec()}
-function rDec(){
-    const data=LD();
-    if(!data.length){document.getElementById('decContent').innerHTML='<div class="empty"><div class="ei">🔢</div><p>Sin datos</p></div>';return}
-    if(curDecView==='general')rDecGeneral(data);
-    else if(curDecView==='best')rDecBest(data);
-    else rDecTrans(data,curDecView);
-}
-function rDecGeneral(data){
-    document.getElementById('decTitle').textContent='🔢 Frecuencia por Decena';
-    const decFreq={};for(let i=0;i<=9;i++)decFreq[i]=0;
-    data.forEach(d=>decFreq[getDec(d.number)]++);
-    const sorted=Object.entries(decFreq).sort((a,b)=>b[1]-a[1]);
-    const max=sorted[0][1];
-    document.getElementById('decContent').innerHTML=`${sorted.map(([d,c])=>`<div class="fb"><div class="n">${d}0s</div><div class="track"><div class="fill fill-gold" style="width:${max>0?(c/max*100):0}%"><span>${c}</span></div></div><div class="c">${c}x</div></div>`).join('')}<div class="divider"></div><div class="fxs td">Total: ${data.length} sorteos. Promedio: ${(data.length/10).toFixed(1)}</div>`;
-}
-function rDecTrans(data,type){
-    const labels={dd:'☀️→☀️ Mediodía-Mediodía',nn:'🌙→🌙 Noche-Noche',dn:'☀️→🌙 Mediodía-Noche',nd:'🌙→☀️ Noche-Mediodía'};
-    document.getElementById('decTitle').textContent=`🔢 Decenas: ${labels[type]}`;
-    const pairs=getTransitions(data,type);
-    if(!pairs.length){document.getElementById('decContent').innerHTML='<div class="empty"><p>Sin transiciones</p></div>';return}
-    const freq=getDecTransFreq(pairs);
-    const sorted=Object.entries(freq).sort((a,b)=>b[1]-a[1]).filter(([,c])=>c>0);
-    const max=sorted[0]?sorted[0][1]:1;
-    document.getElementById('decContent').innerHTML=`<p class="fxs td mb">${pairs.length} transiciones analizadas</p>${sorted.slice(0,15).map(([k,c])=>{const[f,t]=k.split('->');return`<div class="fb"><div class="n" style="width:50px;font-size:0.75rem">${f}0s→${t}0s</div><div class="track"><div class="fill fill-gold" style="width:${(c/max*100)}%"><span>${c}</span></div></div><div class="c">${c}x</div></div>`}).join('')}`;
-}
-function rDecBest(data){
-    document.getElementById('decTitle').textContent='🏆 Mejores Decenas a Jugar';
-    const sorted=[...data].sort((a,b)=>b.drawDate.localeCompare(a.drawDate));
-    const recent=sorted.slice(0,Math.min(40,sorted.length));
-    const gDec={},rDec={};for(let i=0;i<=9;i++){gDec[i]=0;rDec[i]=0}
-    data.forEach(d=>gDec[getDec(d.number)]++);
-    recent.forEach(d=>rDec[getDec(d.number)]++);
-    const scores=[];
-    for(let i=0;i<=9;i++){
-        const gPct=gDec[i]/data.length,rPct=rDec[i]/recent.length;
-        const momentum=rPct/Math.max(gPct,0.001);
-        scores.push({dec:i,global:gDec[i],recent:rDec[i],momentum:momentum.toFixed(2)});
-    }
-    scores.sort((a,b)=>b.momentum-a.momentum);
-    document.getElementById('decContent').innerHTML=`<p class="fxs td mb">Momentum (reciente vs histórico)</p>${scores.map((s,idx)=>`<div class="pull-box"><div style="font-size:1.5rem;font-weight:900;color:${idx<3?'var(--gold)':'var(--dim)'}">#${idx+1}</div><div><div class="fw tg" style="font-size:1.2rem">${s.dec}0s</div><div class="fxs td">Global: ${s.global}x | Reciente: ${s.recent}x | Momentum: ${s.momentum}x</div><div class="vib-meter" style="width:100px"><div class="vib-fill ${s.momentum>1.2?'vib-high':s.momentum>0.8?'vib-med':'vib-low'}" style="width:${Math.min(100,s.momentum*50)}%"></div></div></div></div>`).join('')}`;
-}
-
-let curTermView='general';
-function termView(v,btn){curTermView=v;document.querySelectorAll('#sec-term .sub-tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');rTerm()}
-function rTerm(){
-    const data=LD();
-    if(!data.length){document.getElementById('termContent').innerHTML='<div class="empty"><div class="ei">🎯</div><p>Sin datos</p></div>';return}
-    if(curTermView==='general')rTermGeneral(data);
-    else if(curTermView==='best')rTermBest(data);
-    else rTermTrans(data,curTermView);
-}
-function rTermGeneral(data){
-    document.getElementById('termTitle').textContent='🎯 Frecuencia por Terminal';
-    const termFreq={};for(let i=0;i<=9;i++)termFreq[i]=0;
-    data.forEach(d=>termFreq[getTerm(d.number)]++);
-    const sorted=Object.entries(termFreq).sort((a,b)=>b[1]-a[1]);const max=sorted[0][1];
-    document.getElementById('termContent').innerHTML=`${sorted.map(([t,c])=>`<div class="fb"><div class="n">T${t}</div><div class="track"><div class="fill fill-blue" style="width:${max>0?(c/max*100):0}%"><span>${c}</span></div></div><div class="c">${c}x</div></div>`).join('')}`;
-}
-function rTermTrans(data,type){
-    const labels={dd:'☀️→☀️ Mediodía-Mediodía',nn:'🌙→🌙 Noche-Noche',dn:'☀️→🌙 Mediodía-Noche',nd:'🌙→☀️ Noche-Mediodía'};
-    document.getElementById('termTitle').textContent=`🎯 Terminales: ${labels[type]}`;
-    const pairs=getTransitions(data,type);
-    if(!pairs.length){document.getElementById('termContent').innerHTML='<div class="empty"><p>Sin transiciones</p></div>';return}
-    const freq=getTermTransFreq(pairs);
-    const sorted=Object.entries(freq).sort((a,b)=>b[1]-a[1]).filter(([,c])=>c>0);
-    const max=sorted[0]?sorted[0][1]:1;
-    document.getElementById('termContent').innerHTML=`<p class="fxs td mb">${pairs.length} transiciones</p>${sorted.slice(0,15).map(([k,c])=>{const[f,t]=k.split('->');return`<div class="fb"><div class="n" style="width:50px;font-size:0.75rem">T${f}→T${t}</div><div class="track"><div class="fill fill-blue" style="width:${(c/max*100)}%"><span>${c}</span></div></div><div class="c">${c}x</div></div>`}).join('')}`;
-}
-function rTermBest(data){
-    document.getElementById('termTitle').textContent='🏆 Mejores Terminales a Jugar';
-    const sorted=[...data].sort((a,b)=>b.drawDate.localeCompare(a.drawDate));
-    const recent=sorted.slice(0,Math.min(40,sorted.length));
-    const gT={},rT2={};for(let i=0;i<=9;i++){gT[i]=0;rT2[i]=0}
-    data.forEach(d=>gT[getTerm(d.number)]++);
-    recent.forEach(d=>rT2[getTerm(d.number)]++);
-    const scores=[];
-    for(let i=0;i<=9;i++){
-        const gPct=gT[i]/data.length,rPct=rT2[i]/recent.length;
-        const momentum=rPct/Math.max(gPct,0.001);
-        scores.push({term:i,global:gT[i],recent:rT2[i],momentum:momentum.toFixed(2)});
-    }
-    scores.sort((a,b)=>b.momentum-a.momentum);
-    document.getElementById('termContent').innerHTML=`<p class="fxs td mb">Momentum reciente</p>${scores.map((s,idx)=>`<div class="pull-box"><div style="font-size:1.5rem;font-weight:900;color:${idx<3?'var(--gold)':'var(--dim)'}">#${idx+1}</div><div><div class="fw tg" style="font-size:1.2rem">Terminal ${s.term}</div><div class="fxs td">Global: ${s.global}x | Reciente: ${s.recent}x | Momentum: ${s.momentum}x</div><div class="vib-meter" style="width:100px"><div class="vib-fill ${s.momentum>1.2?'vib-high':s.momentum>0.8?'vib-med':'vib-low'}" style="width:${Math.min(100,s.momentum*50)}%"></div></div></div></div>`).join('')}`;
-}
-
-let curMatView='dec';
-function matView(v,btn){curMatView=v;document.querySelectorAll('#sec-matrix .sub-tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');rMat()}
-function rMat(){
-    const data=LD();
-    if(!data.length){document.getElementById('matContent').innerHTML='<div class="empty"><div class="ei">🧮</div><p>Sin datos</p></div>';return}
-    if(curMatView==='dec')rMatDec(data);
-    else if(curMatView==='term')rMatTerm(data);
-    else rMatTrans(data);
-}
-function rMatDec(data){
-    document.getElementById('matTitle').textContent='🧮 Matrix Decenas (Mayor a Menor)';
-    const decFreq={};for(let i=0;i<=9;i++)decFreq[i]=0;
-    data.forEach(d=>decFreq[getDec(d.number)]++);
-    const sorted=Object.entries(decFreq).sort((a,b)=>b[1]-a[1]);
-    let html='<div style="overflow-x:auto"><div class="matrix"><div class="matrix-row"><div class="matrix-cell matrix-header">DEC</div><div class="matrix-cell matrix-header">FREQ</div><div class="matrix-cell matrix-header">%</div><div class="matrix-cell matrix-header">NIVEL</div></div>';
-    sorted.forEach(([d,c],idx)=>{
-        const pct=((c/data.length)*100).toFixed(1);
-        let cls='normal';
-        if(idx===0)cls='hot-1';else if(idx<=2)cls='hot-2';else if(idx<=4)cls='hot-3';else if(idx>=8)cls='cold-1';
-        html+=`<div class="matrix-row"><div class="matrix-cell ${cls}" style="font-weight:800">${d}0s</div><div class="matrix-cell ${cls}">${c}x</div><div class="matrix-cell ${cls}">${pct}%</div><div class="matrix-cell ${cls}">${idx<3?'🔥':idx<7?'➡️':'❄️'}</div></div>`;
-    });
-    html+='</div></div>';document.getElementById('matContent').innerHTML=html;
-}
-function rMatTerm(data){
-    document.getElementById('matTitle').textContent='🧮 Matrix Terminales (Mayor a Menor)';
-    const termFreq={};for(let i=0;i<=9;i++)termFreq[i]=0;
-    data.forEach(d=>termFreq[getTerm(d.number)]++);
-    const sorted=Object.entries(termFreq).sort((a,b)=>b[1]-a[1]);
-    let html='<div style="overflow-x:auto"><div class="matrix"><div class="matrix-row"><div class="matrix-cell matrix-header">TERM</div><div class="matrix-cell matrix-header">FREQ</div><div class="matrix-cell matrix-header">%</div><div class="matrix-cell matrix-header">NIVEL</div></div>';
-    sorted.forEach(([t,c],idx)=>{
-        const pct=((c/data.length)*100).toFixed(1);
-        let cls='normal';
-        if(idx===0)cls='hot-1';else if(idx<=2)cls='hot-2';else if(idx<=4)cls='hot-3';else if(idx>=8)cls='cold-1';
-        html+=`<div class="matrix-row"><div class="matrix-cell ${cls}" style="font-weight:800">T${t}</div><div class="matrix-cell ${cls}">${c}x</div><div class="matrix-cell ${cls}">${pct}%</div><div class="matrix-cell ${cls}">${idx<3?'🔥':idx<7?'➡️':'❄️'}</div></div>`;
-    });
-    html+='</div></div>';document.getElementById('matContent').innerHTML=html;
-}
-function rMatTrans(data){
-    document.getElementById('matTitle').textContent='🧮 Matrix Transiciones Decena→Decena';
-    const pairs=getTransitions(data,'all');const freq=getDecTransFreq(pairs);
-    let html='<div style="overflow-x:auto"><div class="trans-grid"><div class="trans-cell trans-header">→</div>';
-    for(let j=0;j<=9;j++)html+=`<div class="trans-cell trans-header">${j}0s</div>`;
-    for(let i=0;i<=9;i++){
-        html+=`<div class="trans-cell trans-header">${i}0s</div>`;
-        const rowMax=Math.max(...Array.from({length:10},(_,j)=>freq[`${i}->${j}`]));
-        for(let j=0;j<=9;j++){
-            const c=freq[`${i}->${j}`];let bg='';
-            if(c===rowMax&&c>0)bg='background:rgba(255,71,87,0.3);color:var(--red);font-weight:800';
-            else if(c>rowMax*0.7)bg='background:rgba(255,140,0,0.2);color:var(--orange)';
-            else if(c>0)bg='color:var(--text)';else bg='color:var(--border)';
-            html+=`<div class="trans-cell" style="${bg}">${c||'·'}</div>`;
-        }
-    }
-    html+='</div></div><div class="fxs td mt">🔴 Mayor frecuencia por fila</div>';
-    document.getElementById('matContent').innerHTML=html;
-}
-
-let curVibView='nums';
-function vibView(v,btn){curVibView=v;document.querySelectorAll('#sec-vib .sub-tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');rVib()}
-function rVib(){
-    const data=LD();
-    if(!data.length){document.getElementById('vibContent').innerHTML='<div class="empty"><div class="ei">📡</div><p>Sin datos</p></div>';return}
-    if(curVibView==='nums')rVibNums(data);
-    else if(curVibView==='decs')rVibDecs(data);
-    else rVibTerms(data);
-}
-function rVibNums(data){
-    document.getElementById('vibTitle').textContent='📡 Vibración por Número';
-    const results=[];
-    for(let i=0;i<=99;i++){const n=String(i).padStart(2,'0');results.push({num:n,vib:calcVibration(data,n,20)})}
-    results.sort((a,b)=>b.vib.level-a.vib.level);
-    document.getElementById('vibContent').innerHTML=`<p class="fxs td mb">Mayor barra = más "activo" recientemente</p>${results.slice(0,20).map(r=>`<div class="fb"><div class="n">${r.num}</div><div class="track"><div class="vib-fill ${r.vib.cls}" style="width:${r.vib.level}%;height:100%;border-radius:9px"><span style="font-size:0.6rem;color:var(--bg);font-weight:700;padding-left:4px">${r.vib.label}</span></div></div></div>`).join('')}<div class="divider"></div><div class="card-t fxs mb">💤 Menos Vibración</div>${results.slice(-10).reverse().map(r=>`<div class="fb"><div class="n">${r.num}</div><div class="track"><div class="vib-fill ${r.vib.cls}" style="width:${Math.max(r.vib.level,3)}%;height:100%;border-radius:9px"><span style="font-size:0.6rem;color:var(--bg);font-weight:700;padding-left:4px">${r.vib.label}</span></div></div></div>`).join('')}`;
-}
-function rVibDecs(data){
-    document.getElementById('vibTitle').textContent='📡 Vibración por Decena';
-    const sorted=[...data].sort((a,b)=>b.drawDate.localeCompare(a.drawDate));
-    const recent=sorted.slice(0,Math.min(20,sorted.length));
-    const gDec={},rDec={};for(let i=0;i<=9;i++){gDec[i]=0;rDec[i]=0}
-    data.forEach(d=>gDec[getDec(d.number)]++);recent.forEach(d=>rDec[getDec(d.number)]++);
-    const results=[];
-    for(let i=0;i<=9;i++){
-        const gPct=gDec[i]/data.length,rPct=rDec[i]/recent.length;
-        const ratio=rPct/Math.max(gPct,0.001);
-        const level=Math.min(100,Math.round(ratio*50));
-        let cls=ratio>1.2?'vib-high':ratio>0.8?'vib-med':'vib-low';
-        let label=ratio>1.5?'🔥 MUY ALTA':ratio>1?'⚡ ALTA':ratio>0.5?'➡️ MEDIA':'💤 BAJA';
-        results.push({dec:i,level,cls,label});
-    }
-    results.sort((a,b)=>b.level-a.level);
-    document.getElementById('vibContent').innerHTML=results.map(r=>`<div class="fb"><div class="n">${r.dec}0s</div><div class="track"><div class="vib-fill ${r.cls}" style="width:${r.level}%;height:100%;border-radius:9px"><span style="font-size:0.6rem;color:var(--bg);font-weight:700;padding-left:4px">${r.label}</span></div></div></div>`).join('');
-}
-function rVibTerms(data){
-    document.getElementById('vibTitle').textContent='📡 Vibración por Terminal';
-    const sorted=[...data].sort((a,b)=>b.drawDate.localeCompare(a.drawDate));
-    const recent=sorted.slice(0,Math.min(20,sorted.length));
-    const gT={},rT={};for(let i=0;i<=9;i++){gT[i]=0;rT[i]=0}
-    data.forEach(d=>gT[getTerm(d.number)]++);recent.forEach(d=>rT[getTerm(d.number)]++);
-    const results=[];
-    for(let i=0;i<=9;i++){
-        const gPct=gT[i]/data.length,rPct=rT[i]/recent.length;
-        const ratio=rPct/Math.max(gPct,0.001);
-        const level=Math.min(100,Math.round(ratio*50));
-        let cls=ratio>1.2?'vib-high':ratio>0.8?'vib-med':'vib-low';
-        let label=ratio>1.5?'🔥 MUY ALTA':ratio>1?'⚡ ALTA':ratio>0.5?'➡️ MEDIA':'💤 BAJA';
-        results.push({term:i,level,cls,label});
-    }
-    results.sort((a,b)=>b.level-a.level);
-    document.getElementById('vibContent').innerHTML=results.map(r=>`<div class="fb"><div class="n">T${r.term}</div><div class="track"><div class="vib-fill ${r.cls}" style="width:${r.level}%;height:100%;border-radius:9px"><span style="font-size:0.6rem;color:var(--bg);font-weight:700;padding-left:4px">${r.label}</span></div></div></div>`).join('');
-}
-
-let curPullView='nums';
-function pullView(v,btn){curPullView=v;document.querySelectorAll('#sec-pull .sub-tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');rPull()}
-function rPull(){
-    const data=LD();
-    if(!data.length){document.getElementById('pullContent').innerHTML='<div class="empty"><div class="ei">🧲</div><p>Sin datos</p></div>';return}
-    if(curPullView==='nums')rPullNums(data);
-    else if(curPullView==='decs')rPullDecs(data);
-    else rPullTerms(data);
-}
-function rPullNums(data){
-    document.getElementById('pullTitle').textContent='🧲 Qué Número Hala a Otro';
-    const conns=getPullConnections(data,25);
-    const sorted=[...data].sort((a,b)=>b.drawDate.localeCompare(a.drawDate));
-    const lastNum=sorted[0]?.number;
-    let html='';
-    if(lastNum){
-        const allFromLast=getPullConnections(data,1000).filter(c=>c.from===lastNum).slice(0,5);
-        if(allFromLast.length){
-            html+=`<div class="card-t fxs mb">🎯 Después del ${lastNum} suele salir:</div>`;
-            html+=allFromLast.map(c=>`<div class="pull-box"><div class="pull-from">${c.from}</div><div class="pull-arrow">→</div><div class="pull-to">${c.to}</div><div class="pull-info"></div><div class="pull-count">${c.count}x</div></div>`).join('');
-            html+='<div class="divider"></div>';
-        }
-    }
-    html+=`<div class="card-t fxs mb">🔝 Conexiones más fuertes</div>`;
-    html+=conns.map(c=>`<div class="pull-box"><div class="pull-from">${c.from}</div><div class="pull-arrow">→</div><div class="pull-to">${c.to}</div><div class="pull-info"></div><div class="pull-count">${c.count}x</div></div>`).join('');
-    document.getElementById('pullContent').innerHTML=html;
-}
-function rPullDecs(data){
-    document.getElementById('pullTitle').textContent='🧲 Conexiones entre Decenas';
-    const pairs=getTransitions(data,'all');const freq=getDecTransFreq(pairs);
-    const sorted=Object.entries(freq).sort((a,b)=>b[1]-a[1]).filter(([,c])=>c>0).slice(0,15);
-    const lastNum=([...data].sort((a,b)=>b.drawDate.localeCompare(a.drawDate))[0])?.number;
-    const lastDec=lastNum?getDec(lastNum):null;
-    let html='';
-    if(lastDec!==null){
-        const fromLast=Object.entries(freq).filter(([k])=>k.startsWith(`${lastDec}->`)).sort((a,b)=>b[1]-a[1]).filter(([,c])=>c>0).slice(0,5);
-        if(fromLast.length){
-            html+=`<div class="card-t fxs mb">🎯 Después de decena ${lastDec}0s va:</div>`;
-            html+=fromLast.map(([k,c])=>{const[,t]=k.split('->');return`<div class="pull-box"><div class="pull-from">${lastDec}0s</div><div class="pull-arrow">→</div><div class="pull-to">${t}0s</div><div class="pull-info"></div><div class="pull-count">${c}x</div></div>`}).join('');
-            html+='<div class="divider"></div>';
-        }
-    }
-    html+=`<div class="card-t fxs mb">🔝 Conexiones más fuertes</div>`;
-    html+=sorted.map(([k,c])=>{const[f,t]=k.split('->');return`<div class="pull-box"><div class="pull-from">${f}0s</div><div class="pull-arrow">→</div><div class="pull-to">${t}0s</div><div class="pull-info"></div><div class="pull-count">${c}x</div></div>`}).join('');
-    document.getElementById('pullContent').innerHTML=html;
-}
-function rPullTerms(data){
-    document.getElementById('pullTitle').textContent='🧲 Conexiones entre Terminales';
-    const pairs=getTransitions(data,'all');const freq=getTermTransFreq(pairs);
-    const sorted=Object.entries(freq).sort((a,b)=>b[1]-a[1]).filter(([,c])=>c>0).slice(0,15);
-    const lastNum=([...data].sort((a,b)=>b.drawDate.localeCompare(a.drawDate))[0])?.number;
-    const lastTerm=lastNum?getTerm(lastNum):null;
-    let html='';
-    if(lastTerm!==null){
-        const fromLast=Object.entries(freq).filter(([k])=>k.startsWith(`${lastTerm}->`)).sort((a,b)=>b[1]-a[1]).filter(([,c])=>c>0).slice(0,5);
-        if(fromLast.length){
-            html+=`<div class="card-t fxs mb">🎯 Después de terminal ${lastTerm} va:</div>`;
-            html+=fromLast.map(([k,c])=>{const[,t]=k.split('->');return`<div class="pull-box"><div class="pull-from">T${lastTerm}</div><div class="pull-arrow">→</div><div class="pull-to">T${t}</div><div class="pull-info"></div><div class="pull-count">${c}x</div></div>`}).join('');
-            html+='<div class="divider"></div>';
-        }
-    }
-    html+=`<div class="card-t fxs mb">🔝 Conexiones más fuertes</div>`;
-    html+=sorted.map(([k,c])=>{const[f,t]=k.split('->');return`<div class="pull-box"><div class="pull-from">T${f}</div><div class="pull-arrow">→</div><div class="pull-to">T${t}</div><div class="pull-info"></div><div class="pull-count">${c}x</div></div>`}).join('');
-    document.getElementById('pullContent').innerHTML=html;
-}
-
-let selYear=null;
-function rYear(){
-    const data=LD();
-    if(!data.length){document.getElementById('yTabs').innerHTML='<span class="td fs">Sin datos</span>';document.getElementById('yearContent').innerHTML='';return}
-    const years=[...new Set(data.map(d=>d.drawDate.substring(0,4)))].sort().reverse();
-    if(!selYear||!years.includes(selYear))selYear=years[0];
-    document.getElementById('yTabs').innerHTML=years.map(y=>`<button class="ybtn ${y===selYear?'active':''}" onclick="selY('${y}')">${y}</button>`).join('');
-    rYearContent(data,selYear);
-}
-function selY(y){selYear=y;rYear()}
-function rYearContent(data,year){
-    const yd=data.filter(d=>d.drawDate.startsWith(year));
-    if(!yd.length){document.getElementById('yearContent').innerHTML='<div class="empty"><p>Sin datos</p></div>';return}
-    const freq=gFreq(yd),sf=sFreq(freq);
-    const top5=sf.slice(0,5),cold5=[...sf].sort((a,b)=>a[1]-b[1]).slice(0,5);
-    const maxC=top5[0][1];
-    const decFreq={},termFreq2={};
-    for(let i=0;i<=9;i++){decFreq[i]=0;termFreq2[i]=0}
-    yd.forEach(d=>{decFreq[getDec(d.number)]++;termFreq2[getTerm(d.number)]++});
-    const topDec=Object.entries(decFreq).sort((a,b)=>b[1]-a[1]);
-    const topTerm=Object.entries(termFreq2).sort((a,b)=>b[1]-a[1]);
-    const months={};
-    yd.forEach(d=>{const m=d.drawDate.substring(5,7);if(!months[m])months[m]=[];months[m].push(d)});
-    const mn=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-    const lastOfYear=[...yd].sort((a,b)=>b.drawDate.localeCompare(a.drawDate))[0];
-    const last2=[...yd].sort((a,b)=>b.drawDate.localeCompare(a.drawDate)).slice(0,2);
-    document.getElementById('yearContent').innerHTML=`
-        <div class="g2 mb">
-            <div class="stat-box"><div class="v">${yd.length}</div><div class="l">Sorteos ${year}</div></div>
-            <div class="stat-box"><div class="v">${Object.keys(months).length}</div><div class="l">Meses</div></div>
-            <div class="stat-box"><div class="v">${yd.filter(d=>d.shift==='midday').length}</div><div class="l">Mediodías</div></div>
-            <div class="stat-box"><div class="v">${yd.filter(d=>d.shift==='evening').length}</div><div class="l">Noches</div></div>
-        </div>
-        ${lastOfYear?`<div class="card" style="background:var(--bg3);margin-bottom:12px">
-            <div class="card-t fxs">🎯 Últimos sorteos de ${year}</div>
-            <div class="g2">
-                <div class="ai"><div class="al">Último</div><div class="av tg" style="font-size:1.5rem">${lastOfYear.number}</div></div>
-                <div class="ai"><div class="al">Fecha/Turno</div><div class="av fxs">${fmtD(lastOfYear.drawDate)} ${lastOfYear.shift==='midday'?'☀️':'🌙'}</div></div>
-                ${last2.length>1?`<div class="ai"><div class="al">Penúltimo</div><div class="av tgr" style="font-size:1.5rem">${last2[1].number}</div></div><div class="ai"><div class="al">Transición</div><div class="av fxs">Dec: ${getDec(last2[1].number)}0s→${getDec(lastOfYear.number)}0s | T: ${getTerm(last2[1].number)}→${getTerm(lastOfYear.number)}</div></div>`:''}
-            </div>
-        </div>`:''}
-        <div class="card-t fxs mb">🔥 Top 5 Números en ${year}</div>
-        ${top5.map(([n,c])=>`<div class="fb"><div class="n">${n}</div><div class="track"><div class="fill fill-green" style="width:${maxC>0?(c/maxC*100):0}%"><span>${c}</span></div></div><div class="c">${c}x</div></div>`).join('')}
-        <div class="divider"></div>
-        <div class="g2 mb">
-            <div><div class="card-t fxs mb">🔢 Top Decenas</div>${topDec.slice(0,5).map(([d,c])=>`<div class="fxs mb">${d}0s — <span class="tg fw">${c}x</span></div>`).join('')}</div>
-            <div><div class="card-t fxs mb">🎯 Top Terminales</div>${topTerm.slice(0,5).map(([t,c])=>`<div class="fxs mb">T${t} — <span class="tgr fw">${c}x</span></div>`).join('')}</div>
-        </div>
-        <div class="divider"></div>
-        <div class="card-t fxs mb">📆 Por Mes</div>
-        <div class="g3">${Object.entries(months).sort().map(([m,arr])=>{const mTop=sFreq(gFreq(arr))[0];return`<div class="stat-box" style="padding:8px"><div style="font-size:0.7rem;color:var(--gold);font-weight:700">${mn[parseInt(m)-1]}</div><div style="font-size:1rem;font-weight:800;color:var(--green)">${arr.length}</div><div class="fxs td">Top: ${mTop?mTop[0]:'-'}</div></div>`}).join('')}</div>`;
-}
-
-function rDay(){
-    const data=LD();
-    if(!data.length){document.getElementById('dayContent').innerHTML='<div class="empty"><div class="ei">📆</div><p>Sin datos</p></div>';return}
-    const dayData={};
-    const dayNames=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
-    dayNames.forEach(d=>dayData[d]=[]);
-    data.forEach(d=>{const day=getDayName(d.drawDate);if(dayData[day])dayData[day].push(d)});
-    let html='';
-    dayNames.forEach(day=>{
-        const dd=dayData[day];
-        if(!dd.length)return;
-        const freq=gFreq(dd);const sf=sFreq(freq);const top3=sf.slice(0,3);
-        const decFreq={};for(let i=0;i<=9;i++)decFreq[i]=0;
-        dd.forEach(d=>decFreq[getDec(d.number)]++);
-        const topDec=Object.entries(decFreq).sort((a,b)=>b[1]-a[1])[0];
-        html+=`<div class="pull-box" style="flex-direction:column;align-items:stretch"><div style="display:flex;justify-content:space-between;align-items:center"><span class="fw tg">${day}</span><span class="fxs td">${dd.length} sorteos</span></div><div class="g3 mt">${top3.map(([n,c])=>`<div class="stat-box" style="padding:6px"><div class="v" style="font-size:1.1rem">${n}</div><div class="l">${c}x</div></div>`).join('')}</div><div class="fxs td mt">Mejor decena: <span class="tg fw">${topDec[0]}0s</span> (${topDec[1]}x)</div></div>`;
-    });
-    document.getElementById('dayContent').innerHTML=html;
-}
-
-function goTab(id,btn){
-    document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
-    document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
-    document.getElementById('sec-'+id).classList.add('active');btn.classList.add('active');
-    const renders={hist:rHist,freq:rFreq,dec:rDec,term:rTerm,matrix:rMat,vib:rVib,pull:rPull,year:rYear,day:rDay};
-    if(renders[id])renders[id]();
-}
-function sAlert(id,msg,type){const el=document.getElementById(id);if(!el)return;el.className=`alert alert-${type}`;el.textContent=msg;el.style.display='block';setTimeout(()=>el.style.display='none',10000)}
-function showOv(msg){document.getElementById('ovt').textContent=msg;document.getElementById('ov').classList.add('show')}
-function hideOv(){document.getElementById('ov').classList.remove('show')}
-function rAll(){
-    rHome();
-    const active=document.querySelector('.sec.active');
-    if(active){const id=active.id.replace('sec-','');const renders={hist:rHist,freq:rFreq,dec:rDec,term:rTerm,matrix:rMat,vib:rVib,pull:rPull,year:rYear,day:rDay};if(renders[id])renders[id]()}
-}
-window.addEventListener('load',()=>{
-    document.getElementById('aDate').value=new Date().toISOString().substring(0,10);
-    updOffStatus();
-    rAll();
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', () => {
+  loadData();
+  initTabs();
+  setDefaultDate();
+  renderAll();
 });
+
+function initTabs() {
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+      renderAll();
+    });
+  });
+}
+
+function setDefaultDate() {
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('addFecha').value = today;
+}
+
+// ===== STORAGE =====
+function saveData() {
+  localStorage.setItem('pick3data', JSON.stringify(sorteos));
+}
+function loadData() {
+  const d = localStorage.getItem('pick3data');
+  if (d) sorteos = JSON.parse(d);
+}
+
+// ===== TOAST =====
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ===== AGREGAR SORTEO =====
+function addSorteo() {
+  const fecha = document.getElementById('addFecha').value;
+  const turno = document.getElementById('addTurno').value;
+  const d1 = document.getElementById('addD1').value;
+  const d2 = document.getElementById('addD2').value;
+  const d3 = document.getElementById('addD3').value;
+  if (!fecha || d1==='' || d2==='' || d3==='' ) { showToast('⚠️ Completa todos los campos'); return; }
+  if (d1<0||d1>9||d2<0||d2>9||d3<0||d3>9) { showToast('⚠️ Dígitos deben ser 0-9'); return; }
+  const exists = sorteos.find(s => s.fecha === fecha && s.turno === turno);
+  if (exists) { showToast('⚠️ Ya existe sorteo para esa fecha y turno'); return; }
+  sorteos.push({ fecha, turno, d1: +d1, d2: +d2, d3: +d3 });
+  sorteos.sort((a,b) => {
+    if (a.fecha !== b.fecha) return a.fecha.localeCompare(b.fecha);
+    return a.turno === 'M' ? -1 : 1;
+  });
+  saveData();
+  document.getElementById('addD1').value = '';
+  document.getElementById('addD2').value = '';
+  document.getElementById('addD3').value = '';
+  showToast('✅ Sorteo agregado');
+  renderAll();
+}
+
+// ===== IMPORTAR =====
+function importFile(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const ext = file.name.split('.').pop().toLowerCase();
+  if (ext === 'csv') {
+    const reader = new FileReader();
+    reader.onload = (ev) => { parseCSV(ev.target.result); };
+    reader.readAsText(file);
+  } else {
+    const reader = new FileReader();
+    reader.onload = (ev) => { parseExcel(ev.target.result); };
+    reader.readAsArrayBuffer(file);
+  }
+  e.target.value = '';
+}
+
+function parseCSV(text) {
+  const lines = text.split('\n').map(l => l.trim()).filter(l => l);
+  let added = 0;
+  for (let i = 0; i < lines.length; i++) {
+    const parts = lines[i].split(/[,;\t]/).map(p => p.trim());
+    const result = parseSorteoLine(parts);
+    if (result) {
+      const exists = sorteos.find(s => s.fecha === result.fecha && s.turno === result.turno);
+      if (!exists) { sorteos.push(result); added++; }
+    }
+  }
+  finishImport(added);
+}
+
+function parseExcel(buffer) {
+  // Simple XLSX parser - reads SheetJS if available, otherwise basic
+  if (typeof XLSX !== 'undefined') {
+    const wb = XLSX.read(buffer, {type:'array'});
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    const data = XLSX.utils.sheet_to_json(ws, {header:1});
+    let added = 0;
+    data.forEach(row => {
+      const result = parseSorteoLine(row.map(String));
+      if (result) {
+        const exists = sorteos.find(s => s.fecha === result.fecha && s.turno === result.turno);
+        if (!exists) { sorteos.push(result); added++; }
+      }
+    });
+    finishImport(added);
+  } else {
+    showToast('⚠️ Para Excel, usa CSV o carga la librería XLSX');
+  }
+}
+
+function parseSorteoLine(parts) {
+  if (parts.length < 3) return null;
+  let fecha = null, turno = 'M', d1, d2, d3;
+
+  // Try different formats
+  for (let p of parts) {
+    if (!p) continue;
+    p = p.toString().trim();
+    // Date detection
+    if (/^\d{4}-\d{2}-\d{2}$/.test(p)) { fecha = p; continue; }
+    if (/^\d{1,2}\/\d{1,2}\/\d{2,4}$/.test(p)) {
+      const dp = p.split('/');
+      const yr = dp[2].length === 2 ? '20' + dp[2] : dp[2];
+      fecha = `${yr}-${dp[0].padStart(2,'0')}-${dp[1].padStart(2,'0')}`;
+      continue;
+    }
+    // Turno detection
+    if (/^[MmDd]$/i.test(p) || /mediod/i.test(p) || /^day$/i.test(p)) { turno = 'M'; continue; }
+    if (/^[NnEe]$/i.test(p) || /noche/i.test(p) || /^night$/i.test(p) || /^evening$/i.test(p)) { turno = 'N'; continue; }
+    // 3-digit number
+    if (/^\d{3}$/.test(p)) {
+      d1 = +p[0]; d2 = +p[1]; d3 = +p[2];
+      continue;
+    }
+  }
+
+  // If no 3-digit found, try last 3 single digits
+  if (d1 === undefined) {
+    const nums = parts.filter(p => /^\d$/.test(p.toString().trim())).map(Number);
+    if (nums.length >= 3) {
+      d1 = nums[nums.length-3]; d2 = nums[nums.length-2]; d3 = nums[nums.length-1];
+    }
+  }
+
+  if (!fecha) fecha = new Date().toISOString().split('T')[0];
+  if (d1 !== undefined && d2 !== undefined && d3 !== undefined &&
+      d1 >= 0 && d1 <= 9 && d2 >= 0 && d2 <= 9 && d3 >= 0 && d3 <= 9) {
+    return { fecha, turno, d1, d2, d3 };
+  }
+  return null;
+}
+
+function finishImport(added) {
+  sorteos.sort((a,b) => {
+    if (a.fecha !== b.fecha) return a.fecha.localeCompare(b.fecha);
+    return a.turno === 'M' ? -1 : 1;
+  });
+  saveData();
+  showToast(`✅ ${added} sorteos importados`);
+  document.getElementById('importStatus').innerHTML = `<span style="color:var(--green)">✅ ${added} sorteos importados. Total: ${sorteos.length}</span>`;
+  renderAll();
+}
+
+function importJSON(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if (Array.isArray(data)) {
+        let added = 0;
+        data.forEach(s => {
+          if (s.fecha && s.d1 !== undefined) {
+            if (!s.turno) s.turno = 'M';
+            const exists = sorteos.find(x => x.fecha === s.fecha && x.turno === s.turno);
+            if (!exists) { sorteos.push(s); added++; }
+          }
+        });
+        finishImport(added);
+      }
+    } catch(err) { showToast('⚠️ Error en archivo JSON'); }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+function exportJSON() {
+  if (!sorteos.length) { showToast('⚠️ No hay datos'); return; }
+  const blob = new Blob([JSON.stringify(sorteos, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `pick3_${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+  showToast('💾 Exportado');
+}
+
+function clearAllData() {
+  if (confirm('¿Borrar TODOS los datos? Esta acción no se puede deshacer.')) {
+    sorteos = [];
+    saveData();
+    showToast('🗑️ Datos borrados');
+    renderAll();
+  }
+}
+
+// ===== UTILIDADES =====
+function getDecena(s) { return s.d1 * 10 + s.d2; }
+function getTerminal(s) { return s.d2 * 10 + s.d3; }
+function getNumStr(s) { return `${s.d1}${s.d2}${s.d3}`; }
+function pad2(n) { return n.toString().padStart(2, '0'); }
+
+function getLastSorteo() {
+  if (!sorteos.length) return null;
+  return sorteos[sorteos.length - 1];
+}
+
+function getLastSorteoCurrentMonth() {
+  const now = new Date();
+  const ym = `${now.getFullYear()}-${pad2(now.getMonth()+1)}`;
+  const monthSorteos = sorteos.filter(s => s.fecha.startsWith(ym));
+  if (monthSorteos.length) return monthSorteos[monthSorteos.length - 1];
+  return getLastSorteo();
+}
+
+function getNextTurno() {
+  const last = getLastSorteoCurrentMonth();
+  if (!last) return { turno: 'M', label: 'Mediodía' };
+  if (last.turno === 'M') return { turno: 'N', label: 'Noche' };
+  return { turno: 'M', label: 'Mediodía' };
+}
+
+function renderLastSorteoBanner(containerId) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  const ls = getLastSorteoCurrentMonth();
+  if (!ls) { el.innerHTML = '<p style="color:var(--text-dim);font-size:0.85em;">No hay sorteos cargados.</p>'; return; }
+  const next = getNextTurno();
+  el.innerHTML = `
+    <div class="last-sorteo-banner">
+      <div>
+        <div class="ls-label">Último sorteo del mes</div>
+        <div class="ls-num">${getNumStr(ls)}</div>
+      </div>
+      <div style="text-align:right">
+        <div class="ls-info">${ls.fecha} | ${ls.turno==='M'?'Mediodía':'Noche'}</div>
+        <div class="ls-info" style="color:var(--gold);">Próximo: ${next.label}</div>
+        <div class="ls-info">Dec: ${pad2(getDecena(ls))} | Term: ${pad2(getTerminal(ls))}</div>
+      </div>
+    </div>`;
+}
+
+function renderAll() {
+  updateYearFilters();
+  renderInicio();
+  renderHistorial();
+  renderFrequencies();
+  renderDecTerm();
+  renderMatrix();
+  renderVibraciones();
+  renderSemana();
+  renderAnual();
+  renderAnalisis();
+  // Banners
+  ['lastSorteoBannerFreq','lastSorteoBannerDT','lastSorteoBannerMatrix',
+   'lastSorteoBannerVib','lastSorteoBannerSemana','lastSorteoBannerAnual',
+   'lastSorteoBannerAnalisis'].forEach(id => renderLastSorteoBanner(id));
+}
+
+function updateYearFilters() {
+  const years = [...new Set(sorteos.map(s => s.fecha.substring(0,4)))].sort();
+  ['filtroAnio','anualYear'].forEach(id => {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    const curr = sel.value;
+    const firstOpt = sel.options[0].outerHTML;
+    sel.innerHTML = firstOpt;
+    years.forEach(y => { sel.innerHTML += `<option value="${y}" ${y===curr?'selected':''}>${y}</option>`; });
+  });
+}
+
+// ===== HISTORIAL =====
+function renderHistorial() {
+  const container = document.getElementById('historialTable');
+  const countEl = document.getElementById('historialCount');
+  if (!sorteos.length) {
+    container.innerHTML = '<p style="color:var(--text-dim)">No hay sorteos cargados.</p>';
+    countEl.textContent = '';
+    return;
+  }
+  let filtered = [...sorteos];
+  const fAnio = document.getElementById('filtroAnio').value;
+  const fMes = document.getElementById('filtroMes').value;
+  const fTurno = document.getElementById('filtroTurno').value;
+  if (fAnio) filtered = filtered.filter(s => s.fecha.startsWith(fAnio));
+  if (fMes) filtered = filtered.filter(s => s.fecha.substring(5,7) === fMes);
+  if (fTurno) filtered = filtered.filter(s => s.turno === fTurno);
+
+  countEl.textContent = `Mostrando ${filtered.length} de ${sorteos.length} sorteos`;
+
+  // Reverse for display (newest first)
+  const display = [...filtered].reverse();
+
+  let html = `<table><thead><tr>
+    <th>Fecha</th><th>Turno</th><th>Número</th><th>Dec</th><th>Term</th><th>Acc</th>
+  </tr></thead><tbody>`;
+
+  display.forEach(s => {
+    const idx = sorteos.indexOf(s);
+    html += `<tr>
+      <td>${s.fecha}</td>
+      <td><span style="color:${s.turno==='M'?'var(--orange)':'var(--purple)'}">${s.turno==='M'?'Med':'Noc'}</span></td>
+      <td style="font-weight:700;color:var(--gold)">${getNumStr(s)}</td>
+      <td>${pad2(getDecena(s))}</td>
+      <td>${pad2(getTerminal(s))}</td>
+      <td>
+        <button class="btn btn-small btn-info" onclick="openEditModal(${idx})" title="Editar">✏️</button>
+        <button class="btn btn-small btn-danger" onclick="deleteSorteo(${idx})" title="Eliminar">🗑️</button>
+      </td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  container.innerHTML = html;
+}
+
+function deleteSorteo(idx) {
+  if (confirm('¿Eliminar este sorteo?')) {
+    sorteos.splice(idx, 1);
+    saveData();
+    showToast('🗑️ Sorteo eliminado');
+    renderAll();
+  }
+}
+
+// ===== EDITAR MODAL =====
+function openEditModal(idx) {
+  editIndex = idx;
+  const s = sorteos[idx];
+  document.getElementById('editFecha').value = s.fecha;
+  document.getElementById('editTurno').value = s.turno;
+  document.getElementById('editD1').value = s.d1;
+  document.getElementById('editD2').value = s.d2;
+  document.getElementById('editD3').value = s.d3;
+  document.getElementById('editModal').classList.add('active');
+}
+
+function closeEditModal() {
+  document.getElementById('editModal').classList.remove('active');
+  editIndex = -1;
+}
+
+function saveEdit() {
+  if (editIndex < 0) return;
+  const fecha = document.getElementById('editFecha').value;
+  const turno = document.getElementById('editTurno').value;
+  const d1 = +document.getElementById('editD1').value;
+  const d2 = +document.getElementById('editD2').value;
+  const d3 = +document.getElementById('editD3').value;
+  if (!fecha || isNaN(d1) || isNaN(d2) || isNaN(d3)) { showToast('⚠️ Datos inválidos'); return; }
+  if (d1<0||d1>9||d2<0||d2>9||d3<0||d3>9) { showToast('⚠️ Dígitos 0-9'); return; }
+  // Check duplicate (excluding current)
+  const dup = sorteos.find((s,i) => i !== editIndex && s.fecha === fecha && s.turno === turno);
+  if (dup) { showToast('⚠️ Ya existe sorteo en esa fecha/turno'); return; }
+  sorteos[editIndex] = { fecha, turno, d1, d2, d3 };
+  sorteos.sort((a,b) => {
+    if (a.fecha !== b.fecha) return a.fecha.localeCompare(b.fecha);
+    return a.turno === 'M' ? -1 : 1;
+  });
+  saveData();
+  closeEditModal();
+  showToast('✅ Sorteo actualizado');
+  renderAll();
+}// ===== FRECUENCIAS =====
+function setFreqFilter(f, btn) {
+  freqFilter = f;
+  btn.parentElement.querySelectorAll('.btn').forEach(b => { b.classList.remove('active','btn-primary'); b.classList.add('btn-secondary'); });
+  btn.classList.add('active','btn-primary');
+  btn.classList.remove('btn-secondary');
+  renderFrequencies();
+}
+
+function renderFrequencies() {
+  const container = document.getElementById('freqChart');
+  const posContainer = document.getElementById('freqByPos');
+  const decContainer = document.getElementById('freqDecenas');
+  const termContainer = document.getElementById('freqTerminales');
+  if (!sorteos.length) {
+    container.innerHTML = posContainer.innerHTML = decContainer.innerHTML = termContainer.innerHTML = '<p style="color:var(--text-dim)">No hay datos.</p>';
+    return;
+  }
+
+  // CORREGIDO: M = Mediodía, N = Noche (estaban intercambiados)
+  let data = sorteos;
+  if (freqFilter === 'M') data = sorteos.filter(s => s.turno === 'M');
+  if (freqFilter === 'N') data = sorteos.filter(s => s.turno === 'N');
+
+  // Digit frequency
+  const freq = Array(10).fill(0);
+  const freqPos = [Array(10).fill(0), Array(10).fill(0), Array(10).fill(0)];
+  data.forEach(s => {
+    freq[s.d1]++; freq[s.d2]++; freq[s.d3]++;
+    freqPos[0][s.d1]++;
+    freqPos[1][s.d2]++;
+    freqPos[2][s.d3]++;
+  });
+  const maxFreq = Math.max(...freq, 1);
+
+  let html = '<div class="bar-chart">';
+  for (let i = 0; i <= 9; i++) {
+    const pct = (freq[i] / maxFreq * 100);
+    const cls = pct > 70 ? 'hot' : pct > 40 ? 'med' : 'cold';
+    html += `<div class="bar-row">
+      <div class="bar-label">${i}</div>
+      <div class="bar-fill ${cls}" style="width:${Math.max(pct,2)}%">${freq[i]}</div>
+    </div>`;
+  }
+  html += '</div>';
+  container.innerHTML = html;
+
+  // By position
+  let posHtml = '';
+  ['D1 (Centena)', 'D2 (Decena)', 'D3 (Unidad)'].forEach((label, pi) => {
+    const mx = Math.max(...freqPos[pi], 1);
+    posHtml += `<h4>${label}</h4><div class="bar-chart">`;
+    for (let i = 0; i <= 9; i++) {
+      const pct = (freqPos[pi][i] / mx * 100);
+      const cls = pct > 70 ? 'hot' : pct > 40 ? 'med' : 'cold';
+      posHtml += `<div class="bar-row">
+        <div class="bar-label">${i}</div>
+        <div class="bar-fill ${cls}" style="width:${Math.max(pct,2)}%">${freqPos[pi][i]}</div>
+      </div>`;
+    }
+    posHtml += '</div>';
+  });
+  posContainer.innerHTML = posHtml;
+
+  // Decenas freq
+  const decFreq = {};
+  data.forEach(s => {
+    const d = pad2(getDecena(s));
+    decFreq[d] = (decFreq[d] || 0) + 1;
+  });
+  const decSorted = Object.entries(decFreq).sort((a,b) => b[1] - a[1]).slice(0, 20);
+  const maxDec = decSorted.length ? decSorted[0][1] : 1;
+  let decHtml = '<p style="font-size:0.75em;color:var(--text-dim);margin-bottom:8px;">Top 20 más frecuentes</p><div class="bar-chart">';
+  decSorted.forEach(([num, cnt]) => {
+    const pct = (cnt / maxDec * 100);
+    decHtml += `<div class="bar-row">
+      <div class="bar-label">${num}</div>
+      <div class="bar-fill med" style="width:${Math.max(pct,2)}%">${cnt}</div>
+    </div>`;
+  });
+  decHtml += '</div>';
+  decContainer.innerHTML = decHtml;
+
+  // Terminales freq
+  const termFreq = {};
+  data.forEach(s => {
+    const t = pad2(getTerminal(s));
+    termFreq[t] = (termFreq[t] || 0) + 1;
+  });
+  const termSorted = Object.entries(termFreq).sort((a,b) => b[1] - a[1]).slice(0, 20);
+  const maxTerm = termSorted.length ? termSorted[0][1] : 1;
+  let termHtml = '<p style="font-size:0.75em;color:var(--text-dim);margin-bottom:8px;">Top 20 más frecuentes</p><div class="bar-chart">';
+  termSorted.forEach(([num, cnt]) => {
+    const pct = (cnt / maxTerm * 100);
+    termHtml += `<div class="bar-row">
+      <div class="bar-label">${num}</div>
+      <div class="bar-fill med" style="width:${Math.max(pct,2)}%">${cnt}</div>
+    </div>`;
+  });
+  termHtml += '</div>';
+  termContainer.innerHTML = termHtml;
+}
+
+// ===== DECENAS / TERMINALES =====
+function setDTView(v, btn) {
+  dtView = v;
+  btn.parentElement.querySelectorAll('.btn').forEach(b => { b.classList.remove('active','btn-primary'); b.classList.add('btn-secondary'); });
+  btn.classList.add('active','btn-primary');
+  btn.classList.remove('btn-secondary');
+  renderDecTerm();
+}
+
+function renderDecTerm() {
+  const container = document.getElementById('dtContent');
+  if (!sorteos.length) { container.innerHTML = '<p style="color:var(--text-dim)">No hay datos.</p>'; return; }
+
+  const ls = getLastSorteoCurrentMonth();
+  const lsDec = ls ? pad2(getDecena(ls)) : null;
+  const lsTerm = ls ? pad2(getTerminal(ls)) : null;
+
+  if (dtView === 'general') {
+    container.innerHTML = renderDTGeneral(sorteos, ls);
+  } else if (dtView === 'best') {
+    container.innerHTML = renderDTBest(sorteos, ls);
+  } else {
+    // MM, NN, MN, NM
+    container.innerHTML = renderDTTransition(dtView, ls);
+  }
+}
+
+function renderDTGeneral(data, ls) {
+  const decFreq = {}, termFreq = {};
+  data.forEach(s => {
+    const d = pad2(getDecena(s));
+    const t = pad2(getTerminal(s));
+    decFreq[d] = (decFreq[d] || 0) + 1;
+    termFreq[t] = (termFreq[t] || 0) + 1;
+  });
+
+  const topDec = Object.entries(decFreq).sort((a,b) => b[1] - a[1]).slice(0, 15);
+  const topTerm = Object.entries(termFreq).sort((a,b) => b[1] - a[1]).slice(0, 15);
+
+  let html = '';
+  if (ls) {
+    html += `<div class="rec-box"><h4>📌 Último sorteo: ${getNumStr(ls)} | Dec: ${pad2(getDecena(ls))} | Term: ${pad2(getTerminal(ls))}</h4></div>`;
+  }
+
+  html += '<h4>📊 Top 15 Decenas</h4>';
+  html += renderDTTable(topDec, ls ? pad2(getDecena(ls)) : null);
+  html += '<h4 style="margin-top:15px;">📊 Top 15 Terminales</h4>';
+  html += renderDTTable(topTerm, ls ? pad2(getTerminal(ls)) : null);
+  return html;
+}
+
+function renderDTTable(items, highlight) {
+  const max = items.length ? items[0][1] : 1;
+  let html = '<div class="bar-chart">';
+  items.forEach(([num, cnt]) => {
+    const pct = (cnt / max * 100);
+    const isHL = num === highlight;
+    html += `<div class="bar-row">
+      <div class="bar-label" style="${isHL?'color:var(--gold);font-size:1em;':''}">${num}</div>
+      <div class="bar-fill ${isHL?'hot':'med'}" style="width:${Math.max(pct,2)}%">${cnt}${isHL?' ⭐':''}</div>
+    </div>`;
+  });
+  html += '</div>';
+  return html;
+}
+
+function renderDTTransition(type, ls) {
+  // type: MM, NN, MN, NM
+  const fromTurno = type[0] === 'M' ? 'M' : 'N';
+  const toTurno = type[1] === 'M' ? 'M' : 'N';
+  const label = `${fromTurno==='M'?'Mediodía':'Noche'} → ${toTurno==='M'?'Mediodía':'Noche'}`;
+
+  // Build transitions
+  const decTrans = {}, termTrans = {};
+
+  for (let i = 0; i < sorteos.length - 1; i++) {
+    const curr = sorteos[i];
+    const next = sorteos[i + 1];
+    if (curr.turno === fromTurno && next.turno === toTurno) {
+      const currDec = pad2(getDecena(curr));
+      const nextDec = pad2(getDecena(next));
+      const currTerm = pad2(getTerminal(curr));
+      const nextTerm = pad2(getTerminal(next));
+
+      if (!decTrans[currDec]) decTrans[currDec] = {};
+      decTrans[currDec][nextDec] = (decTrans[currDec][nextDec] || 0) + 1;
+
+      if (!termTrans[currTerm]) termTrans[currTerm] = {};
+      termTrans[currTerm][nextTerm] = (termTrans[currTerm][nextTerm] || 0) + 1;
+    }
+  }
+
+  let html = `<h4>🔄 ${label}</h4>`;
+
+  if (ls) {
+    const lsDec = pad2(getDecena(ls));
+    const lsTerm = pad2(getTerminal(ls));
+
+    html += `<div class="rec-box"><h4>📌 Último sorteo: ${getNumStr(ls)} (Dec:${lsDec} Term:${lsTerm})</h4>`;
+
+    // Best transitions from last sorteo's decena
+    if (decTrans[lsDec]) {
+      const sorted = Object.entries(decTrans[lsDec]).sort((a,b) => b[1] - a[1]).slice(0, 10);
+      html += `<p style="margin-top:8px;"><strong>Decena ${lsDec} →</strong></p><div class="rec-nums">`;
+      sorted.forEach(([num, cnt]) => {
+        html += `<div class="rec-item"><span>${num}</span> (${cnt}x)</div>`;
+      });
+      html += '</div>';
+    } else {
+      html += `<p style="color:var(--text-dim);font-size:0.8em;">No hay transiciones para decena ${lsDec} en ${label}</p>`;
+    }
+
+    if (termTrans[lsTerm]) {
+      const sorted = Object.entries(termTrans[lsTerm]).sort((a,b) => b[1] - a[1]).slice(0, 10);
+      html += `<p style="margin-top:8px;"><strong>Terminal ${lsTerm} →</strong></p><div class="rec-nums">`;
+      sorted.forEach(([num, cnt]) => {
+        html += `<div class="rec-item"><span>${num}</span> (${cnt}x)</div>`;
+      });
+      html += '</div>';
+    } else {
+      html += `<p style="color:var(--text-dim);font-size:0.8em;">No hay transiciones para terminal ${lsTerm} en ${label}</p>`;
+    }
+    html += '</div>';
+  }
+
+  // General stats for this transition
+  const allDecPairs = {};
+  Object.entries(decTrans).forEach(([from, tos]) => {
+    Object.entries(tos).forEach(([to, cnt]) => {
+      allDecPairs[`${from}→${to}`] = cnt;
+    });
+  });
+  const topDecPairs = Object.entries(allDecPairs).sort((a,b) => b[1] - a[1]).slice(0, 10);
+
+  const allTermPairs = {};
+  Object.entries(termTrans).forEach(([from, tos]) => {
+    Object.entries(tos).forEach(([to, cnt]) => {
+      allTermPairs[`${from}→${to}`] = cnt;
+    });
+  });
+  const topTermPairs = Object.entries(allTermPairs).sort((a,b) => b[1] - a[1]).slice(0, 10);
+
+  html += `<h4 style="margin-top:15px;">📊 Top 10 Transiciones de Decenas (${label})</h4>`;
+  if (topDecPairs.length) {
+    const mx = topDecPairs[0][1];
+    html += '<div class="bar-chart">';
+    topDecPairs.forEach(([pair, cnt]) => {
+      const pct = cnt / mx * 100;
+      html += `<div class="bar-row"><div class="bar-label" style="width:60px">${pair}</div>
+        <div class="bar-fill med" style="width:${Math.max(pct,2)}%">${cnt}</div></div>`;
+    });
+    html += '</div>';
+  } else html += '<p style="color:var(--text-dim);font-size:0.8em;">Sin datos</p>';
+
+  html += `<h4 style="margin-top:15px;">📊 Top 10 Transiciones de Terminales (${label})</h4>`;
+  if (topTermPairs.length) {
+    const mx = topTermPairs[0][1];
+    html += '<div class="bar-chart">';
+    topTermPairs.forEach(([pair, cnt]) => {
+      const pct = cnt / mx * 100;
+      html += `<div class="bar-row"><div class="bar-label" style="width:60px">${pair}</div>
+        <div class="bar-fill med" style="width:${Math.max(pct,2)}%">${cnt}</div></div>`;
+    });
+    html += '</div>';
+  } else html += '<p style="color:var(--text-dim);font-size:0.8em;">Sin datos</p>';
+
+  return html;
+}
+
+function renderDTBest(data, ls) {
+  const decFreq = {}, termFreq = {};
+  data.forEach(s => {
+    const d = pad2(getDecena(s));
+    const t = pad2(getTerminal(s));
+    decFreq[d] = (decFreq[d] || 0) + 1;
+    termFreq[t] = (termFreq[t] || 0) + 1;
+  });
+  const topDec = Object.entries(decFreq).sort((a,b) => b[1] - a[1]).slice(0, 10);
+  const topTerm = Object.entries(termFreq).sort((a,b) => b[1] - a[1]).slice(0, 10);
+
+  let html = '<div class="rec-box"><h4>⭐ Mejores Decenas del Historial</h4>';
+  html += '<div class="rec-nums">';
+  topDec.forEach(([num, cnt]) => {
+    const isLS = ls && num === pad2(getDecena(ls));
+    html += `<div class="rec-item" style="${isLS?'border:1px solid var(--gold);':''}"><span>${num}</span> (${cnt}x)${isLS?' 📌':''}</div>`;
+  });
+  html += '</div></div>';
+
+  html += '<div class="rec-box"><h4>⭐ Mejores Terminales del Historial</h4>';
+  html += '<div class="rec-nums">';
+  topTerm.forEach(([num, cnt]) => {
+    const isLS = ls && num === pad2(getTerminal(ls));
+    html += `<div class="rec-item" style="${isLS?'border:1px solid var(--gold);':''}"><span>${num}</span> (${cnt}x)${isLS?' 📌':''}</div>`;
+  });
+  html += '</div></div>';
+
+  return html;
+}
+
+// ===== MATRIX =====
+function renderMatrix() {
+  if (!sorteos.length) {
+    document.getElementById('matrixDecenas').innerHTML = '<p style="color:var(--text-dim)">No hay datos.</p>';
+    document.getElementById('matrixTerminales').innerHTML = '<p style="color:var(--text-dim)">No hay datos.</p>';
+    return;
+  }
+
+  const ls = getLastSorteoCurrentMonth();
+
+  // Decenas matrix (D1 x D2)
+  const decMatrix = Array.from({length:10}, () => Array(10).fill(0));
+  sorteos.forEach(s => { decMatrix[s.d1][s.d2]++; });
+  document.getElementById('matrixDecenas').innerHTML = buildMatrixHTML(decMatrix, ls ? ls.d1 : -1, ls ? ls.d2 : -1);
+
+  // Terminales matrix (D2 x D3)
+  const termMatrix = Array.from({length:10}, () => Array(10).fill(0));
+  sorteos.forEach(s => { termMatrix[s.d2][s.d3]++; });
+  document.getElementById('matrixTerminales').innerHTML = buildMatrixHTML(termMatrix, ls ? ls.d2 : -1, ls ? ls.d3 : -1);
+}
+
+function buildMatrixHTML(matrix, hlRow, hlCol) {
+  let max = 0;
+  matrix.forEach(row => row.forEach(v => { if (v > max) max = v; }));
+  if (max === 0) max = 1;
+
+  let html = `<div class="matrix-grid" style="grid-template-columns:repeat(11, 1fr);">`;
+  // Header
+  html += '<div class="matrix-cell matrix-header"></div>';
+  for (let c = 0; c <= 9; c++) {
+    html += `<div class="matrix-cell matrix-header" style="${c===hlCol?'background:var(--accent);':''}">${c}</div>`;
+  }
+  // Rows
+  for (let r = 0; r <= 9; r++) {
+    html += `<div class="matrix-cell matrix-header" style="${r===hlRow?'background:var(--accent);':''}">${r}</div>`;
+    for (let c = 0; c <= 9; c++) {
+      const v = matrix[r][c];
+      const pct = v / max;
+      let bg, clr;
+      if (v === 0) { bg = 'rgba(255,255,255,0.03)'; clr = '#555'; }
+      else if (pct > 0.7) { bg = `rgba(0,230,118,${0.3+pct*0.5})`; clr = '#fff'; }
+      else if (pct > 0.4) { bg = `rgba(255,152,0,${0.2+pct*0.4})`; clr = '#fff'; }
+      else { bg = `rgba(100,181,246,${0.1+pct*0.3})`; clr = '#ccc'; }
+      const border = (r === hlRow && c === hlCol) ? 'border:2px solid var(--gold);' : '';
+      html += `<div class="matrix-cell" style="background:${bg};color:${clr};${border}" title="${r}${c}: ${v}x">${v||''}</div>`;
+    }
+  }
+  html += '</div>';
+  return html;
+}
+
+// ===== VIBRACIONES =====
+function renderVibraciones() {
+  const container = document.getElementById('vibContent');
+  if (!sorteos.length) { container.innerHTML = '<p style="color:var(--text-dim)">No hay datos.</p>'; return; }
+
+  const ls = getLastSorteoCurrentMonth();
+  if (!ls) { container.innerHTML = '<p style="color:var(--text-dim)">No hay sorteos este mes.</p>'; return; }
+
+  const lsDec = getDecena(ls);
+  const lsTerm = getTerminal(ls);
+  const next = getNextTurno();
+
+  // Build matrices
+  const decMatrix = Array.from({length:10}, () => Array(10).fill(0));
+  const termMatrix = Array.from({length:10}, () => Array(10).fill(0));
+  sorteos.forEach(s => {
+    decMatrix[s.d1][s.d2]++;
+    termMatrix[s.d2][s.d3]++;
+  });
+
+  // Get vibrations from matrices based on last sorteo
+  const d1 = ls.d1, d2 = ls.d2, d3 = ls.d3;
+
+  // Decenas that vibrate: same d1 row or same d2 col
+  const vibDec = [];
+  for (let c = 0; c <= 9; c++) {
+    if (decMatrix[d1][c] > 0) vibDec.push({ dec: pad2(d1*10+c), freq: decMatrix[d1][c], type: 'fila-d1' });
+  }
+  for (let r = 0; r <= 9; r++) {
+    if (r !== d1 && decMatrix[r][d2] > 0) vibDec.push({ dec: pad2(r*10+d2), freq: decMatrix[r][d2], type: 'col-d2' });
+  }
+  vibDec.sort((a,b) => b.freq - a.freq);
+
+  // Terminales that vibrate
+  const vibTerm = [];
+  for (let c = 0; c <= 9; c++) {
+    if (termMatrix[d2][c] > 0) vibTerm.push({ term: pad2(d2*10+c), freq: termMatrix[d2][c], type: 'fila-d2' });
+  }
+  for (let r = 0; r <= 9; r++) {
+    if (r !== d2 && termMatrix[r][d3] > 0) vibTerm.push({ term: pad2(r*10+d3), freq: termMatrix[r][d3], type: 'col-d3' });
+  }
+  vibTerm.sort((a,b) => b.freq - a.freq);
+
+  // Historical frequency of these combinations
+  const decFreq = {}, termFreq = {};
+  sorteos.forEach(s => {
+    const d = pad2(getDecena(s));
+    const t = pad2(getTerminal(s));
+    decFreq[d] = (decFreq[d] || 0) + 1;
+    termFreq[t] = (termFreq[t] || 0) + 1;
+  });
+
+  let html = `<div class="rec-box">
+    <h4>🎰 Último: ${getNumStr(ls)} (Dec:${pad2(lsDec)} Term:${pad2(lsTerm)}) → Próximo: ${next.label}</h4>
+  </div>`;
+
+  html += '<h4>🔮 Decenas que vibran con el último sorteo</h4>';
+  html += '<div class="table-container"><table><thead><tr><th>Decena</th><th>Frec. Matrix</th><th>Frec. Historial</th><th>Relación</th></tr></thead><tbody>';
+  vibDec.slice(0, 15).forEach(v => {
+    const hf = decFreq[v.dec] || 0;
+    html += `<tr>
+      <td style="font-weight:700;color:var(--gold)">${v.dec}</td>
+      <td>${v.freq}</td>
+      <td>${hf}</td>
+      <td style="font-size:0.75em;color:var(--text-dim)">${v.type}</td>
+    </tr>`;
+  });
+  html += '</tbody></table></div>';
+
+  html += '<h4 style="margin-top:15px;">🔮 Terminales que vibran con el último sorteo</h4>';
+  html += '<div class="table-container"><table><thead><tr><th>Terminal</th><th>Frec. Matrix</th><th>Frec. Historial</th><th>Relación</th></tr></thead><tbody>';
+  vibTerm.slice(0, 15).forEach(v => {
+    const hf = termFreq[v.term] || 0;
+    html += `<tr>
+      <td style="font-weight:700;color:var(--gold)">${v.term}</td>
+      <td>${v.freq}</td>
+      <td>${hf}</td>
+      <td style="font-size:0.75em;color:var(--text-dim)">${v.type}</td>
+    </tr>`;
+  });
+  html += '</tbody></table></div>';
+
+  // Strongest combinations
+  html += '<div class="rec-box" style="margin-top:15px;"><h4>💪 Combinaciones más fuertes para próximo sorteo</h4>';
+  const combined = [];
+  vibDec.slice(0, 10).forEach(vd => {
+    vibTerm.slice(0, 10).forEach(vt => {
+      const score = (vd.freq + vt.freq) + (decFreq[vd.dec]||0) + (termFreq[vt.term]||0);
+      combined.push({ dec: vd.dec, term: vt.term, score });
+    });
+  });
+  combined.sort((a,b) => b.score - a.score);
+  html += '<div class="rec-nums">';
+  combined.slice(0, 12).forEach(c => {
+    html += `<div class="rec-item">Dec:<span>${c.dec}</span> Term:<span>${c.term}</span> (${c.score}pts)</div>`;
+  });
+  html += '</div></div>';
+
+  container.innerHTML = html;
+}
+
+// ===== CONEXIONES =====
+function buscarConexiones() {
+  const num = document.getElementById('connNum').value.trim();
+  const container = document.getElementById('connResults');
+  if (num.length !== 3 || !/^\d{3}$/.test(num)) {
+    showToast('⚠️ Ingresa un número de 3 dígitos');
+    return;
+  }
+
+  const next = { MM: {}, MN: {}, NN: {}, NM: {} };
+
+  for (let i = 0; i < sorteos.length - 1; i++) {
+    const curr = sorteos[i];
+    const nxt = sorteos[i + 1];
+    if (getNumStr(curr) === num) {
+      const key = curr.turno + nxt.turno;
+      const nNum = getNumStr(nxt);
+      if (next[key]) next[key][nNum] = (next[key][nNum] || 0) + 1;
+    }
+  }
+
+  let html = `<h4 style="margin-top:15px;">🔗 Conexiones de ${num}</h4>`;
+
+  const labels = { MM: 'Med→Med', MN: 'Med→Noc', NN: 'Noc→Noc', NM: 'Noc→Med' };
+  Object.entries(labels).forEach(([key, label]) => {
+    const entries = Object.entries(next[key]).sort((a,b) => b[1] - a[1]);
+    html += `<div class="collapsible-header" onclick="this.nextElementSibling.classList.toggle('open')">
+      <span>${label} (${entries.length} conexiones)</span><span>▼</span>
+    </div>`;
+    html += '<div class="collapsible-body">';
+    if (entries.length) {
+      html += '<div class="rec-nums">';
+      entries.slice(0, 15).forEach(([n, cnt]) => {
+        html += `<div class="rec-item"><span>${n}</span> (${cnt}x)</div>`;
+      });
+      html += '</div>';
+    } else html += '<p style="color:var(--text-dim);font-size:0.8em;">Sin conexiones</p>';
+    html += '</div>';
+  });
+
+  container.innerHTML = html;
+}// ===== ÚLTIMA SEMANA =====
+function renderSemana() {
+  const container = document.getElementById('semanaContent');
+  if (!sorteos.length) { container.innerHTML = '<p style="color:var(--text-dim)">No hay datos.</p>'; return; }
+
+  const ls = getLastSorteoCurrentMonth();
+  if (!ls) { container.innerHTML = '<p style="color:var(--text-dim)">No hay sorteos este mes.</p>'; return; }
+
+  // Get last 7 days of sorteos
+  const lastDate = new Date(ls.fecha);
+  const weekAgo = new Date(lastDate);
+  weekAgo.setDate(weekAgo.getDate() - 7);
+  const weekStr = weekAgo.toISOString().split('T')[0];
+
+  const weekSorteos = sorteos.filter(s => s.fecha >= weekStr && s.fecha <= ls.fecha);
+
+  const dayNames = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+
+  let html = `<p style="font-size:0.8em;color:var(--text-dim);margin-bottom:10px;">
+    Período: ${weekStr} al ${ls.fecha} (${weekSorteos.length} sorteos)</p>`;
+
+  // Show sorteos in grid
+  html += '<div class="week-grid">';
+  weekSorteos.forEach(s => {
+    const d = new Date(s.fecha + 'T12:00:00');
+    html += `<div class="week-day-card">
+      <div class="day-name">${dayNames[d.getDay()]} ${s.fecha.substring(5)}</div>
+      <div class="day-nums">${getNumStr(s)}</div>
+      <div class="day-turno">${s.turno==='M'?'Med':'Noc'} | Dec:${pad2(getDecena(s))} Term:${pad2(getTerminal(s))}</div>
+    </div>`;
+  });
+  html += '</div>';
+
+  // Analyze week
+  const decFreq = {}, termFreq = {}, digitFreq = Array(10).fill(0);
+  weekSorteos.forEach(s => {
+    const d = pad2(getDecena(s));
+    const t = pad2(getTerminal(s));
+    decFreq[d] = (decFreq[d] || 0) + 1;
+    termFreq[t] = (termFreq[t] || 0) + 1;
+    digitFreq[s.d1]++; digitFreq[s.d2]++; digitFreq[s.d3]++;
+  });
+
+  const topDec = Object.entries(decFreq).sort((a,b) => b[1] - a[1]).slice(0, 8);
+  const topTerm = Object.entries(termFreq).sort((a,b) => b[1] - a[1]).slice(0, 8);
+
+  html += '<div class="rec-box" style="margin-top:15px;"><h4>📊 Decenas más repetidas esta semana</h4>';
+  html += '<div class="rec-nums">';
+  topDec.forEach(([num, cnt]) => {
+    const isLS = num === pad2(getDecena(ls));
+    html += `<div class="rec-item" style="${isLS?'border:1px solid var(--gold);':''}"><span>${num}</span> (${cnt}x)${isLS?' 📌':''}</div>`;
+  });
+  html += '</div></div>';
+
+  html += '<div class="rec-box"><h4>📊 Terminales más repetidas esta semana</h4>';
+  html += '<div class="rec-nums">';
+  topTerm.forEach(([num, cnt]) => {
+    const isLS = num === pad2(getTerminal(ls));
+    html += `<div class="rec-item" style="${isLS?'border:1px solid var(--gold);':''}"><span>${num}</span> (${cnt}x)${isLS?' 📌':''}</div>`;
+  });
+  html += '</div></div>';
+
+  // Digit frequency this week
+  html += '<h4 style="margin-top:15px;">🔢 Dígitos más calientes de la semana</h4>';
+  const maxDF = Math.max(...digitFreq, 1);
+  html += '<div class="bar-chart">';
+  for (let i = 0; i <= 9; i++) {
+    const pct = digitFreq[i] / maxDF * 100;
+    html += `<div class="bar-row"><div class="bar-label">${i}</div>
+      <div class="bar-fill ${pct>60?'hot':pct>30?'med':'cold'}" style="width:${Math.max(pct,2)}%">${digitFreq[i]}</div></div>`;
+  }
+  html += '</div>';
+
+  // Recommendations based on week + last sorteo
+  const next = getNextTurno();
+  html += `<div class="rec-box" style="margin-top:15px;">
+    <h4>🎯 Recomendación semanal → ${next.label}</h4>
+    <p style="font-size:0.8em;color:var(--text-dim);margin-bottom:8px;">
+      Basado en tendencias de la última semana y último sorteo (${getNumStr(ls)})
+    </p><div class="rec-nums">`;
+
+  // Combine week trends
+  const recDecs = topDec.slice(0, 5).map(([n]) => n);
+  const recTerms = topTerm.slice(0, 5).map(([n]) => n);
+  recDecs.forEach(d => {
+    recTerms.forEach(t => {
+      html += `<div class="rec-item">Dec:<span>${d}</span> Term:<span>${t}</span></div>`;
+    });
+  });
+  html += '</div></div>';
+
+  container.innerHTML = html;
+}
+
+// ===== POR AÑO =====
+function renderAnual() {
+  const yearSel = document.getElementById('anualYear').value;
+  const container = document.getElementById('anualContent');
+  const compareContainer = document.getElementById('anualCompare');
+
+  if (!sorteos.length) {
+    container.innerHTML = compareContainer.innerHTML = '<p style="color:var(--text-dim)">No hay datos.</p>';
+    return;
+  }
+
+  const ls = getLastSorteoCurrentMonth();
+
+  // Individual year analysis
+  if (yearSel) {
+    const yearData = sorteos.filter(s => s.fecha.startsWith(yearSel));
+    if (!yearData.length) { container.innerHTML = '<p style="color:var(--text-dim)">No hay datos para este año.</p>'; return; }
+
+    const decFreq = {}, termFreq = {};
+    yearData.forEach(s => {
+      const d = pad2(getDecena(s));
+      const t = pad2(getTerminal(s));
+      decFreq[d] = (decFreq[d] || 0) + 1;
+      termFreq[t] = (termFreq[t] || 0) + 1;
+    });
+
+    let html = `<div class="stats-grid">
+      <div class="stat-item"><div class="value">${yearData.length}</div><div class="label">Sorteos</div></div>
+      <div class="stat-item"><div class="value">${yearData.filter(s=>s.turno==='M').length}</div><div class="label">Mediodía</div></div>
+      <div class="stat-item"><div class="value">${yearData.filter(s=>s.turno==='N').length}</div><div class="label">Noche</div></div>
+    </div>`;
+
+    const topDec = Object.entries(decFreq).sort((a,b) => b[1] - a[1]).slice(0, 15);
+    const topTerm = Object.entries(termFreq).sort((a,b) => b[1] - a[1]).slice(0, 15);
+
+    html += `<h4>📊 Top 15 Decenas de ${yearSel}</h4>`;
+    html += renderDTTable(topDec, ls ? pad2(getDecena(ls)) : null);
+    html += `<h4 style="margin-top:15px;">📊 Top 15 Terminales de ${yearSel}</h4>`;
+    html += renderDTTable(topTerm, ls ? pad2(getTerminal(ls)) : null);
+
+    container.innerHTML = html;
+  } else {
+    container.innerHTML = '<p style="color:var(--text-dim);font-size:0.85em;">Selecciona un año para ver el análisis.</p>';
+  }
+
+  // Compare all years
+  renderAnualCompare(compareContainer, ls);
+}
+
+function renderAnualCompare(container, ls) {
+  if (!ls) { container.innerHTML = '<p style="color:var(--text-dim)">Necesitas sorteos para comparar.</p>'; return; }
+
+  const years = [...new Set(sorteos.map(s => s.fecha.substring(0,4)))].sort();
+  if (years.length < 1) { container.innerHTML = '<p style="color:var(--text-dim)">No hay suficientes datos.</p>'; return; }
+
+  const lsDec = pad2(getDecena(ls));
+  const lsTerm = pad2(getTerminal(ls));
+  const next = getNextTurno();
+
+  let html = `<div class="rec-box"><h4>📌 Último sorteo: ${getNumStr(ls)} (Dec:${lsDec} Term:${lsTerm}) → Próximo: ${next.label}</h4></div>`;
+
+  // For each year, find what came after this decena/terminal
+  const yearDecRec = {}, yearTermRec = {};
+
+  years.forEach(year => {
+    const yearData = sorteos.filter(s => s.fecha.startsWith(year));
+    yearDecRec[year] = {};
+    yearTermRec[year] = {};
+
+    for (let i = 0; i < yearData.length - 1; i++) {
+      if (pad2(getDecena(yearData[i])) === lsDec) {
+        const nd = pad2(getDecena(yearData[i+1]));
+        yearDecRec[year][nd] = (yearDecRec[year][nd] || 0) + 1;
+      }
+      if (pad2(getTerminal(yearData[i])) === lsTerm) {
+        const nt = pad2(getTerminal(yearData[i+1]));
+        yearTermRec[year][nt] = (yearTermRec[year][nt] || 0) + 1;
+      }
+    }
+  });
+
+  // Aggregate across years
+  const aggDec = {}, aggTerm = {};
+  years.forEach(year => {
+    Object.entries(yearDecRec[year]).forEach(([k,v]) => { aggDec[k] = (aggDec[k]||0) + v; });
+    Object.entries(yearTermRec[year]).forEach(([k,v]) => { aggTerm[k] = (aggTerm[k]||0) + v; });
+  });
+
+  const bestDecs = Object.entries(aggDec).sort((a,b) => b[1] - a[1]).slice(0, 10);
+  const bestTerms = Object.entries(aggTerm).sort((a,b) => b[1] - a[1]).slice(0, 10);
+
+  html += `<h4>📊 Mejores decenas que siguen a ${lsDec} (todos los años)</h4>`;
+  if (bestDecs.length) {
+    const mx = bestDecs[0][1];
+    html += '<div class="bar-chart">';
+    bestDecs.forEach(([num, cnt]) => {
+      const pct = cnt / mx * 100;
+      html += `<div class="bar-row"><div class="bar-label">${num}</div>
+        <div class="bar-fill hot" style="width:${Math.max(pct,2)}%">${cnt}x</div></div>`;
+    });
+    html += '</div>';
+  } else html += '<p style="color:var(--text-dim);font-size:0.8em;">Sin datos</p>';
+
+  html += `<h4 style="margin-top:15px;">📊 Mejores terminales que siguen a ${lsTerm} (todos los años)</h4>`;
+  if (bestTerms.length) {
+    const mx = bestTerms[0][1];
+    html += '<div class="bar-chart">';
+    bestTerms.forEach(([num, cnt]) => {
+      const pct = cnt / mx * 100;
+      html += `<div class="bar-row"><div class="bar-label">${num}</div>
+        <div class="bar-fill hot" style="width:${Math.max(pct,2)}%">${cnt}x</div></div>`;
+    });
+    html += '</div>';
+  } else html += '<p style="color:var(--text-dim);font-size:0.8em;">Sin datos</p>';
+
+  // Year by year breakdown
+  html += '<h4 style="margin-top:15px;">📅 Desglose por año</h4>';
+  years.forEach(year => {
+    const yd = Object.entries(yearDecRec[year]).sort((a,b) => b[1] - a[1]).slice(0, 5);
+    const yt = Object.entries(yearTermRec[year]).sort((a,b) => b[1] - a[1]).slice(0, 5);
+    if (yd.length || yt.length) {
+      html += `<div class="collapsible-header" onclick="this.nextElementSibling.classList.toggle('open')">
+        <span>${year}</span><span>▼</span></div>`;
+      html += '<div class="collapsible-body">';
+      if (yd.length) {
+        html += `<p style="font-size:0.8em;color:var(--accent3);">Decenas tras ${lsDec}:</p><div class="rec-nums">`;
+        yd.forEach(([n,c]) => { html += `<div class="rec-item"><span>${n}</span> (${c}x)</div>`; });
+        html += '</div>';
+      }
+      if (yt.length) {
+        html += `<p style="font-size:0.8em;color:var(--accent3);margin-top:6px;">Terminales tras ${lsTerm}:</p><div class="rec-nums">`;
+        yt.forEach(([n,c]) => { html += `<div class="rec-item"><span>${n}</span> (${c}x)</div>`; });
+        html += '</div>';
+      }
+      html += '</div>';
+    }
+  });
+
+  container.innerHTML = html;
+}
+
+// ===== ANÁLISIS ÚLTIMO SORTEO → PRÓXIMO =====
+function renderAnalisis() {
+  const container = document.getElementById('analisisContent');
+  if (sorteos.length < 10) {
+    container.innerHTML = '<p style="color:var(--text-dim)">Necesitas al menos 10 sorteos para el análisis.</p>';
+    return;
+  }
+
+  const ls = getLastSorteoCurrentMonth();
+  if (!ls) { container.innerHTML = '<p style="color:var(--text-dim)">No hay sorteos este mes.</p>'; return; }
+
+  const lsDec = pad2(getDecena(ls));
+  const lsTerm = pad2(getTerminal(ls));
+  const lsNum = getNumStr(ls);
+  const next = getNextTurno();
+
+  // 1. Historical transition analysis
+  const decAfter = {}, termAfter = {};
+  const decAfterTurno = {M:{}, N:{}};
+  const termAfterTurno = {M:{}, N:{}};
+
+  for (let i = 0; i < sorteos.length - 1; i++) {
+    const curr = sorteos[i];
+    const nxt = sorteos[i + 1];
+    const cd = pad2(getDecena(curr));
+    const ct = pad2(getTerminal(curr));
+    const nd = pad2(getDecena(nxt));
+    const nt = pad2(getTerminal(nxt));
+
+    if (cd === lsDec) {
+      decAfter[nd] = (decAfter[nd] || 0) + 1;
+      if (!decAfterTurno[nxt.turno][nd]) decAfterTurno[nxt.turno][nd] = 0;
+      decAfterTurno[nxt.turno][nd]++;
+    }
+    if (ct === lsTerm) {
+      termAfter[nt] = (termAfter[nt] || 0) + 1;
+      if (!termAfterTurno[nxt.turno][nt]) termAfterTurno[nxt.turno][nt] = 0;
+      termAfterTurno[nxt.turno][nt]++;
+    }
+  }
+
+  // 2. Matrix analysis
+  const decMatrix = Array.from({length:10}, () => Array(10).fill(0));
+  const termMatrix = Array.from({length:10}, () => Array(10).fill(0));
+  sorteos.forEach(s => {
+    decMatrix[s.d1][s.d2]++;
+    termMatrix[s.d2][s.d3]++;
+  });
+
+  // 3. Current month trends
+  const now = new Date();
+  const ym = `${now.getFullYear()}-${pad2(now.getMonth()+1)}`;
+  const monthData = sorteos.filter(s => s.fecha.startsWith(ym));
+  const monthDecFreq = {}, monthTermFreq = {};
+  monthData.forEach(s => {
+    const d = pad2(getDecena(s));
+    const t = pad2(getTerminal(s));
+    monthDecFreq[d] = (monthDecFreq[d] || 0) + 1;
+    monthTermFreq[t] = (monthTermFreq[t] || 0) + 1;
+  });
+
+  // 4. Scoring system
+  const decScores = {}, termScores = {};
+
+  // Historical transitions (weight: 3)
+  Object.entries(decAfter).forEach(([k,v]) => { decScores[k] = (decScores[k]||0) + v * 3; });
+  Object.entries(termAfter).forEach(([k,v]) => { termScores[k] = (termScores[k]||0) + v * 3; });
+
+  // Turno-specific transitions (weight: 2)
+  Object.entries(decAfterTurno[next.turno] || {}).forEach(([k,v]) => { decScores[k] = (decScores[k]||0) + v * 2; });
+  Object.entries(termAfterTurno[next.turno] || {}).forEach(([k,v]) => { termScores[k] = (termScores[k]||0) + v * 2; });
+
+  // Matrix vibrations (weight: 1)
+  for (let c = 0; c <= 9; c++) {
+    const dk = pad2(ls.d1*10+c);
+    decScores[dk] = (decScores[dk]||0) + decMatrix[ls.d1][c];
+    const tk = pad2(ls.d2*10+c);
+    termScores[tk] = (termScores[tk]||0) + termMatrix[ls.d2][c];
+  }
+
+  // Month trends (weight: 1.5)
+  Object.entries(monthDecFreq).forEach(([k,v]) => { decScores[k] = (decScores[k]||0) + v * 1.5; });
+  Object.entries(monthTermFreq).forEach(([k,v]) => { termScores[k] = (termScores[k]||0) + v * 1.5; });
+
+  const bestDecs = Object.entries(decScores).sort((a,b) => b[1] - a[1]).slice(0, 15);
+  const bestTerms = Object.entries(termScores).sort((a,b) => b[1] - a[1]).slice(0, 15);
+
+  const maxDecScore = bestDecs.length ? bestDecs[0][1] : 1;
+  const maxTermScore = bestTerms.length ? bestTerms[0][1] : 1;
+
+  let html = `<div class="rec-box">
+    <h4>🎰 Último: ${lsNum} (${ls.turno==='M'?'Med':'Noc'}) → Próximo: ${next.label}</h4>
+    <p style="font-size:0.75em;color:var(--text-dim);">Dec: ${lsDec} | Term: ${lsTerm} | Fecha: ${ls.fecha}</p>
+  </div>`;
+
+  // Best decenas
+  html += `<h4>🎯 Mejores Decenas para ${next.label}</h4>`;
+  html += '<div style="margin:10px 0;">';
+  bestDecs.forEach(([num, score]) => {
+    const pct = Math.round(score / maxDecScore * 100);
+    const probClass = pct > 70 ? 'prob-high' : pct > 40 ? 'prob-med' : 'prob-low';
+    html += `<div style="display:flex;align-items:center;gap:8px;margin:6px 0;">
+      <span style="width:30px;font-weight:700;color:var(--gold);">${num}</span>
+      <div class="prob-meter" style="flex:1"><div class="prob-meter-fill ${probClass}" style="width:${pct}%"></div></div>
+      <span style="width:40px;font-size:0.75em;color:var(--text-dim);">${pct}%</span>
+    </div>`;
+  });
+  html += '</div>';
+
+  // Best terminales
+  html += `<h4 style="margin-top:15px;">🎯 Mejores Terminales para ${next.label}</h4>`;
+  html += '<div style="margin:10px 0;">';
+  bestTerms.forEach(([num, score]) => {
+    const pct = Math.round(score / maxTermScore * 100);
+    const probClass = pct > 70 ? 'prob-high' : pct > 40 ? 'prob-med' : 'prob-low';
+    html += `<div style="display:flex;align-items:center;gap:8px;margin:6px 0;">
+      <span style="width:30px;font-weight:700;color:var(--gold);">${num}</span>
+      <div class="prob-meter" style="flex:1"><div class="prob-meter-fill ${probClass}" style="width:${pct}%"></div></div>
+      <span style="width:40px;font-size:0.75em;color:var(--text-dim);">${pct}%</span>
+    </div>`;
+  });
+  html += '</div>';
+
+  // Top combinations
+  html += '<div class="rec-box" style="margin-top:15px;"><h4>🏆 Combinaciones con Mayor Probabilidad</h4>';
+  html += `<p style="font-size:0.75em;color:var(--text-dim);margin-bottom:8px;">
+    Cruce de mejores decenas × mejores terminales, ponderado por historial, matrix y mes actual.</p>`;
+  const combos = [];
+  bestDecs.slice(0, 8).forEach(([d, ds]) => {
+    bestTerms.slice(0, 8).forEach(([t, ts]) => {
+      combos.push({ dec: d, term: t, score: ds + ts });
+    });
+  });
+  combos.sort((a,b) => b.score - a.score);
+  html += '<div class="rec-nums">';
+  combos.slice(0, 15).forEach((c, i) => {
+    const emoji = i < 3 ? '🥇🥈🥉'[i] : '';
+    html += `<div class="rec-item">${emoji} Dec:<span>${c.dec}</span> Term:<span>${c.term}</span></div>`;
+  });
+  html += '</div></div>';
+
+  // Analysis for both turnos
+  html += '<h4 style="margin-top:15px;">📊 Desglose por Turno</h4>';
+  ['M', 'N'].forEach(turno => {
+    const tLabel = turno === 'M' ? 'Mediodía' : 'Noche';
+    const tDecs = Object.entries(decAfterTurno[turno] || {}).sort((a,b) => b[1] - a[1]).slice(0, 8);
+    const tTerms = Object.entries(termAfterTurno[turno] || {}).sort((a,b) => b[1] - a[1]).slice(0, 8);
+
+    html += `<div class="collapsible-header" onclick="this.nextElementSibling.classList.toggle('open')">
+      <span>${turno === next.turno ? '⭐ ' : ''}${tLabel} ${turno === next.turno ? '(PRÓXIMO)' : ''}</span><span>▼</span>
+    </div>`;
+    html += `<div class="collapsible-body ${turno === next.turno ? 'open' : ''}">`;
+
+    if (tDecs.length) {
+      html += `<p style="color:var(--accent3);font-size:0.85em;">Decenas tras ${lsDec}:</p><div class="rec-nums">`;
+      tDecs.forEach(([n,c]) => { html += `<div class="rec-item"><span>${n}</span> (${c}x)</div>`; });
+      html += '</div>';
+    }
+    if (tTerms.length) {
+      html += `<p style="color:var(--accent3);font-size:0.85em;margin-top:6px;">Terminales tras ${lsTerm}:</p><div class="rec-nums">`;
+      tTerms.forEach(([n,c]) => { html += `<div class="rec-item"><span>${n}</span> (${c}x)</div>`; });
+      html += '</div>';
+    }
+    if (!tDecs.length && !tTerms.length) {
+      html += '<p style="color:var(--text-dim);font-size:0.8em;">Sin datos suficientes</p>';
+    }
+    html += '</div>';
+  });
+
+  container.innerHTML = html;
+}
+
+// ===== INICIO - ÚLTIMOS 2 MESES =====
+function renderInicio() {
+  const container = document.getElementById('inicio-resumen');
+  if (!sorteos.length) {
+    container.innerHTML = '<div class="card"><h3>📊 Resumen</h3><p style="color:var(--text-dim)">Importa o agrega sorteos para comenzar.</p></div>';
+    return;
+  }
+
+  const ls = getLastSorteoCurrentMonth();
+  const next = getNextTurno();
+
+  // Get last 2 months
+  const now = new Date();
+  const twoMonthsAgo = new Date(now);
+  twoMonthsAgo.setMonth(twoMonthsAgo.getMonth() - 2);
+  const tmaStr = twoMonthsAgo.toISOString().split('T')[0];
+  const last2m = sorteos.filter(s => s.fecha >= tmaStr);
+
+  let html = '<div class="card"><h3>📊 Resumen - Últimos 2 Meses</h3>';
+
+  if (ls) {
+    html += `<div class="last-sorteo-banner">
+      <div><div class="ls-label">Último sorteo del mes</div><div class="ls-num">${getNumStr(ls)}</div></div>
+      <div style="text-align:right">
+        <div class="ls-info">${ls.fecha} | ${ls.turno==='M'?'Mediodía':'Noche'}</div>
+        <div class="ls-info" style="color:var(--gold);">Próximo: ${next.label}</div>
+      </div>
+    </div>`;
+  }
+
+  html += `<div class="stats-grid">
+    <div class="stat-item"><div class="value">${sorteos.length}</div><div class="label">Total Sorteos</div></div>
+    <div class="stat-item"><div class="value">${last2m.length}</div><div class="label">Últimos 2 meses</div></div>
+    <div class="stat-item"><div class="value">${last2m.filter(s=>s.turno==='M').length}</div><div class="label">Mediodía</div></div>
+    <div class="stat-item"><div class="value">${last2m.filter(s=>s.turno==='N').length}</div><div class="label">Noche</div></div>
+  </div>`;
+
+  if (last2m.length > 0) {
+    const decFreq = {}, termFreq = {};
+    last2m.forEach(s => {
+      const d = pad2(getDecena(s));
+      const t = pad2(getTerminal(s));
+      decFreq[d] = (decFreq[d] || 0) + 1;
+      termFreq[t] = (termFreq[t] || 0) + 1;
+    });
+
+    const topDec = Object.entries(decFreq).sort((a,b) => b[1] - a[1]).slice(0, 10);
+    const topTerm = Object.entries(termFreq).sort((a,b) => b[1] - a[1]).slice(0, 10);
+
+    html += '<div class="rec-box"><h4>⭐ Decenas Top (últimos 2 meses)</h4><div class="rec-nums">';
+    topDec.forEach(([num, cnt]) => {
+      const isLS = ls && num === pad2(getDecena(ls));
+      html += `<div class="rec-item" style="${isLS?'border:1px solid var(--gold);':''}"><span>${num}</span> (${cnt}x)${isLS?' 📌':''}</div>`;
+    });
+    html += '</div></div>';
+
+    html += '<div class="rec-box"><h4>⭐ Terminales Top (últimos 2 meses)</h4><div class="rec-nums">';
+    topTerm.forEach(([num, cnt]) => {
+      const isLS = ls && num === pad2(getTerminal(ls));
+      html += `<div class="rec-item" style="${isLS?'border:1px solid var(--gold);':''}"><span>${num}</span> (${cnt}x)${isLS?' 📌':''}</div>`;
+    });
+    html += '</div></div>';
+
+    // Quick recommendations combining 2 months + last sorteo
+    if (ls) {
+      const lsDec = pad2(getDecena(ls));
+      const lsTerm = pad2(getTerminal(ls));
+
+      // Find what follows in 2-month data
+      const decAfter2m = {}, termAfter2m = {};
+      for (let i = 0; i < last2m.length - 1; i++) {
+        if (pad2(getDecena(last2m[i])) === lsDec) {
+          const nd = pad2(getDecena(last2m[i+1]));
+          decAfter2m[nd] = (decAfter2m[nd]||0) + 1;
+        }
+        if (pad2(getTerminal(last2m[i])) === lsTerm) {
+          const nt = pad2(getTerminal(last2m[i+1]));
+          termAfter2m[nt] = (termAfter2m[nt]||0) + 1;
+        }
+      }
+
+      const recDec2m = Object.entries(decAfter2m).sort((a,b) => b[1] - a[1]).slice(0, 5);
+      const recTerm2m = Object.entries(termAfter2m).sort((a,b) => b[1] - a[1]).slice(0, 5);
+
+      if (recDec2m.length || recTerm2m.length) {
+        html += `<div class="rec-box"><h4>🎯 Recomendación rápida → ${next.label}</h4>`;
+        if (recDec2m.length) {
+          html += `<p style="font-size:0.8em;color:var(--accent3);">Decenas tras ${lsDec}:</p><div class="rec-nums">`;
+          recDec2m.forEach(([n,c]) => { html += `<div class="rec-item"><span>${n}</span> (${c}x)</div>`; });
+          html += '</div>';
+        }
+        if (recTerm2m.length) {
+          html += `<p style="font-size:0.8em;color:var(--accent3);margin-top:6px;">Terminales tras ${lsTerm}:</p><div class="rec-nums">`;
+          recTerm2m.forEach(([n,c]) => { html += `<div class="rec-item"><span>${n}</span> (${c}x)</div>`; });
+          html += '</div>';
+        }
+        html += '</div>';
+      }
+    }
+  }
+
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+// ===== SERVICE WORKER =====
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(err => console.log('SW error:', err));
+}
 </script>
+
+<!-- SheetJS for Excel support (optional, loaded from CDN) -->
+<script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js" defer></script>
+
 </body>
 </html>
