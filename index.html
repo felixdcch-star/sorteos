@@ -179,7 +179,7 @@
 
 <div class="sec" id="sec-hist">
     <div class="card"><div class="card-t">📋 Historial Completo</div>
-        <div class="sbar"><input type="text" id="sI" placeholder="Buscar..." oninput="rHist()"><select id="sF" onchange="rHist()"><option value="">Todos</option><option value="midday">Día</option><option value="evening">Noche</option></select></div>
+        <div class="sbar"><input type="text" id="sI" placeholder="Buscar..." oninput="rHist()"><select id="sF" onchange="rHist()"><option value="">Todos</option><option value="midday">Mediodía</option><option value="evening">Noche</option></select></div>
         <div class="tw"><table><thead><tr><th>Fecha</th><th>Turno</th><th>Número</th><th>🗑️</th></tr></thead><tbody id="hBody"></tbody></table></div>
         <div class="pag"><button class="btn btn-outline" onclick="cPage(-1)">◀</button><span class="pag-info" id="pInfo">0/0</span><button class="btn btn-outline" onclick="cPage(1)">▶</button></div>
     </div>
@@ -189,7 +189,7 @@
     <div class="sub-tabs" id="freqTabs">
         <button class="sub-tab active" onclick="freqView('top',this)">🔥 Top 15</button>
         <button class="sub-tab" onclick="freqView('bottom',this)">❄️ Bottom 15</button>
-        <button class="sub-tab" onclick="freqView('midday',this)">☀️ Día</button>
+        <button class="sub-tab" onclick="freqView('midday',this)">☀️ Mediodía</button>
         <button class="sub-tab" onclick="freqView('evening',this)">🌙 Noche</button>
         <button class="sub-tab" onclick="freqView('all100',this)">📊 Los 100</button>
     </div>
@@ -199,10 +199,10 @@
 <div class="sec" id="sec-dec">
     <div class="sub-tabs">
         <button class="sub-tab active" onclick="decView('general',this)">📊 General</button>
-        <button class="sub-tab" onclick="decView('dd',this)">☀️→☀️ Día-Día</button>
-        <button class="sub-tab" onclick="decView('nn',this)">🌙→🌙 Noche-Noche</button>
-        <button class="sub-tab" onclick="decView('dn',this)">☀️→🌙 Día-Noche</button>
-        <button class="sub-tab" onclick="decView('nd',this)">🌙→☀️ Noche-Día</button>
+        <button class="sub-tab" onclick="decView('dd',this)">☀️→☀️ M-M</button>
+        <button class="sub-tab" onclick="decView('nn',this)">🌙→🌙 N-N</button>
+        <button class="sub-tab" onclick="decView('dn',this)">☀️→🌙 M-N</button>
+        <button class="sub-tab" onclick="decView('nd',this)">🌙→☀️ N-M</button>
         <button class="sub-tab" onclick="decView('best',this)">🏆 Mejores</button>
     </div>
     <div class="card"><div class="card-t" id="decTitle">🔢 Análisis de Decenas</div><div id="decContent"></div></div>
@@ -211,10 +211,10 @@
 <div class="sec" id="sec-term">
     <div class="sub-tabs">
         <button class="sub-tab active" onclick="termView('general',this)">📊 General</button>
-        <button class="sub-tab" onclick="termView('dd',this)">☀️→☀️ Día-Día</button>
-        <button class="sub-tab" onclick="termView('nn',this)">🌙→🌙 Noche-Noche</button>
-        <button class="sub-tab" onclick="termView('dn',this)">☀️→🌙 Día-Noche</button>
-        <button class="sub-tab" onclick="termView('nd',this)">🌙→☀️ Noche-Día</button>
+        <button class="sub-tab" onclick="termView('dd',this)">☀️→☀️ M-M</button>
+        <button class="sub-tab" onclick="termView('nn',this)">🌙→🌙 N-N</button>
+        <button class="sub-tab" onclick="termView('dn',this)">☀️→🌙 M-N</button>
+        <button class="sub-tab" onclick="termView('nd',this)">🌙→☀️ N-M</button>
         <button class="sub-tab" onclick="termView('best',this)">🏆 Mejores</button>
     </div>
     <div class="card"><div class="card-t" id="termTitle">🎯 Análisis de Terminales</div><div id="termContent"></div></div>
@@ -263,7 +263,7 @@
         <div id="addA" class="alert"></div>
         <div class="g2 mb">
             <div class="fg" style="grid-column:1/-1"><label>Fecha</label><input type="date" id="aDate"></div>
-            <div class="fg"><label>Turno</label><select id="aShift"><option value="midday">☀️ Día</option><option value="evening">🌙 Noche</option></select></div>
+            <div class="fg"><label>Turno</label><select id="aShift"><option value="midday">☀️ Mediodía</option><option value="evening">🌙 Noche</option></select></div>
             <div class="fg"><label>Número (00-99)</label><input type="text" id="aNum" placeholder="07" maxlength="2" inputmode="numeric"></div>
         </div>
         <button class="btn btn-gold" onclick="addR()">💾 Guardar</button>
@@ -285,7 +285,7 @@
         <div class="imp-area excel" onclick="document.getElementById('fExcel').click()">
             <div class="ic">📊</div>
             <p><strong style="color:var(--green)">EXCEL / CSV</strong></p>
-            <p class="fxs td mt">Toca aquí para subir archivo .xlsx, .xls o .csv</p>
+            <p class="fxs td mt">Toca aquí — Acepta .xlsx, .xls, .csv (miles de filas)</p>
         </div>
         <input type="file" id="fExcel" accept=".xlsx,.xls,.csv" style="display:none" onchange="hExcel(event)">
         
@@ -304,118 +304,167 @@
     
     <div class="card">
         <div class="card-t">📋 Formato del Excel/CSV</div>
-        <p class="fxs td mb">Tu archivo Excel debe tener 3 columnas: <strong class="tg">Fecha</strong>, <strong class="tg">Turno</strong>, <strong class="tg">Número</strong></p>
+        <p class="fxs td mb">Tu Excel debe tener 3 columnas: <strong class="tg">Fecha</strong>, <strong class="tg">Turno</strong>, <strong class="tg">Numero</strong></p>
         <div class="format-example">
             <table>
-                <thead><tr><th>Fecha</th><th>Turno</th><th>Número</th></tr></thead>
+                <thead><tr><th>Fecha</th><th>Turno</th><th>Numero</th></tr></thead>
                 <tbody>
-                    <tr><td>16/08/2026</td><td>Día</td><td>74</td></tr>
-                    <tr><td>15/08/2026</td><td>Día</td><td>82</td></tr>
+                    <tr><td>16/08/2026</td><td>Mediodía</td><td>74</td></tr>
+                    <tr><td>15/08/2026</td><td>Mediodía</td><td>82</td></tr>
                     <tr><td>15/08/2026</td><td>Noche</td><td>09</td></tr>
-                    <tr><td>14/08/2026</td><td>Día</td><td>02</td></tr>
+                    <tr><td>14/08/2026</td><td>Mediodía</td><td>02</td></tr>
                 </tbody>
             </table>
         </div>
         <div class="mt fxs td">
-            <p>✅ <strong>Fecha:</strong> Acepta varios formatos: 16/08/2026, 2026-08-16, 16-08-2026, etc.</p>
-            <p>✅ <strong>Turno:</strong> Día, Noche, D, N, Mediodía, Evening, Midday, Tarde</p>
-            <p>✅ <strong>Número:</strong> Del 00 al 99 (con o sin cero adelante)</p>
+            <p>✅ <strong>Fecha:</strong> 16/08/2026, 2026-08-16, 16-08-2026, etc.</p>
+            <p>✅ <strong>Turno:</strong> Mediodía, Día, Noche, D, N (con o sin tilde)</p>
+            <p>✅ <strong>Número:</strong> Del 00 al 99</p>
+            <p>✅ <strong>Tamaño:</strong> Soporta miles de filas sin problema</p>
         </div>
-        <div class="mt"><button class="btn btn-purple" onclick="downTemplate()">📥 Descargar Plantilla Ejemplo</button></div>
+        <div class="mt"><button class="btn btn-purple" onclick="downTemplate()">📥 Descargar Plantilla</button></div>
     </div>
 </div>
 
 <script>
-const SK='sorteos_super_v5';
+const SK='sorteos_super_v6';
 const LD=()=>{try{const r=localStorage.getItem(SK);return r?JSON.parse(r):[]}catch(e){return[]}};
 const SD=a=>localStorage.setItem(SK,JSON.stringify(a));
 
-// Parser universal de fecha
+// Quitar tildes
+function noTilde(s){
+    if(!s)return '';
+    return String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+}
+
+// Parser universal de fecha - MUY ROBUSTO
 function parseDate(input){
-    if(!input) return null;
+    if(input===null||input===undefined||input==='')return null;
+    
+    // Si es un objeto Date
+    if(input instanceof Date && !isNaN(input.getTime())){
+        const y=input.getFullYear();
+        const m=String(input.getMonth()+1).padStart(2,'0');
+        const d=String(input.getDate()).padStart(2,'0');
+        return `${y}-${m}-${d}`;
+    }
+    
     let s = String(input).trim();
+    if(!s)return null;
     
     // Si es número (Excel serial date)
-    if(/^\d+$/.test(s) && parseInt(s) > 25569 && parseInt(s) < 60000){
-        const excelDate = new Date((parseInt(s) - 25569) * 86400 * 1000);
-        return excelDate.toISOString().substring(0,10);
+    if(/^\d+(\.\d+)?$/.test(s)){
+        const num=parseFloat(s);
+        if(num>25569 && num<80000){
+            const excelDate=new Date((num-25569)*86400*1000);
+            if(!isNaN(excelDate.getTime())){
+                const y=excelDate.getUTCFullYear();
+                const m=String(excelDate.getUTCMonth()+1).padStart(2,'0');
+                const d=String(excelDate.getUTCDate()).padStart(2,'0');
+                return `${y}-${m}-${d}`;
+            }
+        }
     }
     
     // Quitar hora si viene
-    s = s.replace(/T.*$/,'').replace(/\s+.*$/,'').trim();
+    s=s.replace(/T.*$/,'').replace(/\s+\d.*$/,'').trim();
     
-    // Formato YYYY-MM-DD
-    let m = s.match(/^(\d{4})[-\/\.](\d{1,2})[-\/\.](\d{1,2})$/);
-    if(m) return `${m[1]}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}`;
+    // Formato YYYY-MM-DD o YYYY/MM/DD
+    let m=s.match(/^(\d{4})[-\/\.](\d{1,2})[-\/\.](\d{1,2})$/);
+    if(m)return `${m[1]}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}`;
     
-    // Formato DD/MM/YYYY o DD-MM-YYYY
-    m = s.match(/^(\d{1,2})[-\/\.](\d{1,2})[-\/\.](\d{4})$/);
+    // Formato DD/MM/YYYY o DD-MM-YYYY (formato latino)
+    m=s.match(/^(\d{1,2})[-\/\.](\d{1,2})[-\/\.](\d{4})$/);
     if(m){
-        const d=parseInt(m[1]), mo=parseInt(m[2]);
-        // Si el primer número > 12, es DD/MM
-        if(d > 12) return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
-        // Si el segundo > 12, es MM/DD
-        if(mo > 12) return `${m[3]}-${m[1].padStart(2,'0')}-${m[2].padStart(2,'0')}`;
-        // Por defecto asumimos DD/MM (formato latino)
+        const d=parseInt(m[1]),mo=parseInt(m[2]);
+        if(d>12)return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
+        if(mo>12)return `${m[3]}-${m[1].padStart(2,'0')}-${m[2].padStart(2,'0')}`;
         return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
     }
     
     // DD/MM/YY (año corto)
-    m = s.match(/^(\d{1,2})[-\/\.](\d{1,2})[-\/\.](\d{2})$/);
+    m=s.match(/^(\d{1,2})[-\/\.](\d{1,2})[-\/\.](\d{2})$/);
     if(m){
-        const yr = parseInt(m[3]) > 50 ? '19'+m[3] : '20'+m[3];
+        const yr=parseInt(m[3])>50?'19'+m[3]:'20'+m[3];
         return `${yr}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
     }
     
     // Con nombre de mes: 16-Ago-2026 o 16 Agosto 2026
     const meses={ene:'01',feb:'02',mar:'03',abr:'04',may:'05',jun:'06',jul:'07',ago:'08',sep:'09',oct:'10',nov:'11',dic:'12',
                  enero:'01',febrero:'02',marzo:'03',abril:'04',mayo:'05',junio:'06',julio:'07',agosto:'08',septiembre:'09',octubre:'10',noviembre:'11',diciembre:'12',
-                 jan:'01',apr:'04',aug:'08',dec:'12'};
-    m = s.toLowerCase().match(/(\d{1,2})[-\/\s]([a-záéíóú]+)[-\/\s](\d{2,4})/);
+                 jan:'01',apr:'04',aug:'08',dec:'12',jun:'06',jul:'07'};
+    const sl=noTilde(s);
+    m=sl.match(/(\d{1,2})[-\/\s]([a-z]+)[-\/\s](\d{2,4})/);
     if(m){
-        const mn = meses[m[2].substring(0,3)] || meses[m[2]];
+        const mn=meses[m[2].substring(0,3)]||meses[m[2]];
         if(mn){
-            const yr = m[3].length===2 ? (parseInt(m[3])>50?'19':'20')+m[3] : m[3];
+            const yr=m[3].length===2?(parseInt(m[3])>50?'19':'20')+m[3]:m[3];
             return `${yr}-${mn}-${m[1].padStart(2,'0')}`;
         }
     }
     
-    // Intento con Date de JS
+    // Último intento con Date
     try{
-        const d = new Date(s);
+        const d=new Date(s);
         if(!isNaN(d.getTime())){
-            return d.toISOString().substring(0,10);
+            const y=d.getFullYear();
+            const mo=String(d.getMonth()+1).padStart(2,'0');
+            const dd=String(d.getDate()).padStart(2,'0');
+            return `${y}-${mo}-${dd}`;
         }
     }catch(e){}
     
     return null;
 }
 
-// Parser universal de turno
+// Parser universal de turno - ACEPTA TODO
 function parseShift(input){
-    if(!input) return null;
-    const s = String(input).toLowerCase().trim();
-    if(['dia','día','d','day','midday','mediodia','mediodía','md','tarde','mañana','manana','am'].includes(s)) return 'midday';
-    if(['noche','n','night','evening','eve','ev','pm'].includes(s)) return 'evening';
-    // Si contiene esas palabras
-    if(s.includes('dia')||s.includes('día')||s.includes('mediod')||s.includes('day')||s.includes('mid')||s.includes('tarde')) return 'midday';
-    if(s.includes('noche')||s.includes('night')||s.includes('even')) return 'evening';
+    if(input===null||input===undefined)return null;
+    const s=noTilde(input);
+    if(!s)return null;
+    
+    // Coincidencias exactas
+    const midday=['dia','d','day','midday','mediodia','md','tarde','manana','am','1','m','matutino'];
+    const evening=['noche','n','night','evening','eve','ev','pm','2','e','nocturno','vespertino'];
+    
+    if(midday.indexOf(s)>=0)return 'midday';
+    if(evening.indexOf(s)>=0)return 'evening';
+    
+    // Contiene
+    if(s.indexOf('medio')>=0||s.indexOf('dia')>=0||s.indexOf('day')>=0||s.indexOf('mid')>=0||s.indexOf('tarde')>=0||s.indexOf('manan')>=0||s.indexOf('matut')>=0)return 'midday';
+    if(s.indexOf('noche')>=0||s.indexOf('night')>=0||s.indexOf('even')>=0||s.indexOf('nite')>=0||s.indexOf('noct')>=0||s.indexOf('vesper')>=0)return 'evening';
+    
     return null;
 }
 
 // Normalizar un registro
 function norm(r){
-    const rd = parseDate(r.drawDate || r.date || r.fecha || r.Fecha || r.FECHA);
-    if(!rd || !/^\d{4}-\d{2}-\d{2}$/.test(rd)) return null;
+    // Buscar fecha en múltiples nombres de campo
+    let dateVal=null;
+    const dateKeys=['drawDate','date','fecha','Fecha','FECHA','DATE'];
+    for(const k of dateKeys){if(r[k]!==undefined&&r[k]!==null&&r[k]!==''){dateVal=r[k];break}}
     
-    const ni = parseInt(String(r.number || r.numero || r.Numero || r['Número'] || r['NÚMERO']),10);
-    if(isNaN(ni) || ni<0 || ni>99) return null;
-    const n = String(ni).padStart(2,'0');
+    const rd=parseDate(dateVal);
+    if(!rd||!/^\d{4}-\d{2}-\d{2}$/.test(rd))return null;
     
-    const s = parseShift(r.shift || r.turno || r.Turno || r.TURNO);
-    if(!s) return null;
+    // Buscar número en múltiples nombres
+    let numVal=null;
+    const numKeys=['number','numero','Numero','NUMERO','Número','NÚMERO','num','Num','NUM','n','N'];
+    for(const k of numKeys){if(r[k]!==undefined&&r[k]!==null&&r[k]!==''){numVal=r[k];break}}
     
-    return {id:`${rd}_${s}`, drawDate:rd, shift:s, number:n, createdAt:r.createdAt||Date.now()};
+    const ni=parseInt(String(numVal),10);
+    if(isNaN(ni)||ni<0||ni>99)return null;
+    const n=String(ni).padStart(2,'0');
+    
+    // Buscar turno en múltiples nombres
+    let shiftVal=null;
+    const shiftKeys=['shift','turno','Turno','TURNO','periodo','período','Periodo','Período','SHIFT'];
+    for(const k of shiftKeys){if(r[k]!==undefined&&r[k]!==null&&r[k]!==''){shiftVal=r[k];break}}
+    
+    const s=parseShift(shiftVal);
+    if(!s)return null;
+    
+    return {id:`${rd}_${s}`,drawDate:rd,shift:s,number:n,createdAt:r.createdAt||Date.now()};
 }
 
 // Importar JSON
@@ -432,10 +481,15 @@ function procImp(txt,src){
     },200);
 }
 
-// Procesar items (común para JSON y Excel)
 function processItems(items,src){
     const norms=items.map(norm).filter(Boolean);
-    if(!norms.length){hideOv();sAlert(src,'❌ Ningún dato válido. Revisa formato.','e');return}
+    if(!norms.length){
+        hideOv();
+        // Diagnóstico: mostrar primera fila para ayudar
+        const firstRow=items[0]?JSON.stringify(items[0]).substring(0,150):'vacío';
+        sAlert(src,`❌ Ningún dato válido. Primera fila leída: ${firstRow}`,'e');
+        return;
+    }
     
     const ex=LD();
     const map={};
@@ -455,27 +509,21 @@ function hExcel(ev){
     reader.onload=e=>{
         try{
             const data=new Uint8Array(e.target.result);
-            const wb=XLSX.read(data,{type:'array',cellDates:true});
+            const wb=XLSX.read(data,{type:'array',cellDates:true,cellNF:false,cellText:false});
             const sheet=wb.Sheets[wb.SheetNames[0]];
-            const rows=XLSX.utils.sheet_to_json(sheet,{raw:false,dateNF:'yyyy-mm-dd'});
+            const rows=XLSX.utils.sheet_to_json(sheet,{raw:false,defval:''});
+            
             if(!rows.length){hideOv();sAlert('impA','❌ Excel vacío','e');return}
             
-            // Normalizar nombres de columnas
-            const items = rows.map(row=>{
-                const item={};
-                Object.keys(row).forEach(k=>{
-                    const kl=k.toLowerCase().trim();
-                    if(kl==='fecha'||kl==='date'||kl==='drawdate')item.drawDate=row[k];
-                    else if(kl==='turno'||kl==='shift'||kl==='periodo'||kl==='período')item.shift=row[k];
-                    else if(kl==='numero'||kl==='número'||kl==='number'||kl==='num'||kl==='n°')item.number=row[k];
-                });
-                return item;
-            });
-            
-            processItems(items,'impA');
-        }catch(err){hideOv();sAlert('impA',`❌ Error: ${err.message}`,'e')}
+            // Los objetos ya tienen las llaves originales del Excel
+            // norm() ya busca en múltiples variantes
+            processItems(rows,'impA');
+        }catch(err){
+            hideOv();
+            sAlert('impA',`❌ Error al leer Excel: ${err.message}`,'e');
+        }
     };
-    reader.onerror=()=>{hideOv();sAlert('impA','❌ No se pudo leer','e')};
+    reader.onerror=()=>{hideOv();sAlert('impA','❌ No se pudo leer el archivo','e')};
     reader.readAsArrayBuffer(f);
     ev.target.value='';
 }
@@ -527,8 +575,8 @@ function expExcel(){
     const d=LD();if(!d.length){alert('Sin datos');return}
     const rows=d.map(x=>({
         Fecha:x.drawDate,
-        Turno:x.shift==='midday'?'Día':'Noche',
-        Número:x.number
+        Turno:x.shift==='midday'?'Mediodía':'Noche',
+        Numero:x.number
     }));
     const ws=XLSX.utils.json_to_sheet(rows);
     const wb=XLSX.utils.book_new();
@@ -538,11 +586,11 @@ function expExcel(){
 
 function downTemplate(){
     const rows=[
-        {Fecha:'16/08/2026',Turno:'Día',Número:'74'},
-        {Fecha:'15/08/2026',Turno:'Día',Número:'82'},
-        {Fecha:'15/08/2026',Turno:'Noche',Número:'09'},
-        {Fecha:'14/08/2026',Turno:'Día',Número:'02'},
-        {Fecha:'14/08/2026',Turno:'Noche',Número:'55'}
+        {Fecha:'16/08/2026',Turno:'Mediodía',Numero:'74'},
+        {Fecha:'15/08/2026',Turno:'Mediodía',Numero:'82'},
+        {Fecha:'15/08/2026',Turno:'Noche',Numero:'09'},
+        {Fecha:'14/08/2026',Turno:'Mediodía',Numero:'02'},
+        {Fecha:'14/08/2026',Turno:'Noche',Numero:'55'}
     ];
     const ws=XLSX.utils.json_to_sheet(rows);
     const wb=XLSX.utils.book_new();
@@ -551,8 +599,8 @@ function downTemplate(){
 }
 
 function clearAll(){
-    if(!confirm('⚠️ ¿BORRAR TODO el historial? Esta acción NO se puede deshacer.\n\nSe recomienda exportar antes.'))return;
-    if(!confirm('⚠️ ¿Estás COMPLETAMENTE seguro? Se borrarán TODOS los sorteos.'))return;
+    if(!confirm('⚠️ ¿BORRAR TODO el historial? NO se puede deshacer.\n\nRecomendado: exportar antes.'))return;
+    if(!confirm('⚠️ ¿COMPLETAMENTE seguro? Se borrarán TODOS los sorteos.'))return;
     localStorage.removeItem(SK);rAll();alert('✅ Todo borrado');
 }
 
@@ -626,7 +674,7 @@ function rHome(){
     const s=[...data].sort((a,b)=>b.drawDate.localeCompare(a.drawDate));
     const lm=s.find(d=>d.shift==='midday'),le=s.find(d=>d.shift==='evening');
     let h='';
-    if(lm)h+=`<div class="draw-box"><div class="lbl">☀️ Último Día</div><div class="num">${lm.number}</div><div class="dt">${fmtD(lm.drawDate)}</div></div>`;
+    if(lm)h+=`<div class="draw-box"><div class="lbl">☀️ Último Mediodía</div><div class="num">${lm.number}</div><div class="dt">${fmtD(lm.drawDate)}</div></div>`;
     if(le)h+=`<div class="draw-box"><div class="lbl">🌙 Última Noche</div><div class="num">${le.number}</div><div class="dt">${fmtD(le.drawDate)}</div></div>`;
     document.getElementById('lastDraw').innerHTML=h;
     
@@ -679,7 +727,7 @@ function rLastAnal(last,data,freq,sf){
             <div class="ai"><div class="al">Vibración</div><div class="av">${vib.label}<div class="vib-meter"><div class="vib-fill ${vib.cls}" style="width:${vib.level}%"></div></div></div></div>
             <div class="ai"><div class="al">Suma Dígitos</div><div class="av">${Math.floor(ni/10)+ni%10}</div></div>
         </div>
-        <div class="mt fs td">📅 ${last.shift==='midday'?'☀️ Día':'🌙 Noche'} — ${fmtD(last.drawDate)}
+        <div class="mt fs td">📅 ${last.shift==='midday'?'☀️ Mediodía':'🌙 Noche'} — ${fmtD(last.drawDate)}
         ${prev?`<br>🔁 Anterior: ${fmtD(prev.drawDate)} (hace ${diffD(prev.drawDate,last.drawDate)} días)`:'<br>🆕 Primera aparición'}</div>
         ${transInfo}`;
 }
@@ -725,7 +773,7 @@ function rHist(){
     const pg=f.slice((cP-1)*pP,cP*pP);
     const tb=document.getElementById('hBody');
     if(!pg.length){tb.innerHTML='<tr><td colspan="4" class="tc td" style="padding:30px">Sin resultados</td></tr>'}
-    else{tb.innerHTML=pg.map(d=>`<tr><td>${fmtD(d.drawDate)}</td><td><span class="badge badge-${d.shift==='midday'?'m':'e'}">${d.shift==='midday'?'☀️ Día':'🌙 Noche'}</span></td><td><span class="pill">${d.number}</span></td><td><button class="btn btn-red" style="padding:3px 8px;font-size:0.7rem" onclick="delR('${d.id}')">🗑️</button></td></tr>`).join('')}
+    else{tb.innerHTML=pg.map(d=>`<tr><td>${fmtD(d.drawDate)}</td><td><span class="badge badge-${d.shift==='midday'?'m':'e'}">${d.shift==='midday'?'☀️ Mediodía':'🌙 Noche'}</span></td><td><span class="pill">${d.number}</span></td><td><button class="btn btn-red" style="padding:3px 8px;font-size:0.7rem" onclick="delR('${d.id}')">🗑️</button></td></tr>`).join('')}
     document.getElementById('pInfo').textContent=`${cP}/${tp} (${f.length})`;
 }
 function cPage(dir){const f=gFilt(),tp=Math.max(1,Math.ceil(f.length/pP));cP=Math.max(1,Math.min(tp,cP+dir));rHist()}
@@ -736,7 +784,7 @@ function rFreq(){
     const data=LD();
     if(!data.length){document.getElementById('freqContent').innerHTML='<div class="empty"><div class="ei">📊</div><p>Sin datos</p></div>';return}
     let fData=data,title='';
-    if(curFreqView==='midday'){fData=data.filter(d=>d.shift==='midday');title='☀️ Frecuencias Día'}
+    if(curFreqView==='midday'){fData=data.filter(d=>d.shift==='midday');title='☀️ Frecuencias Mediodía'}
     else if(curFreqView==='evening'){fData=data.filter(d=>d.shift==='evening');title='🌙 Frecuencias Noche'}
     else if(curFreqView==='top')title='🔥 Top 15 Más Frecuentes';
     else if(curFreqView==='bottom')title='❄️ Top 15 Menos Frecuentes';
@@ -766,10 +814,10 @@ function rDecGeneral(data){
     data.forEach(d=>decFreq[getDec(d.number)]++);
     const sorted=Object.entries(decFreq).sort((a,b)=>b[1]-a[1]);
     const max=sorted[0][1];
-    document.getElementById('decContent').innerHTML=`${sorted.map(([d,c])=>`<div class="fb"><div class="n">${d}0s</div><div class="track"><div class="fill fill-gold" style="width:${max>0?(c/max*100):0}%"><span>${c}</span></div></div><div class="c">${c}x</div></div>`).join('')}<div class="divider"></div><div class="fxs td">Total: ${data.length} sorteos. Promedio por decena: ${(data.length/10).toFixed(1)}</div>`;
+    document.getElementById('decContent').innerHTML=`${sorted.map(([d,c])=>`<div class="fb"><div class="n">${d}0s</div><div class="track"><div class="fill fill-gold" style="width:${max>0?(c/max*100):0}%"><span>${c}</span></div></div><div class="c">${c}x</div></div>`).join('')}<div class="divider"></div><div class="fxs td">Total: ${data.length} sorteos. Promedio: ${(data.length/10).toFixed(1)}</div>`;
 }
 function rDecTrans(data,type){
-    const labels={dd:'☀️→☀️ Día a Día',nn:'🌙→🌙 Noche a Noche',dn:'☀️→🌙 Día a Noche',nd:'🌙→☀️ Noche a Día'};
+    const labels={dd:'☀️→☀️ Mediodía-Mediodía',nn:'🌙→🌙 Noche-Noche',dn:'☀️→🌙 Mediodía-Noche',nd:'🌙→☀️ Noche-Mediodía'};
     document.getElementById('decTitle').textContent=`🔢 Decenas: ${labels[type]}`;
     const pairs=getTransitions(data,type);
     if(!pairs.length){document.getElementById('decContent').innerHTML='<div class="empty"><p>Sin transiciones</p></div>';return}
@@ -792,7 +840,7 @@ function rDecBest(data){
         scores.push({dec:i,global:gDec[i],recent:rDec[i],momentum:momentum.toFixed(2)});
     }
     scores.sort((a,b)=>b.momentum-a.momentum);
-    document.getElementById('decContent').innerHTML=`<p class="fxs td mb">Basado en momentum (reciente vs histórico)</p>${scores.map((s,idx)=>`<div class="pull-box"><div style="font-size:1.5rem;font-weight:900;color:${idx<3?'var(--gold)':'var(--dim)'}">#${idx+1}</div><div><div class="fw tg" style="font-size:1.2rem">${s.dec}0s</div><div class="fxs td">Global: ${s.global}x | Reciente: ${s.recent}x | Momentum: ${s.momentum}x</div><div class="vib-meter" style="width:100px"><div class="vib-fill ${s.momentum>1.2?'vib-high':s.momentum>0.8?'vib-med':'vib-low'}" style="width:${Math.min(100,s.momentum*50)}%"></div></div></div></div>`).join('')}`;
+    document.getElementById('decContent').innerHTML=`<p class="fxs td mb">Momentum (reciente vs histórico)</p>${scores.map((s,idx)=>`<div class="pull-box"><div style="font-size:1.5rem;font-weight:900;color:${idx<3?'var(--gold)':'var(--dim)'}">#${idx+1}</div><div><div class="fw tg" style="font-size:1.2rem">${s.dec}0s</div><div class="fxs td">Global: ${s.global}x | Reciente: ${s.recent}x | Momentum: ${s.momentum}x</div><div class="vib-meter" style="width:100px"><div class="vib-fill ${s.momentum>1.2?'vib-high':s.momentum>0.8?'vib-med':'vib-low'}" style="width:${Math.min(100,s.momentum*50)}%"></div></div></div></div>`).join('')}`;
 }
 
 let curTermView='general';
@@ -812,7 +860,7 @@ function rTermGeneral(data){
     document.getElementById('termContent').innerHTML=`${sorted.map(([t,c])=>`<div class="fb"><div class="n">T${t}</div><div class="track"><div class="fill fill-blue" style="width:${max>0?(c/max*100):0}%"><span>${c}</span></div></div><div class="c">${c}x</div></div>`).join('')}`;
 }
 function rTermTrans(data,type){
-    const labels={dd:'☀️→☀️ Día a Día',nn:'🌙→🌙 Noche a Noche',dn:'☀️→🌙 Día a Noche',nd:'🌙→☀️ Noche a Día'};
+    const labels={dd:'☀️→☀️ Mediodía-Mediodía',nn:'🌙→🌙 Noche-Noche',dn:'☀️→🌙 Mediodía-Noche',nd:'🌙→☀️ Noche-Mediodía'};
     document.getElementById('termTitle').textContent=`🎯 Terminales: ${labels[type]}`;
     const pairs=getTransitions(data,type);
     if(!pairs.length){document.getElementById('termContent').innerHTML='<div class="empty"><p>Sin transiciones</p></div>';return}
@@ -835,7 +883,7 @@ function rTermBest(data){
         scores.push({term:i,global:gT[i],recent:rT2[i],momentum:momentum.toFixed(2)});
     }
     scores.sort((a,b)=>b.momentum-a.momentum);
-    document.getElementById('termContent').innerHTML=`<p class="fxs td mb">Basado en momentum reciente</p>${scores.map((s,idx)=>`<div class="pull-box"><div style="font-size:1.5rem;font-weight:900;color:${idx<3?'var(--gold)':'var(--dim)'}">#${idx+1}</div><div><div class="fw tg" style="font-size:1.2rem">Terminal ${s.term}</div><div class="fxs td">Global: ${s.global}x | Reciente: ${s.recent}x | Momentum: ${s.momentum}x</div><div class="vib-meter" style="width:100px"><div class="vib-fill ${s.momentum>1.2?'vib-high':s.momentum>0.8?'vib-med':'vib-low'}" style="width:${Math.min(100,s.momentum*50)}%"></div></div></div></div>`).join('')}`;
+    document.getElementById('termContent').innerHTML=`<p class="fxs td mb">Momentum reciente</p>${scores.map((s,idx)=>`<div class="pull-box"><div style="font-size:1.5rem;font-weight:900;color:${idx<3?'var(--gold)':'var(--dim)'}">#${idx+1}</div><div><div class="fw tg" style="font-size:1.2rem">Terminal ${s.term}</div><div class="fxs td">Global: ${s.global}x | Reciente: ${s.recent}x | Momentum: ${s.momentum}x</div><div class="vib-meter" style="width:100px"><div class="vib-fill ${s.momentum>1.2?'vib-high':s.momentum>0.8?'vib-med':'vib-low'}" style="width:${Math.min(100,s.momentum*50)}%"></div></div></div></div>`).join('')}`;
 }
 
 let curMatView='dec';
@@ -1044,7 +1092,7 @@ function rYearContent(data,year){
         <div class="g2 mb">
             <div class="stat-box"><div class="v">${yd.length}</div><div class="l">Sorteos ${year}</div></div>
             <div class="stat-box"><div class="v">${Object.keys(months).length}</div><div class="l">Meses</div></div>
-            <div class="stat-box"><div class="v">${yd.filter(d=>d.shift==='midday').length}</div><div class="l">Días</div></div>
+            <div class="stat-box"><div class="v">${yd.filter(d=>d.shift==='midday').length}</div><div class="l">Mediodías</div></div>
             <div class="stat-box"><div class="v">${yd.filter(d=>d.shift==='evening').length}</div><div class="l">Noches</div></div>
         </div>
         ${lastOfYear?`<div class="card" style="background:var(--bg3);margin-bottom:12px">
@@ -1094,7 +1142,7 @@ function goTab(id,btn){
     const renders={hist:rHist,freq:rFreq,dec:rDec,term:rTerm,matrix:rMat,vib:rVib,pull:rPull,year:rYear,day:rDay};
     if(renders[id])renders[id]();
 }
-function sAlert(id,msg,type){const el=document.getElementById(id);if(!el)return;el.className=`alert alert-${type}`;el.textContent=msg;el.style.display='block';setTimeout(()=>el.style.display='none',5000)}
+function sAlert(id,msg,type){const el=document.getElementById(id);if(!el)return;el.className=`alert alert-${type}`;el.textContent=msg;el.style.display='block';setTimeout(()=>el.style.display='none',8000)}
 function showOv(msg){document.getElementById('ovt').textContent=msg;document.getElementById('ov').classList.add('show')}
 function hideOv(){document.getElementById('ov').classList.remove('show')}
 function rAll(){
