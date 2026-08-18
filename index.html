@@ -20,6 +20,7 @@
         .header{background:linear-gradient(135deg,#0a0a2e,#1a0a3e,#0a1a3e);padding:18px;text-align:center;border-bottom:2px solid var(--gold);position:sticky;top:0;z-index:100}
         .header h1{color:var(--gold);font-size:1.3rem;letter-spacing:3px}
         .header p{color:var(--dim);font-size:0.75rem;margin-top:4px}
+        .offline-badge{display:inline-block;padding:2px 8px;background:var(--green);color:var(--bg);border-radius:10px;font-size:0.65rem;font-weight:700;margin-left:6px}
         .nav{display:flex;background:var(--bg2);overflow-x:auto;border-bottom:1px solid var(--border);scrollbar-width:none;position:sticky;top:62px;z-index:99}
         .nav::-webkit-scrollbar{display:none}
         .nav button{flex:none;padding:11px 16px;background:none;border:none;color:var(--dim);cursor:pointer;font-size:0.78rem;white-space:nowrap;border-bottom:3px solid transparent;transition:all .3s}
@@ -142,6 +143,9 @@
         .format-example{background:var(--bg2);padding:12px;border-radius:8px;border:1px solid var(--border);margin-top:10px}
         .format-example table{margin:0}
         .format-example th,.format-example td{padding:6px 10px;font-size:0.75rem}
+        .offline-status{position:fixed;bottom:10px;right:10px;padding:6px 12px;border-radius:20px;font-size:0.7rem;font-weight:700;z-index:98;transition:all .3s}
+        .offline-status.online{background:var(--green);color:var(--bg)}
+        .offline-status.offline{background:var(--red);color:#fff}
     </style>
 </head>
 <body>
@@ -285,7 +289,7 @@
         <div class="imp-area excel" onclick="document.getElementById('fExcel').click()">
             <div class="ic">📊</div>
             <p><strong style="color:var(--green)">EXCEL / CSV</strong></p>
-            <p class="fxs td mt">Toca aquí — Acepta .xlsx, .xls, .csv (múltiples pestañas)</p>
+            <p class="fxs td mt">Toca aquí — Acepta .xlsx, .xls, .csv</p>
         </div>
         <input type="file" id="fExcel" accept=".xlsx,.xls,.csv" style="display:none" onchange="hExcel(event)">
         
@@ -315,18 +319,73 @@
             </table>
         </div>
         <div class="mt fxs td">
-            <p>✅ Detecta automáticamente la pestaña correcta si hay varias</p>
-            <p>✅ Funciona con o sin encabezados</p>
+            <p>✅ Funciona 100% sin internet</p>
+            <p>✅ Detecta automáticamente la pestaña con datos</p>
             <p>✅ Acepta: Mediodía, Día, Noche, D, N (con o sin tilde)</p>
             <p>✅ Fechas: cualquier formato común</p>
-            <p>✅ Números: 00-99 (agrega ceros automáticamente)</p>
         </div>
         <div class="mt"><button class="btn btn-purple" onclick="downTemplate()">📥 Descargar Plantilla</button></div>
     </div>
 </div>
 
+<div class="offline-status" id="offStatus">🌐 Cargando...</div>
+
 <script>
-const SK='sorteos_super_v8';
+// ===== SERVICE WORKER PARA FUNCIONAMIENTO 100% OFFLINE =====
+if('serviceWorker' in navigator){
+    const swCode=`
+        const CACHE='sorteos-v1';
+        const FILES=[
+            './',
+            './index.html',
+            'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js'
+        ];
+        self.addEventListener('install',e=>{
+            e.waitUntil(caches.open(CACHE).then(c=>c.addAll(FILES).catch(()=>{})));
+            self.skipWaiting();
+        });
+        self.addEventListener('activate',e=>{
+            e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));
+            self.clients.claim();
+        });
+        self.addEventListener('fetch',e=>{
+            e.respondWith(
+                caches.match(e.request).then(r=>{
+                    if(r)return r;
+                    return fetch(e.request).then(resp=>{
+                        if(!resp||resp.status!==200)return resp;
+                        const clone=resp.clone();
+                        caches.open(CACHE).then(c=>c.put(e.request,clone)).catch(()=>{});
+                        return resp;
+                    }).catch(()=>caches.match('./index.html'));
+                })
+            );
+        });
+    `;
+    const blob=new Blob([swCode],{type:'application/javascript'});
+    const swUrl=URL.createObjectURL(blob);
+    navigator.serviceWorker.register(swUrl).then(()=>{
+        console.log('✅ Modo offline activado');
+    }).catch(e=>console.log('SW error:',e));
+}
+
+// ===== INDICADOR ONLINE/OFFLINE =====
+function updOffStatus(){
+    const el=document.getElementById('offStatus');
+    if(navigator.onLine){
+        el.className='offline-status online';
+        el.textContent='🌐 En línea';
+        setTimeout(()=>el.style.opacity='0.5',2000);
+    }else{
+        el.className='offline-status offline';
+        el.textContent='📴 Sin conexión — Funcionando';
+        el.style.opacity='1';
+    }
+}
+window.addEventListener('online',updOffStatus);
+window.addEventListener('offline',updOffStatus);
+
+const SK='sorteos_super_v9';
 const LD=()=>{try{const r=localStorage.getItem(SK);return r?JSON.parse(r):[]}catch(e){return[]}};
 const SD=a=>localStorage.setItem(SK,JSON.stringify(a));
 
@@ -462,23 +521,17 @@ function processItems(items,src){
     sAlert(src,`✅ ${a} nuevos, ${u} actualizados. Total: ${final.length} sorteos`,'s');
 }
 
-// Función para extraer datos de una hoja del Excel
 function extractItemsFromSheet(sheet){
     const allRows=XLSX.utils.sheet_to_json(sheet,{header:1,raw:false,defval:''});
     if(!allRows.length)return [];
-    
-    // Detectar si primera fila son encabezados
     const firstRow=allRows[0]||[];
     const firstStr=firstRow.map(x=>noTilde(String(x||''))).join('|');
     const hasHeaders=firstStr.indexOf('fecha')>=0||firstStr.indexOf('turno')>=0||firstStr.indexOf('numero')>=0||firstStr.indexOf('date')>=0||firstStr.indexOf('shift')>=0;
-    
     const startIdx=hasHeaders?1:0;
     const items=[];
-    
     for(let i=startIdx;i<allRows.length;i++){
         const row=allRows[i];
         if(!row||row.length===0)continue;
-        
         const nonEmpty=[];
         for(let j=0;j<row.length;j++){
             const val=row[j];
@@ -486,68 +539,43 @@ function extractItemsFromSheet(sheet){
                 nonEmpty.push(val);
             }
         }
-        
         if(nonEmpty.length<3)continue;
-        
-        items.push({
-            Fecha:nonEmpty[0],
-            Turno:nonEmpty[1],
-            Numero:nonEmpty[2]
-        });
+        items.push({Fecha:nonEmpty[0],Turno:nonEmpty[1],Numero:nonEmpty[2]});
     }
     return items;
 }
 
-// NUEVA función Excel — busca en TODAS las pestañas y usa la mejor
 function hExcel(ev){
     const f=ev.target.files[0];if(!f)return;
+    if(typeof XLSX==='undefined'){
+        sAlert('impA','❌ La librería Excel no está disponible. Conecta a internet una vez para descargarla y luego funcionará offline.','e');
+        return;
+    }
     showOv('Leyendo Excel...');
     const reader=new FileReader();
     reader.onload=e=>{
         try{
             const data=new Uint8Array(e.target.result);
             const wb=XLSX.read(data,{type:'array',cellDates:true,cellNF:false});
-            
-            if(!wb.SheetNames||!wb.SheetNames.length){
-                hideOv();sAlert('impA','❌ Excel sin hojas','e');return;
-            }
-            
-            // Buscar en TODAS las pestañas
-            let bestSheet=null;
-            let bestItems=[];
-            let bestValidCount=0;
-            let sheetInfo=[];
-            
+            if(!wb.SheetNames||!wb.SheetNames.length){hideOv();sAlert('impA','❌ Excel sin hojas','e');return}
+            let bestSheet=null,bestItems=[],bestValidCount=0,sheetInfo=[];
             for(const sheetName of wb.SheetNames){
                 const sheet=wb.Sheets[sheetName];
                 const items=extractItemsFromSheet(sheet);
-                
-                // Contar cuántos items son válidos (norm devuelve null si no lo son)
                 const validCount=items.map(norm).filter(Boolean).length;
                 sheetInfo.push(`"${sheetName}": ${items.length} filas, ${validCount} válidas`);
-                
-                if(validCount>bestValidCount){
-                    bestValidCount=validCount;
-                    bestSheet=sheetName;
-                    bestItems=items;
-                }
+                if(validCount>bestValidCount){bestValidCount=validCount;bestSheet=sheetName;bestItems=items}
             }
-            
             if(!bestItems.length||bestValidCount===0){
                 hideOv();
-                sAlert('impA',`❌ Ninguna pestaña tiene datos válidos. Pestañas revisadas: ${sheetInfo.join(' | ')}`,'e');
+                sAlert('impA',`❌ Sin datos válidos. Pestañas: ${sheetInfo.join(' | ')}`,'e');
                 return;
             }
-            
-            showOv(`Leyendo pestaña "${bestSheet}"...`);
+            showOv(`Leyendo "${bestSheet}"...`);
             setTimeout(()=>processItems(bestItems,'impA'),200);
-            
-        }catch(err){
-            hideOv();
-            sAlert('impA',`❌ Error al leer Excel: ${err.message}`,'e');
-        }
+        }catch(err){hideOv();sAlert('impA',`❌ Error: ${err.message}`,'e')}
     };
-    reader.onerror=()=>{hideOv();sAlert('impA','❌ No se pudo leer el archivo','e')};
+    reader.onerror=()=>{hideOv();sAlert('impA','❌ No se pudo leer','e')};
     reader.readAsArrayBuffer(f);
     ev.target.value='';
 }
@@ -597,11 +625,8 @@ function expData(){
 
 function expExcel(){
     const d=LD();if(!d.length){alert('Sin datos');return}
-    const rows=d.map(x=>({
-        Fecha:x.drawDate,
-        Turno:x.shift==='midday'?'Mediodía':'Noche',
-        Numero:x.number
-    }));
+    if(typeof XLSX==='undefined'){alert('Librería Excel no disponible');return}
+    const rows=d.map(x=>({Fecha:x.drawDate,Turno:x.shift==='midday'?'Mediodía':'Noche',Numero:x.number}));
     const ws=XLSX.utils.json_to_sheet(rows);
     const wb=XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb,ws,'Sorteos');
@@ -609,6 +634,7 @@ function expExcel(){
 }
 
 function downTemplate(){
+    if(typeof XLSX==='undefined'){alert('Librería Excel no disponible');return}
     const rows=[
         {Fecha:'2024-01-01',Turno:'Mediodía',Numero:'91'},
         {Fecha:'2024-01-01',Turno:'Noche',Numero:'38'},
@@ -1173,6 +1199,7 @@ function rAll(){
 }
 window.addEventListener('load',()=>{
     document.getElementById('aDate').value=new Date().toISOString().substring(0,10);
+    updOffStatus();
     rAll();
 });
 </script>
