@@ -1,1318 +1,590 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#1a0033">
-<title>Pick 3 Analyzer - La Telaraña</title>
-<link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon-192.png">
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-:root{
---bg-primary:#0a0015;--bg-secondary:#1a0033;--bg-card:#250050;
---bg-card-alt:#1a003a;--accent-primary:#b829f7;--accent-secondary:#8b5cf6;
---accent-gold:#ffd700;--accent-cyan:#00f7ff;--accent-green:#00ff88;
---accent-red:#ff3366;--accent-orange:#ff8800;--accent-pink:#ff69b4;
---text-primary:#ffffff;--text-secondary:#c4b5fd;--text-muted:#8b7faa;
---border-color:#3d1a6e;
---gradient-main:linear-gradient(135deg,#1a0033,#0a0015);
---gradient-card:linear-gradient(145deg,#250050,#1a003a);
---gradient-accent:linear-gradient(135deg,#b829f7,#8b5cf6);
---gradient-gold:linear-gradient(135deg,#ffd700,#ffaa00);
---gradient-spider:linear-gradient(135deg,#ff0055,#aa00ff,#00f7ff);
---shadow-glow:0 0 20px rgba(184,41,247,0.3);
---shadow-gold:0 0 20px rgba(255,215,0,0.3);
---shadow-spider:0 0 30px rgba(255,0,85,0.4);
-}
-body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg-primary);color:var(--text-primary);min-height:100vh;overflow-x:hidden}
-.app-header{background:var(--gradient-main);border-bottom:2px solid var(--border-color);padding:12px 16px;position:sticky;top:0;z-index:100;box-shadow:var(--shadow-glow)}
-.app-title{text-align:center;font-size:1.4em;font-weight:800;background:var(--gradient-accent);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-transform:uppercase;letter-spacing:2px}
-.app-subtitle{text-align:center;font-size:0.7em;color:var(--text-muted);margin-top:2px}
-.tabs-container{display:flex;overflow-x:auto;background:var(--bg-secondary);border-bottom:1px solid var(--border-color);scrollbar-width:none;position:sticky;top:58px;z-index:99}
-.tabs-container::-webkit-scrollbar{display:none}
-.tab-btn{flex-shrink:0;padding:10px 14px;background:transparent;color:var(--text-muted);border:none;font-size:0.75em;font-weight:600;cursor:pointer;border-bottom:3px solid transparent;transition:all 0.3s;white-space:nowrap}
-.tab-btn.active{color:var(--accent-primary);border-bottom-color:var(--accent-primary);background:rgba(184,41,247,0.1)}
-.tab-btn.spider-tab{background:linear-gradient(135deg,rgba(255,0,85,0.15),rgba(170,0,255,0.15));color:var(--accent-gold);font-weight:800;text-transform:uppercase;letter-spacing:1px;animation:spiderPulse 2s infinite}
-.tab-btn.spider-tab.active{background:linear-gradient(135deg,rgba(255,0,85,0.35),rgba(170,0,255,0.35));border-bottom-color:var(--accent-gold);color:#fff}
-@keyframes spiderPulse{0%,100%{box-shadow:inset 0 0 10px rgba(255,0,85,0.1)}50%{box-shadow:inset 0 0 20px rgba(255,0,85,0.4)}}
-.tab-content{display:none;padding:12px}
-.tab-content.active{display:block}
-.card{background:var(--gradient-card);border:1px solid var(--border-color);border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:var(--shadow-glow)}
-.card-title{font-size:1em;font-weight:700;color:var(--accent-primary);margin-bottom:12px;display:flex;align-items:center;gap:8px}
-.card-title .icon{font-size:1.2em}
-.spider-card{background:linear-gradient(145deg,#1a0022,#0d001a);border:2px solid rgba(255,0,85,0.3);box-shadow:var(--shadow-spider);position:relative;overflow:hidden}
-.spider-card::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:conic-gradient(from 0deg,transparent,rgba(255,0,85,0.03),transparent,rgba(170,0,255,0.03),transparent);animation:spiderRotate 15s linear infinite}
-@keyframes spiderRotate{to{transform:rotate(360deg)}}
-.spider-card .card-content{position:relative;z-index:1}
-.btn{padding:10px 20px;border:none;border-radius:10px;font-weight:700;cursor:pointer;font-size:0.85em;transition:all 0.3s;display:inline-flex;align-items:center;gap:6px}
-.btn-primary{background:var(--gradient-accent);color:white;box-shadow:var(--shadow-glow)}
-.btn-gold{background:var(--gradient-gold);color:#000;box-shadow:var(--shadow-gold)}
-.btn-spider{background:var(--gradient-spider);color:white;box-shadow:var(--shadow-spider);font-size:1em;padding:14px 28px;text-transform:uppercase;letter-spacing:2px}
-.btn:active{transform:scale(0.95)}
-.btn-sm{padding:6px 12px;font-size:0.75em;border-radius:8px}
-.btn-group{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
-.file-input-wrapper input[type="file"]{width:100%;padding:12px;background:var(--bg-card-alt);border:2px dashed var(--border-color);border-radius:12px;color:var(--text-primary);font-size:0.85em;margin-bottom:10px}
-select,input[type="number"],input[type="text"]{background:var(--bg-card-alt);border:1px solid var(--border-color);color:var(--text-primary);padding:8px 12px;border-radius:8px;font-size:0.85em;width:100%}
-.table-wrapper{overflow-x:auto;margin-top:8px;border-radius:10px}
-table{width:100%;border-collapse:collapse;font-size:0.78em}
-th{background:var(--bg-card-alt);color:var(--accent-primary);padding:8px 6px;text-align:center;border:1px solid var(--border-color);font-weight:700;position:sticky;top:0}
-td{padding:6px;text-align:center;border:1px solid rgba(61,26,110,0.5);color:var(--text-secondary)}
-tr:nth-child(even){background:rgba(37,0,80,0.3)}
-tr:hover{background:rgba(184,41,247,0.1)}
-.badge{display:inline-block;padding:3px 8px;border-radius:12px;font-size:0.7em;font-weight:700}
-.badge-hot{background:rgba(255,51,102,0.2);color:var(--accent-red)}
-.badge-warm{background:rgba(255,136,0,0.2);color:var(--accent-orange)}
-.badge-cold{background:rgba(0,247,255,0.2);color:var(--accent-cyan)}
-.badge-gold{background:rgba(255,215,0,0.2);color:var(--accent-gold)}
-.badge-green{background:rgba(0,255,136,0.2);color:var(--accent-green)}
-.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px}
-.stat-box{background:var(--bg-card-alt);border:1px solid var(--border-color);border-radius:10px;padding:10px;text-align:center}
-.stat-value{font-size:1.4em;font-weight:800;color:var(--accent-gold)}
-.stat-label{font-size:0.7em;color:var(--text-muted);margin-top:2px}
-.number-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:8px 0}
-.num-cell{background:var(--bg-card-alt);border:1px solid var(--border-color);border-radius:8px;padding:8px 4px;text-align:center;font-size:0.8em;font-weight:700;transition:all 0.3s}
-.num-cell .number{font-size:1.1em;color:var(--text-primary)}
-.num-cell .freq{font-size:0.7em;color:var(--text-muted);margin-top:2px}
-.num-cell.hot{border-color:var(--accent-red);box-shadow:0 0 8px rgba(255,51,102,0.3)}
-.num-cell.warm{border-color:var(--accent-orange);box-shadow:0 0 8px rgba(255,136,0,0.3)}
-.num-cell.cold{border-color:var(--accent-cyan)}
-.filter-pills{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
-.pill{padding:6px 14px;border-radius:20px;font-size:0.75em;font-weight:600;cursor:pointer;border:1px solid var(--border-color);background:var(--bg-card-alt);color:var(--text-muted);transition:all 0.3s}
-.pill.active{background:var(--gradient-accent);color:white;border-color:var(--accent-primary)}
-.pill.gold-active{background:var(--gradient-gold);color:#000;border-color:var(--accent-gold)}
-.conn-result{display:grid;grid-template-columns:repeat(auto-fill,minmax(60px,1fr));gap:6px;margin-top:8px}
-.conn-item{background:var(--bg-card-alt);border:1px solid var(--border-color);border-radius:8px;padding:6px;text-align:center;font-size:0.8em}
-.conn-item .target{color:var(--accent-gold);font-weight:800;font-size:1.1em}
-.conn-item .count{color:var(--text-muted);font-size:0.7em}
-.year-selector{display:flex;gap:8px;align-items:center;margin-bottom:12px}
-.year-selector select{width:auto;min-width:100px}
-.export-area{background:var(--bg-card-alt);border:1px solid var(--border-color);border-radius:10px;padding:12px;margin-top:8px;max-height:200px;overflow-y:auto;font-family:monospace;font-size:0.75em;color:var(--text-secondary);white-space:pre-wrap;word-break:break-all}
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--accent-primary);color:white;padding:12px 24px;border-radius:12px;font-size:0.85em;font-weight:600;z-index:300;transition:transform 0.3s;box-shadow:var(--shadow-glow)}
-.toast.show{transform:translateX(-50%) translateY(0)}
-.loading{text-align:center;padding:40px;color:var(--text-muted)}
-.loading .spinner{width:40px;height:40px;border:3px solid var(--border-color);border-top-color:var(--accent-primary);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 12px}
-@keyframes spin{to{transform:rotate(360deg)}}
-
-/* ===== SPIDER EXCLUSIVE STYLES ===== */
-.spider-hero{text-align:center;padding:20px 10px;margin-bottom:16px}
-.spider-hero-icon{font-size:3em;margin-bottom:8px;animation:float 3s ease-in-out infinite}
-@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-.spider-hero h2{font-size:1.5em;font-weight:900;background:var(--gradient-spider);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px}
-.spider-hero p{font-size:0.8em;color:var(--text-muted);max-width:320px;margin:0 auto}
-
-.spider-mode-selector{display:flex;gap:8px;justify-content:center;margin:16px 0}
-.spider-mode-btn{padding:10px 20px;border-radius:25px;font-size:0.85em;font-weight:700;cursor:pointer;border:2px solid var(--border-color);background:var(--bg-card-alt);color:var(--text-muted);transition:all 0.3s}
-.spider-mode-btn.active{border-color:var(--accent-gold);color:var(--accent-gold);background:rgba(255,215,0,0.1);box-shadow:var(--shadow-gold)}
-.spider-mode-btn:hover{border-color:var(--accent-primary)}
-
-.spider-execute-btn{display:block;width:100%;max-width:400px;margin:16px auto;padding:16px;background:var(--gradient-spider);color:white;border:none;border-radius:16px;font-size:1.1em;font-weight:900;text-transform:uppercase;letter-spacing:3px;cursor:pointer;box-shadow:var(--shadow-spider);transition:all 0.3s;position:relative;overflow:hidden}
-.spider-execute-btn::after{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:linear-gradient(45deg,transparent,rgba(255,255,255,0.1),transparent);animation:shimmer 3s infinite}
-@keyframes shimmer{0%{transform:translateX(-100%) rotate(45deg)}100%{transform:translateX(100%) rotate(45deg)}}
-.spider-execute-btn:active{transform:scale(0.97)}
-
-.spider-verdict-box{text-align:center;padding:24px 16px;background:linear-gradient(145deg,rgba(255,0,85,0.08),rgba(170,0,255,0.08),rgba(0,247,255,0.08));border:2px solid var(--accent-gold);border-radius:20px;margin:20px 0;box-shadow:0 0 40px rgba(255,215,0,0.15)}
-.spider-verdict-box h3{font-size:1.2em;color:var(--accent-gold);margin-bottom:4px}
-.spider-verdict-box .verdict-sub{font-size:0.8em;color:var(--text-muted);margin-bottom:16px}
-.verdict-top-row{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:12px 0}
-.verdict-num{display:inline-flex;flex-direction:column;align-items:center;background:linear-gradient(145deg,#2a0040,#1a0030);border:2px solid var(--accent-gold);border-radius:16px;padding:12px 14px;min-width:72px;box-shadow:var(--shadow-gold);animation:topGlow 2s infinite alternate}
-@keyframes topGlow{0%{box-shadow:0 0 10px rgba(255,215,0,0.2)}100%{box-shadow:0 0 30px rgba(255,215,0,0.5)}}
-.verdict-num .rank{font-size:0.65em;color:var(--accent-pink);font-weight:700}
-.verdict-num .vn{font-size:2em;font-weight:900;color:var(--accent-gold)}
-.verdict-num .pts{font-size:0.7em;color:var(--text-muted)}
-.verdict-num.silver{border-color:#c0c0c0}
-.verdict-num.silver .vn{color:#c0c0c0}
-.verdict-num.bronze{border-color:#cd7f32}
-.verdict-num.bronze .vn{color:#cd7f32}
-
-.spider-section{margin:16px 0;padding:16px;background:rgba(255,255,255,0.015);border-radius:14px;border-left:3px solid var(--accent-primary)}
-.spider-section.gold-border{border-left-color:var(--accent-gold)}
-.spider-section.red-border{border-left-color:var(--accent-red)}
-.spider-section.cyan-border{border-left-color:var(--accent-cyan)}
-.spider-section.green-border{border-left-color:var(--accent-green)}
-.spider-section-title{font-size:0.95em;font-weight:700;color:var(--accent-cyan);margin-bottom:10px;display:flex;align-items:center;gap:8px}
-
-.thread-card{display:flex;align-items:center;gap:10px;padding:8px 10px;margin:4px 0;background:rgba(255,255,255,0.02);border-radius:10px;border:1px solid rgba(61,26,110,0.3)}
-.thread-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
-.thread-info{flex:1}
-.thread-name{font-size:0.82em;color:var(--text-secondary);font-weight:600}
-.thread-desc{font-size:0.68em;color:var(--text-muted)}
-.thread-weight{font-size:0.85em;font-weight:800;color:var(--accent-gold);min-width:40px;text-align:right}
-
-.intercon-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
-.intercon-card{background:rgba(255,255,255,0.02);border:1px solid rgba(61,26,110,0.4);border-radius:10px;padding:10px;text-align:center}
-.intercon-card .ic-label{font-size:0.7em;color:var(--text-muted);margin-bottom:4px}
-.intercon-card .ic-value{font-size:1em;font-weight:800;color:var(--accent-cyan)}
-.intercon-card .ic-detail{font-size:0.68em;color:var(--accent-gold);margin-top:2px}
-
-.spider-bar{display:flex;align-items:center;gap:8px;margin:3px 0}
-.spider-bar .sb-rank{width:22px;font-size:0.7em;color:var(--text-muted);text-align:right}
-.spider-bar .sb-num{width:32px;font-weight:800;font-size:0.95em;color:var(--accent-gold);text-align:right}
-.spider-bar .sb-bar-wrap{flex:1;height:22px;background:rgba(255,255,255,0.04);border-radius:11px;overflow:hidden}
-.spider-bar .sb-bar{height:100%;border-radius:11px;transition:width 0.8s ease;display:flex;align-items:center;justify-content:flex-end;padding-right:6px;font-size:0.65em;font-weight:700;color:rgba(255,255,255,0.9)}
-.sb-bar.t1{background:linear-gradient(90deg,#ff0055,#ff3377)}
-.sb-bar.t2{background:linear-gradient(90deg,#ff6600,#ff9933)}
-.sb-bar.t3{background:linear-gradient(90deg,#ffd700,#ffee55)}
-.sb-bar.t4{background:linear-gradient(90deg,#00ff88,#33ffaa)}
-.sb-bar.t5{background:linear-gradient(90deg,#00aaff,#3399ff)}
-
-.breakdown-num{margin:12px 0;padding:14px;background:rgba(255,215,0,0.03);border:1px solid rgba(255,215,0,0.15);border-radius:12px}
-.breakdown-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-.breakdown-header .bh-num{font-size:1.3em;font-weight:900;color:var(--accent-gold)}
-.breakdown-header .bh-pts{font-size:0.85em;color:var(--text-muted)}
-.breakdown-bars{display:grid;gap:3px}
-.bd-bar-row{display:flex;align-items:center;gap:6px;font-size:0.75em}
-.bd-bar-row .bd-name{width:80px;color:var(--text-muted);text-align:right;font-size:0.85em}
-.bd-bar-row .bd-bar-wrap{flex:1;height:14px;background:rgba(255,255,255,0.03);border-radius:7px;overflow:hidden}
-.bd-bar-row .bd-bar{height:100%;border-radius:7px;transition:width 0.6s}
-.bd-bar-row .bd-val{width:30px;font-weight:700;font-size:0.85em;color:var(--text-secondary)}
-
-.combo-card{margin:10px 0;padding:14px;background:rgba(255,215,0,0.04);border:1px solid rgba(255,215,0,0.15);border-radius:14px}
-.combo-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-.combo-name{font-size:0.88em;font-weight:700;color:var(--accent-cyan)}
-.combo-conf{font-size:0.72em;font-weight:700;padding:3px 10px;border-radius:12px}
-.combo-conf.high{background:rgba(0,255,136,0.15);color:var(--accent-green)}
-.combo-conf.med{background:rgba(255,215,0,0.15);color:var(--accent-gold)}
-.combo-conf.low{background:rgba(0,247,255,0.15);color:var(--accent-cyan)}
-.combo-nums{display:flex;gap:8px;flex-wrap:wrap}
-.combo-n{background:var(--gradient-gold);color:#000;padding:8px 14px;border-radius:12px;font-weight:900;font-size:1.1em;box-shadow:var(--shadow-gold)}
-.combo-reason{font-size:0.72em;color:var(--text-muted);margin-top:8px;font-style:italic}
-
-.web-canvas-wrap{position:relative;width:100%;max-width:360px;margin:10px auto;aspect-ratio:1}
-.web-canvas-wrap canvas{width:100%;height:100%;border-radius:12px}
-
-@media(min-width:768px){
-.stats-grid{grid-template-columns:repeat(4,1fr)}
-.number-grid{grid-template-columns:repeat(10,1fr)}
-.intercon-grid{grid-template-columns:repeat(4,1fr)}
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0a0a1a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>Super Análisis de Sorteos</title>
+    <link rel="manifest" href="manifest.json">
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        :root{
+            --bg:#0a0a1a;--bg2:#111128;--bg3:#1a1a3e;--accent:#0f3460;
+            --gold:#f5a623;--gold2:#ffcc02;--green:#00d4aa;--red:#ff4757;
+            --blue:#3498db;--purple:#9b59b6;--orange:#ff8c00;
+            --text:#e8e8f0;--dim:#6a6a8a;--card:#141430;--border:#252550;
+        }
+        body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;padding-bottom:60px}
+        .header{background:linear-gradient(135deg,#0a0a2e,#1a0a3e,#0a1a3e);padding:18px;text-align:center;border-bottom:2px solid var(--gold);position:sticky;top:0;z-index:100}
+        .header h1{color:var(--gold);font-size:1.3rem;letter-spacing:3px}
+        .header p{color:var(--dim);font-size:0.75rem;margin-top:4px}
+        .nav{display:flex;background:var(--bg2);overflow-x:auto;border-bottom:1px solid var(--border);scrollbar-width:none;position:sticky;top:62px;z-index:99}
+        .nav::-webkit-scrollbar{display:none}
+        .nav button{flex:none;padding:11px 16px;background:none;border:none;color:var(--dim);cursor:pointer;font-size:0.78rem;white-space:nowrap;border-bottom:3px solid transparent;transition:all .3s}
+        .nav button.active{color:var(--gold);border-bottom-color:var(--gold);background:rgba(245,166,35,0.08)}
+        .sec{display:none;padding:14px;max-width:960px;margin:0 auto}
+        .sec.active{display:block}
+        .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:14px}
+        .card-t{color:var(--gold);font-size:0.85rem;font-weight:700;margin-bottom:12px;text-transform:uppercase;letter-spacing:1.5px}
+        .g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+        .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+        .draw-box{background:linear-gradient(135deg,var(--accent),var(--bg3));border-radius:12px;padding:16px;text-align:center;border:1px solid var(--border)}
+        .draw-box .lbl{color:var(--dim);font-size:0.7rem;text-transform:uppercase}
+        .draw-box .num{font-size:3.2rem;font-weight:900;color:var(--gold);line-height:1;margin:8px 0}
+        .draw-box .dt{color:var(--green);font-size:0.78rem}
+        .stat-box{background:var(--bg3);border-radius:10px;padding:12px;text-align:center;border:1px solid var(--border)}
+        .stat-box .v{font-size:1.6rem;font-weight:800;color:var(--green)}
+        .stat-box .l{font-size:0.65rem;color:var(--dim);text-transform:uppercase;margin-top:2px}
+        .fb{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+        .fb .n{width:28px;text-align:center;font-weight:700;color:var(--gold);font-size:0.85rem}
+        .fb .track{flex:1;height:18px;background:var(--border);border-radius:9px;overflow:hidden}
+        .fb .fill{height:100%;border-radius:9px;display:flex;align-items:center;padding-left:6px;transition:width .5s}
+        .fb .fill span{font-size:0.6rem;color:var(--bg);font-weight:700}
+        .fb .c{width:30px;text-align:right;font-size:0.75rem;color:var(--dim)}
+        .fill-hot{background:linear-gradient(90deg,var(--red),var(--orange))}
+        .fill-green{background:linear-gradient(90deg,var(--green),var(--gold))}
+        .fill-blue{background:linear-gradient(90deg,var(--blue),var(--purple))}
+        .fill-gold{background:linear-gradient(90deg,var(--gold),var(--gold2))}
+        .fill-purple{background:linear-gradient(90deg,var(--purple),var(--blue))}
+        .tw{overflow-x:auto;border-radius:10px}
+        table{width:100%;border-collapse:collapse;font-size:0.8rem}
+        th{background:var(--bg3);color:var(--gold);padding:10px 6px;text-align:left;font-size:0.7rem;text-transform:uppercase}
+        td{padding:8px 6px;border-bottom:1px solid var(--border)}
+        .badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:0.7rem;font-weight:700}
+        .badge-m{background:rgba(245,166,35,0.15);color:var(--gold)}
+        .badge-e{background:rgba(0,212,170,0.15);color:var(--green)}
+        .pill{background:var(--bg3);padding:3px 10px;border-radius:20px;font-weight:700;font-size:0.95rem;color:var(--gold)}
+        .hc{border-radius:10px;padding:14px}
+        .hc.hot{background:rgba(255,71,87,0.08);border:1px solid rgba(255,71,87,0.3)}
+        .hc.cold{background:rgba(0,212,170,0.08);border:1px solid rgba(0,212,170,0.3)}
+        .hc-t{font-size:0.75rem;font-weight:700;margin-bottom:10px;text-transform:uppercase}
+        .hc.hot .hc-t{color:var(--red)}
+        .hc.cold .hc-t{color:var(--green)}
+        .hc-nums{display:flex;flex-wrap:wrap;gap:6px}
+        .hc-n{padding:5px 10px;border-radius:20px;font-weight:700;font-size:0.8rem;text-align:center;min-width:45px}
+        .hot .hc-n{background:rgba(255,71,87,0.25);color:var(--red)}
+        .cold .hc-n{background:rgba(0,212,170,0.25);color:var(--green)}
+        .matrix{border-radius:10px;overflow:hidden;border:1px solid var(--border)}
+        .matrix-row{display:flex}
+        .matrix-cell{flex:1;padding:8px 4px;text-align:center;font-size:0.75rem;font-weight:600;border-right:1px solid var(--border);border-bottom:1px solid var(--border);min-width:40px}
+        .matrix-header{background:var(--bg3);color:var(--gold);font-size:0.65rem;text-transform:uppercase}
+        .matrix-cell.hot-1{background:rgba(255,71,87,0.4);color:#fff}
+        .matrix-cell.hot-2{background:rgba(255,71,87,0.25);color:var(--red)}
+        .matrix-cell.hot-3{background:rgba(255,140,0,0.2);color:var(--orange)}
+        .matrix-cell.cold-1{background:rgba(0,212,170,0.15);color:var(--green)}
+        .matrix-cell.normal{background:var(--card);color:var(--dim)}
+        .btn{padding:10px 18px;border:none;border-radius:10px;cursor:pointer;font-size:0.82rem;font-weight:600;transition:all .3s;display:inline-flex;align-items:center;gap:6px}
+        .btn-gold{background:linear-gradient(135deg,var(--gold),var(--orange));color:var(--bg)}
+        .btn-green{background:var(--green);color:var(--bg)}
+        .btn-red{background:var(--red);color:#fff}
+        .btn-outline{background:transparent;border:1px solid var(--border);color:var(--text)}
+        .btn-blue{background:var(--blue);color:#fff}
+        .btn-purple{background:var(--purple);color:#fff}
+        .btn-row{display:flex;gap:8px;flex-wrap:wrap}
+        .fg{display:flex;flex-direction:column;gap:5px}
+        .fg label{font-size:0.7rem;color:var(--dim);text-transform:uppercase}
+        .fg input,.fg select{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--text);font-size:0.85rem}
+        .imp-area{border:2px dashed var(--border);border-radius:14px;padding:24px;text-align:center;cursor:pointer;transition:all .3s;margin-bottom:12px}
+        .imp-area:hover{border-color:var(--gold);background:rgba(245,166,35,0.03)}
+        .imp-area .ic{font-size:2.2rem;margin-bottom:6px}
+        .imp-area.excel{border-color:var(--green)}
+        .imp-area.excel:hover{background:rgba(0,212,170,0.05)}
+        .imp-area.json{border-color:var(--blue)}
+        .imp-area.json:hover{background:rgba(52,152,219,0.05)}
+        .ytabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+        .ybtn{padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--dim);cursor:pointer;font-size:0.78rem}
+        .ybtn.active{background:var(--gold);color:var(--bg);border-color:var(--gold);font-weight:700}
+        .alert{padding:12px;border-radius:8px;margin-bottom:12px;font-size:0.82rem;display:none;word-wrap:break-word}
+        .alert-s{background:rgba(0,212,170,0.12);border:1px solid var(--green);color:var(--green)}
+        .alert-e{background:rgba(255,71,87,0.12);border:1px solid var(--red);color:var(--red)}
+        .alert-i{background:rgba(52,152,219,0.12);border:1px solid var(--blue);color:var(--blue)}
+        .ai{background:var(--bg3);border-radius:8px;padding:11px;border:1px solid var(--border)}
+        .ai .al{font-size:0.65rem;color:var(--dim);text-transform:uppercase;margin-bottom:3px}
+        .ai .av{font-size:1rem;font-weight:700}
+        .tag{display:inline-block;padding:2px 8px;border-radius:10px;font-size:0.68rem;font-weight:700;margin:2px}
+        .tag-hot{background:rgba(255,71,87,0.25);color:var(--red)}
+        .tag-cold{background:rgba(0,212,170,0.25);color:var(--green)}
+        .tag-norm{background:rgba(255,255,255,0.08);color:var(--dim)}
+        .vib-meter{height:6px;border-radius:3px;background:var(--border);overflow:hidden;margin-top:4px}
+        .vib-fill{height:100%;border-radius:3px;transition:width .5s}
+        .vib-high{background:linear-gradient(90deg,var(--red),var(--orange))}
+        .vib-med{background:linear-gradient(90deg,var(--gold),var(--gold2))}
+        .vib-low{background:linear-gradient(90deg,var(--blue),var(--green))}
+        .pull-box{background:var(--bg3);border-radius:8px;padding:10px;margin-bottom:6px;display:flex;align-items:center;gap:10px;border:1px solid var(--border)}
+        .pull-arrow{font-size:1.2rem}
+        .pull-from{font-weight:700;color:var(--gold);font-size:1.1rem;min-width:28px;text-align:center}
+        .pull-to{font-weight:700;color:var(--green);font-size:1.1rem;min-width:28px;text-align:center}
+        .pull-info{flex:1;font-size:0.75rem;color:var(--dim)}
+        .pull-count{font-weight:700;color:var(--text);font-size:0.9rem}
+        .overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:999;justify-content:center;align-items:center;flex-direction:column;gap:14px}
+        .overlay.show{display:flex}
+        .spin{width:50px;height:50px;border:4px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:sp .8s linear infinite}
+        @keyframes sp{to{transform:rotate(360deg)}}
+        .pag{display:flex;justify-content:center;align-items:center;gap:10px;margin-top:10px}
+        .pag-info{color:var(--dim);font-size:0.78rem}
+        .sbar{display:flex;gap:8px;margin-bottom:10px}
+        .sbar input{flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--text);font-size:0.85rem}
+        .sbar select{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--text)}
+        .trans-grid{display:grid;grid-template-columns:repeat(11,1fr);gap:1px;background:var(--border);border-radius:8px;overflow:hidden;font-size:0.6rem}
+        .trans-cell{padding:6px 2px;text-align:center;background:var(--card);font-weight:600}
+        .trans-header{background:var(--bg3);color:var(--gold);font-weight:700}
+        .empty{text-align:center;padding:40px 20px;color:var(--dim)}
+        .empty .ei{font-size:3rem;margin-bottom:10px}
+        .divider{height:1px;background:var(--border);margin:12px 0}
+        .tg{color:var(--gold)}.tgr{color:var(--green)}.tr{color:var(--red)}.td{color:var(--dim)}.tc{text-align:center}
+        .mt{margin-top:8px}.mb{margin-bottom:8px}
+        .fw{font-weight:700}.fs{font-size:0.78rem}.fxs{font-size:0.7rem}
+        .sub-tabs{display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;scrollbar-width:none}
+        .sub-tabs::-webkit-scrollbar{display:none}
+        .sub-tab{padding:7px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--dim);cursor:pointer;font-size:0.75rem;white-space:nowrap}
+        .sub-tab.active{background:var(--gold);color:var(--bg);border-color:var(--gold);font-weight:700}
+        .format-example{background:var(--bg2);padding:12px;border-radius:8px;border:1px solid var(--border);margin-top:10px}
+        .format-example table{margin:0}
+        .format-example th,.format-example td{padding:6px 10px;font-size:0.75rem}
+        .offline-status{position:fixed;bottom:10px;right:10px;padding:6px 12px;border-radius:20px;font-size:0.7rem;font-weight:700;z-index:98;transition:all .3s}
+        .offline-status.online{background:var(--green);color:var(--bg)}
+        .offline-status.offline{background:var(--red);color:#fff}
+        .modal-bg{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:500;justify-content:center;align-items:center}
+        .modal-bg.show{display:flex}
+        .modal-box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;width:90%;max-width:420px}
+        .modal-box h3{color:var(--gold);margin-bottom:16px;font-size:1rem}
+        .modal-actions{display:flex;gap:10px;margin-top:16px;justify-content:flex-end}
+        .ls-banner{background:linear-gradient(135deg,rgba(245,166,35,0.1),rgba(0,212,170,0.08));border:1px solid var(--gold);border-radius:12px;padding:12px 16px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+        .ls-banner .ls-num{font-size:2rem;font-weight:900;color:var(--gold)}
+        .ls-banner .ls-lbl{font-size:0.65rem;color:var(--dim);text-transform:uppercase}
+        .ls-banner .ls-info{font-size:0.78rem;color:var(--green)}
+        .ls-banner .ls-next{font-size:0.78rem;color:var(--gold2);font-weight:700}
+        .prob-bar{height:8px;border-radius:4px;background:var(--border);overflow:hidden;margin:3px 0}
+        .prob-fill{height:100%;border-radius:4px;transition:width .5s}
+        .prob-high{background:linear-gradient(90deg,var(--green),#69f0ae)}
+        .prob-med{background:linear-gradient(90deg,var(--orange),var(--gold))}
+        .prob-low{background:linear-gradient(90deg,var(--red),var(--orange))}
+        .rec-box{background:linear-gradient(135deg,rgba(255,71,87,0.08),rgba(0,212,170,0.06));border:1px solid var(--gold);border-radius:10px;padding:14px;margin:10px 0}
+        .rec-box h4{color:var(--gold);margin-bottom:8px;font-size:0.82rem;text-transform:uppercase}
+        .rec-nums{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+        .rec-item{background:var(--bg3);padding:5px 12px;border-radius:20px;font-size:0.82rem;border:1px solid var(--border)}
+        .rec-item span{color:var(--gold);font-weight:700}
+        .week-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-bottom:12px}
+        .week-card{background:var(--bg3);border-radius:10px;padding:10px;text-align:center;border:1px solid var(--border)}
+        .week-card .wc-day{font-size:0.65rem;color:var(--dim);margin-bottom:4px}
+        .week-card .wc-num{font-size:1.2rem;font-weight:900;color:var(--gold)}
+        .week-card .wc-info{font-size:0.62rem;color:var(--green);margin-top:3px}
+        .guide-sec{background:var(--bg3);border-radius:10px;padding:14px;margin-bottom:12px;border-left:3px solid var(--gold)}
+        .guide-sec h4{color:var(--gold);margin-bottom:8px;font-size:0.85rem}
+        .guide-sec p,.guide-sec li{color:var(--dim);font-size:0.8rem;line-height:1.6}
+        .guide-sec ul{margin-left:18px;margin-top:5px}
+        .collapsible-h{cursor:pointer;padding:10px;background:var(--bg3);border-radius:8px;margin:4px 0;display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:0.82rem;border:1px solid var(--border)}
+        .collapsible-h:hover{background:rgba(245,166,35,0.05)}
+        .collapsible-b{padding:10px;display:none}
+        .collapsible-b.open{display:block}
+    </style>
 </head>
 <body>
+<div class="overlay" id="ov"><div class="spin"></div><div class="tg" id="ovt">Procesando...</div></div>
+<div class="modal-bg" id="editModal">
+    <div class="modal-box">
+        <h3>✏️ Editar Sorteo</h3>
+        <div class="fg mb"><label>Fecha</label><input type="date" id="eFecha"></div>
+        <div class="fg mb"><label>Turno</label><select id="eTurno"><option value="midday">☀️ Mediodía</option><option value="evening">🌙 Noche</option></select></div>
+        <div class="fg mb"><label>Número (00-99)</label><input type="text" id="eNum" maxlength="2" inputmode="numeric"></div>
+        <div class="modal-actions">
+            <button class="btn btn-outline" onclick="closeEdit()">Cancelar</button>
+            <button class="btn btn-gold" onclick="saveEdit()">💾 Guardar</button>
+        </div>
+    </div>
+</div>
+<div class="header">
+    <h1>🎯 SUPER ANÁLISIS DE SORTEOS</h1>
+    <p id="hsub">Cargando...</p>
+</div>
+<div class="nav">
+    <button class="active" onclick="goTab('home',this)">🏠 Inicio</button>
+    <button onclick="goTab('hist',this)">📋 Historial</button>
+    <button onclick="goTab('freq',this)">📊 Frecuencias</button>
+    <button onclick="goTab('dec',this)">🔢 Decenas</button>
+    <button onclick="goTab('term',this)">🎯 Terminales</button>
+    <button onclick="goTab('matrix',this)">🧮 Matrix</button>
+    <button onclick="goTab('vib',this)">📡 Vibraciones</button>
+    <button onclick="goTab('pull',this)">🧲 Conexiones</button>
+    <button onclick="goTab('year',this)">📅 Por Año</button>
+    <button onclick="goTab('semana',this)">📆 Última Semana</button>
+    <button onclick="goTab('analisis',this)">🎯 Análisis</button>
+    <button onclick="goTab('add',this)">➕ Agregar</button>
+    <button onclick="goTab('imp',this)">📥 Importar</button>
+    <button onclick="goTab('guia',this)">📖 Guía</button>
+</div>
+<div class="sec active" id="sec-home">
+    <div class="card"><div class="card-t">🎯 Último Sorteo</div><div class="g2" id="lastDraw"><div class="empty" style="grid-column:1/-1"><div class="ei">🎲</div><p>Importa datos para comenzar</p></div></div></div>
+    <div class="card" id="lastAnalCard" style="display:none"><div class="card-t">🔍 Análisis Último Número</div><div id="lastAnal"></div></div>
+    <div class="card"><div class="card-t">📈 Estadísticas Generales</div><div class="g2" id="genStats"></div></div>
+    <div class="card"><div class="card-t">🔥 Calientes & ❄️ Fríos</div><div class="g2"><div class="hc hot"><div class="hc-t">🔥 Top 5 Calientes</div><div class="hc-nums" id="hotN"></div></div><div class="hc cold"><div class="hc-t">❄️ Top 5 Fríos</div><div class="hc-nums" id="coldN"></div></div></div></div>
+    <div class="card"><div class="card-t">📊 Últimos 2 Meses — Decenas & Terminales</div><div id="last2months"></div></div>
+    <div class="card"><div class="card-t">⏱️ Racha</div><div id="streak" class="td fs">Sin datos</div></div>
+</div>
+<div class="sec" id="sec-hist">
+    <div class="card"><div class="card-t">📋 Historial Completo</div>
+        <div class="sbar"><input type="text" id="sI" placeholder="Buscar..." oninput="rHist()"><select id="sF" onchange="rHist()"><option value="">Todos</option><option value="midday">Mediodía</option><option value="evening">Noche</option></select></div>
+        <div class="tw"><table><thead><tr><th>Fecha</th><th>Turno</th><th>Número</th><th>Dec</th><th>Term</th><th>Acc</th></tr></thead><tbody id="hBody"></tbody></table></div>
+        <div class="pag"><button class="btn btn-outline" onclick="cPage(-1)">◀</button><span class="pag-info" id="pInfo">0/0</span><button class="btn btn-outline" onclick="cPage(1)">▶</button></div>
+    </div>
+</div>
+<div class="sec" id="sec-freq">
+    <div id="lsBannerFreq"></div>
+    <div class="sub-tabs" id="freqTabs">
+        <button class="sub-tab active" onclick="freqView('all',this)">📊 Todos</button>
+        <button class="sub-tab" onclick="freqView('top',this)">🔥 Top 15</button>
+        <button class="sub-tab" onclick="freqView('bottom',this)">❄️ Bottom 15</button>
+        <button class="sub-tab" onclick="freqView('midday',this)">☀️ Mediodía</button>
+        <button class="sub-tab" onclick="freqView('evening',this)">🌙 Noche</button>
+        <button class="sub-tab" onclick="freqView('decs',this)">🔢 Decenas</button>
+        <button class="sub-tab" onclick="freqView('terms',this)">🎯 Terminales</button>
+    </div>
+    <div class="card"><div class="card-t" id="freqTitle">📊 Frecuencias</div><div id="freqContent"></div></div>
+</div>
+<div class="sec" id="sec-dec">
+    <div id="lsBannerDec"></div>
+    <div class="sub-tabs">
+        <button class="sub-tab active" onclick="decView('general',this)">📊 General</button>
+        <button class="sub-tab" onclick="decView('dd',this)">☀️→☀️ M-M</button>
+        <button class="sub-tab" onclick="decView('nn',this)">🌙→🌙 N-N</button>
+        <button class="sub-tab" onclick="decView('dn',this)">☀️→🌙 M-N</button>
+        <button class="sub-tab" onclick="decView('nd',this)">🌙→☀️ N-M</button>
+        <button class="sub-tab" onclick="decView('best',this)">🏆 Mejores</button>
+    </div>
+    <div class="card"><div class="card-t" id="decTitle">🔢 Análisis de Decenas</div><div id="decContent"></div></div>
+</div>
+<div class="sec" id="sec-term">
+    <div id="lsBannerTerm"></div>
+    <div class="sub-tabs">
+        <button class="sub-tab active" onclick="termView('general',this)">📊 General</button>
+        <button class="sub-tab" onclick="termView('dd',this)">☀️→☀️ M-M</button>
+        <button class="sub-tab" onclick="termView('nn',this)">🌙→🌙 N-N</button>
+        <button class="sub-tab" onclick="termView('dn',this)">☀️→🌙 M-N</button>
+        <button class="sub-tab" onclick="termView('nd',this)">🌙→☀️ N-M</button>
+        <button class="sub-tab" onclick="termView('best',this)">🏆 Mejores</button>
+    </div>
+    <div class="card"><div class="card-t" id="termTitle">🎯 Análisis de Terminales</div><div id="termContent"></div></div>
+</div>
+<div class="sec" id="sec-matrix">
+    <div id="lsBannerMatrix"></div>
+    <div class="sub-tabs">
+        <button class="sub-tab active" onclick="matView('dec',this)">🔢 Decenas</button>
+        <button class="sub-tab" onclick="matView('term',this)">🎯 Terminales</button>
+        <button class="sub-tab" onclick="matView('trans',this)">🔄 Transiciones</button>
+    </div>
+    <div class="card"><div class="card-t" id="matTitle">🧮 Matrix de Decenas</div><div id="matContent"></div></div>
+</div>
+<div class="sec" id="sec-vib">
+    <div id="lsBannerVib"></div>
+    <div class="sub-tabs">
+        <button class="sub-tab active" onclick="vibView('nums',this)">🔢 Números</button>
+        <button class="sub-tab" onclick="vibView('decs',this)">📊 Decenas</button>
+        <button class="sub-tab" onclick="vibView('terms',this)">🎯 Terminales</button>
+    </div>
+    <div class="card"><div class="card-t" id="vibTitle">📡 Vibraciones</div><div id="vibContent"></div></div>
+</div>
+<div class="sec" id="sec-pull">
+    <div class="sub-tabs">
+        <button class="sub-tab active" onclick="pullView('nums',this)">🔢 Números</button>
+        <button class="sub-tab" onclick="pullView('decs',this)">📊 Decenas</button>
+        <button class="sub-tab" onclick="pullView('terms',this)">🎯 Terminales</button>
+    </div>
+    <div class="card"><div class="card-t" id="pullTitle">🧲 Conexiones</div><div id="pullContent"></div></div>
+</div>
+<div class="sec" id="sec-year">
+    <div id="lsBannerYear"></div>
+    <div class="card"><div class="card-t">📅 Análisis por Año</div><div class="ytabs" id="yTabs"></div><div id="yearContent"></div></div>
+    <div class="card"><div class="card-t">📊 Comparar Años → Recomendación</div><div id="yearCompare"></div></div>
+</div>
+<div class="sec" id="sec-semana">
+    <div id="lsBannerSemana"></div>
+    <div class="card"><div class="card-t">📆 Análisis Última Semana</div><div id="semanaContent"></div></div>
+</div>
+<div class="sec" id="sec-analisis">
+    <div id="lsBannerAnalisis"></div>
+    <div class="sub-tabs">
+        <button class="sub-tab active" onclick="analView('auto',this)">🎯 Auto (Próximo)</button>
+        <button class="sub-tab" onclick="analView('midday',this)">☀️ Solo Mediodía</button>
+        <button class="sub-tab" onclick="analView('evening',this)">🌙 Solo Noche</button>
+        <button class="sub-tab" onclick="analView('both',this)">📊 Comparar Ambos</button>
+    </div>
+    <div class="card"><div class="card-t" id="analTitle">🎯 Análisis → Próximo Sorteo</div><div id="analisisContent"></div></div>
+</div>
+<div class="sec" id="sec-add">
+    <div class="card"><div class="card-t">➕ Agregar Resultado Manual</div>
+        <div id="addA" class="alert"></div>
+        <div class="g2 mb">
+            <div class="fg" style="grid-column:1/-1"><label>Fecha</label><input type="date" id="aDate"></div>
+            <div class="fg"><label>Turno</label><select id="aShift"><option value="midday">☀️ Mediodía</option><option value="evening">🌙 Noche</option></select></div>
+            <div class="fg"><label>Número (00-99)</label><input type="text" id="aNum" placeholder="07" maxlength="2" inputmode="numeric"></div>
+        </div>
+        <button class="btn btn-gold" onclick="addR()">💾 Guardar</button>
+    </div>
+    <div class="card"><div class="card-t">🗂️ Gestión de Datos</div>
+        <div class="btn-row">
+            <button class="btn btn-green" onclick="expData()">📤 Exportar JSON</button>
+            <button class="btn btn-blue" onclick="expExcel()">📊 Exportar Excel</button>
+            <button class="btn btn-purple" onclick="downTemplate()">📋 Plantilla</button>
+            <button class="btn btn-red" onclick="clearAll()">🗑️ Borrar Todo</button>
+        </div>
+    </div>
+</div>
+<div class="sec" id="sec-imp">
+    <div class="card"><div class="card-t">📥 Importar Datos</div>
+        <div id="impA" class="alert"></div>
+        <div class="imp-area excel" onclick="document.getElementById('fExcel').click()"><div class="ic">📊</div><p><strong style="color:var(--green)">EXCEL / CSV</strong></p><p class="fxs td mt">Toca aquí — .xlsx, .xls, .csv</p></div>
+        <input type="file" id="fExcel" accept=".xlsx,.xls,.csv" style="display:none" onchange="hExcel(event)">
+        <div class="imp-area json" onclick="document.getElementById('fJson').click()"><div class="ic">📂</div><p><strong style="color:var(--blue)">JSON</strong></p><p class="fxs td mt">Toca aquí para .json</p></div>
+        <input type="file" id="fJson" accept=".json" style="display:none" onchange="hFile(event)">
+        <div class="divider"></div>
+        <p class="fs td mb">📋 O pega JSON aquí:</p>
+        <textarea id="jPaste" rows="5" style="width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--text);font-size:0.75rem;font-family:monospace" placeholder='{"results":[...]}'></textarea>
+        <div class="mt"><button class="btn btn-gold" onclick="impPaste()">📥 Importar JSON</button></div>
+    </div>
+    <div class="card"><div class="card-t">📋 Formato del Excel/CSV</div>
+        <p class="fxs td mb">3 columnas: <strong class="tg">Fecha</strong>, <strong class="tg">Turno</strong>, <strong class="tg">Numero</strong></p>
+        <div class="format-example"><table><thead><tr><th>Fecha</th><th>Turno</th><th>Numero</th></tr></thead><tbody><tr><td>2024-01-01</td><td>Mediodía</td><td>91</td></tr><tr><td>2024-01-01</td><td>Noche</td><td>38</td></tr></tbody></table></div>
+        <div class="mt"><button class="btn btn-purple" onclick="downTemplate()">📥 Descargar Plantilla</button></div>
+    </div>
+</div>
+<div class="sec" id="sec-guia">
+    <div class="card"><div class="card-t">📖 Guía Completa</div>
+        <div class="guide-sec"><h4>🏠 Inicio</h4><ul><li><strong>Último sorteo:</strong> Mediodía y noche recientes.</li><li><strong>Análisis:</strong> Ranking, vibración, decena, terminal.</li><li><strong>2 meses:</strong> Top Dec/Term con recomendación.</li></ul></div>
+        <div class="guide-sec"><h4>📋 Historial</h4><ul><li>✏️ Editar sin borrar. 🗑️ Eliminar. Filtrar por turno.</li></ul></div>
+        <div class="guide-sec"><h4>📊 Frecuencias</h4><ul><li><strong>Todos:</strong> Frecuencia conjunta ambos turnos.</li><li><strong>Mediodía/Noche:</strong> Separadas correctamente.</li><li><strong>Decenas/Terminales:</strong> Frecuencia por Dec y Term.</li></ul></div>
+        <div class="guide-sec"><h4>🔢 Dec & 🎯 Term</h4><ul><li><strong>General:</strong> Historial completo vs último sorteo.</li><li><strong>M-M, N-N, M-N, N-M:</strong> Transiciones por turno con estadísticas del último sorteo.</li><li><strong>Mejores:</strong> Momentum reciente vs histórico.</li></ul></div>
+        <div class="guide-sec"><h4>🧮 Matrix</h4><ul><li>Decenas y Terminales con ranking. Transiciones en grid 10x10.</li></ul></div>
+        <div class="guide-sec"><h4>📡 Vibraciones</h4><ul><li>Actividad reciente vs histórica, relacionada con último sorteo y matrices.</li></ul></div>
+        <div class="guide-sec"><h4>🧲 Conexiones</h4><ul><li>Qué número/decena/terminal sigue al último sorteo.</li></ul></div>
+        <div class="guide-sec"><h4>📅 Por Año</h4><ul><li>Estadísticas anuales. Comparar años vs último sorteo.</li></ul></div>
+        <div class="guide-sec"><h4>📆 Última Semana</h4><ul><li>7 días previos. Dec/Term repetidas. Recomendación.</li></ul></div>
+        <div class="guide-sec"><h4>🎯 Análisis</h4><ul><li><strong>Auto:</strong> Análisis para el próximo turno.</li><li><strong>Solo Mediodía/Noche:</strong> Estadísticas independientes.</li><li><strong>Comparar:</strong> Tabla lado a lado Med vs Noc.</li><li>Números más probables con barras de probabilidad.</li></ul></div>
+        <div class="guide-sec"><h4>💡 Consejos</h4><ul><li>Importa todo el historial posible.</li><li>Revisa Análisis antes de cada sorteo.</li><li>Combina Conexiones + Vibraciones + Análisis.</li><li>Exporta JSON como respaldo regular.</li><li>Funciona 100% offline.</li></ul></div>
+    </div>
+</div>
+<div class="offline-status" id="offStatus">🌐</div><script>
+if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('./sw.js').catch(e=>console.log('SW:',e))})}
+function updOffStatus(){const el=document.getElementById('offStatus');if(navigator.onLine){el.className='offline-status online';el.textContent='🌐 En línea';setTimeout(()=>el.style.opacity='0.5',2000)}else{el.className='offline-status offline';el.textContent='📴 Sin conexión';el.style.opacity='1'}}
+window.addEventListener('online',updOffStatus);window.addEventListener('offline',updOffStatus);
+const SK='sorteos_super_v10';
+const LD=()=>{try{const r=localStorage.getItem(SK);return r?JSON.parse(r):[]}catch(e){return[]}};
+const SD=a=>localStorage.setItem(SK,JSON.stringify(a));
+function noTilde(s){if(!s)return'';return String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim()}
+function p2(n){return String(n).padStart(2,'0')}
+function getDec(n){return Math.floor(parseInt(n,10)/10)}
+function getTerm(n){return parseInt(n,10)%10}
+function fmtD(d){if(!d)return'-';const[y,m,dd]=d.split('-');const mn=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];return`${parseInt(dd)} ${mn[parseInt(m)-1]} ${y}`}
+function diffD(a,b){return Math.abs(Math.round((new Date(b+'T00:00:00')-new Date(a+'T00:00:00'))/86400000))}
+function getDayName(d){return['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'][new Date(d+'T12:00:00').getDay()]}
+function gFreq(data){const f={};for(let i=0;i<=99;i++)f[p2(i)]=0;data.forEach(d=>{if(f[d.number]!==undefined)f[d.number]++});return f}
+function sFreq(f){return Object.entries(f).sort((a,b)=>b[1]-a[1])}
+function showOv(msg){document.getElementById('ovt').textContent=msg;document.getElementById('ov').classList.add('show')}
+function hideOv(){document.getElementById('ov').classList.remove('show')}
+function sAlert(id,msg,type){const el=document.getElementById(id);if(!el)return;el.className=`alert alert-${type}`;el.textContent=msg;el.style.display='block';setTimeout(()=>el.style.display='none',10000)}
 
-<header class="app-header">
-<div class="app-title">🎯 Pick 3 Analyzer</div>
-<div class="app-subtitle">Sistema Universal de Análisis — La Telaraña 🕸️</div>
-</header>
-
-<nav class="tabs-container" id="tabsNav">
-<button class="tab-btn active" data-tab="import">📥 Datos</button>
-<button class="tab-btn" data-tab="history">📋 Historial</button>
-<button class="tab-btn" data-tab="frequency">📊 Frecuencias</button>
-<button class="tab-btn" data-tab="decades">🔢 Decenas</button>
-<button class="tab-btn" data-tab="terminals">🎯 Terminales</button>
-<button class="tab-btn" data-tab="matrix">🧮 Matrix</button>
-<button class="tab-btn" data-tab="vibrations">🌊 Vibraciones</button>
-<button class="tab-btn" data-tab="connections">🔗 Conexiones</button>
-<button class="tab-btn" data-tab="yearly">📅 Por Año</button>
-<button class="tab-btn spider-tab" data-tab="spider">🕸️ Telaraña</button>
-</nav>
-
-<!-- ===== TAB: IMPORT ===== -->
-<div class="tab-content active" id="tab-import">
-<div class="card">
-<div class="card-title"><span class="icon">📥</span> Importar Datos</div>
-<div class="file-input-wrapper">
-<input type="file" id="fileInput" accept=".csv,.xlsx,.xls,.json">
-</div>
-<div class="btn-group">
-<button class="btn btn-primary" onclick="processFile()">⚡ Procesar</button>
-<button class="btn btn-sm btn-primary" onclick="exportJSON()">💾 Exportar JSON</button>
-<button class="btn btn-sm btn-primary" onclick="clearData()">🗑️ Limpiar</button>
-</div>
-<div id="importStatus"></div>
-</div>
-<div class="card">
-<div class="card-title"><span class="icon">📊</span> Resumen de Datos</div>
-<div class="stats-grid" id="dataSummary">
-<div class="stat-box"><div class="stat-value" id="totalRecords">0</div><div class="stat-label">Registros</div></div>
-<div class="stat-box"><div class="stat-value" id="totalDayDraws">0</div><div class="stat-label">Mediodía</div></div>
-<div class="stat-box"><div class="stat-value" id="totalNightDraws">0</div><div class="stat-label">Noche</div></div>
-<div class="stat-box"><div class="stat-value" id="dateRange">-</div><div class="stat-label">Período</div></div>
-</div>
-</div>
-</div>
-
-<!-- ===== TAB: HISTORY ===== -->
-<div class="tab-content" id="tab-history">
-<div class="card">
-<div class="card-title"><span class="icon">📋</span> Historial Completo</div>
-<div class="filter-pills">
-<span class="pill active" onclick="filterHistory('all',this)">Todos</span>
-<span class="pill" onclick="filterHistory('day',this)">☀️ Mediodía</span>
-<span class="pill" onclick="filterHistory('night',this)">🌙 Noche</span>
-</div>
-<div style="margin-bottom:8px"><input type="text" id="historySearch" placeholder="🔍 Buscar número..." oninput="filterHistorySearch()"></div>
-<div class="table-wrapper" id="historyTable"></div>
-</div>
-</div>
-
-<!-- ===== TAB: FREQUENCY ===== -->
-<div class="tab-content" id="tab-frequency">
-<div class="card">
-<div class="card-title"><span class="icon">📊</span> Frecuencia de Números</div>
-<div class="filter-pills">
-<span class="pill active" onclick="showFrequency('all',this)">Todos</span>
-<span class="pill" onclick="showFrequency('day',this)">☀️ Mediodía</span>
-<span class="pill" onclick="showFrequency('night',this)">🌙 Noche</span>
-</div>
-<div class="btn-group">
-<button class="btn btn-sm btn-primary" onclick="sortFrequency('desc')">🔥 Más frecuentes</button>
-<button class="btn btn-sm btn-primary" onclick="sortFrequency('asc')">❄️ Menos frecuentes</button>
-</div>
-<div id="frequencyGrid" class="number-grid"></div>
-<div class="table-wrapper" id="frequencyTable"></div>
-</div>
-</div>
-
-<!-- ===== TAB: DECADES ===== -->
-<div class="tab-content" id="tab-decades">
-<div class="card">
-<div class="card-title"><span class="icon">🔢</span> Análisis por Decenas</div>
-<div class="filter-pills" id="decadeFilters">
-<span class="pill active" onclick="showDecades('general',this)">General</span>
-<span class="pill" onclick="showDecades('MM',this)">M-M</span>
-<span class="pill" onclick="showDecades('NN',this)">N-N</span>
-<span class="pill" onclick="showDecades('MN',this)">M-N</span>
-<span class="pill" onclick="showDecades('NM',this)">N-M</span>
-<span class="pill" onclick="showDecades('best',this)">⭐ Mejores</span>
-</div>
-<div id="decadesContent"></div>
-</div>
-</div>
-
-<!-- ===== TAB: TERMINALS ===== -->
-<div class="tab-content" id="tab-terminals">
-<div class="card">
-<div class="card-title"><span class="icon">🎯</span> Análisis por Terminales</div>
-<div class="filter-pills" id="terminalFilters">
-<span class="pill active" onclick="showTerminals('general',this)">General</span>
-<span class="pill" onclick="showTerminals('MM',this)">M-M</span>
-<span class="pill" onclick="showTerminals('NN',this)">N-N</span>
-<span class="pill" onclick="showTerminals('MN',this)">M-N</span>
-<span class="pill" onclick="showTerminals('NM',this)">N-M</span>
-<span class="pill" onclick="showTerminals('best',this)">⭐ Mejores</span>
-</div>
-<div id="terminalsContent"></div>
-</div>
-</div>
-
-<!-- ===== TAB: MATRIX ===== -->
-<div class="tab-content" id="tab-matrix">
-<div class="card">
-<div class="card-title"><span class="icon">🧮</span> Matrix Decenas × Terminales</div>
-<div class="filter-pills">
-<span class="pill active" onclick="showMatrix('all',this)">Todos</span>
-<span class="pill" onclick="showMatrix('day',this)">☀️ Mediodía</span>
-<span class="pill" onclick="showMatrix('night',this)">🌙 Noche</span>
-</div>
-<div class="table-wrapper" id="matrixContent"></div>
-</div>
-</div>
-
-<!-- ===== TAB: VIBRATIONS ===== -->
-<div class="tab-content" id="tab-vibrations">
-<div class="card">
-<div class="card-title"><span class="icon">🌊</span> Vibraciones Numéricas</div>
-<div class="filter-pills">
-<span class="pill active" onclick="showVibrations('all',this)">Todos</span>
-<span class="pill" onclick="showVibrations('day',this)">☀️ Mediodía</span>
-<span class="pill" onclick="showVibrations('night',this)">🌙 Noche</span>
-</div>
-<p style="font-size:0.75em;color:var(--text-muted);margin-bottom:8px">Suma de dígitos → vibración. Ej: 47→4+7=11→1+1=2. Vibración=2</p>
-<div id="vibrationsContent"></div>
-</div>
-</div>
-
-<!-- ===== TAB: CONNECTIONS ===== -->
-<div class="tab-content" id="tab-connections">
-<div class="card">
-<div class="card-title"><span class="icon">🔗</span> Conexiones (¿Qué hala a otro?)</div>
-<div class="filter-pills">
-<span class="pill active" onclick="setConnFilter('all',this)">Todos</span>
-<span class="pill" onclick="setConnFilter('day',this)">☀️ Mediodía</span>
-<span class="pill" onclick="setConnFilter('night',this)">🌙 Noche</span>
-</div>
-<div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">
-<input type="text" id="connNumber" placeholder="Número (ej: 25)" style="width:120px">
-<button class="btn btn-primary btn-sm" onclick="findConnections()">🔍 Buscar</button>
-</div>
-<div id="connectionsContent"></div>
-</div>
-</div>
-
-<!-- ===== TAB: YEARLY ===== -->
-<div class="tab-content" id="tab-yearly">
-<div class="card">
-<div class="card-title"><span class="icon">📅</span> Análisis por Año</div>
-<div class="year-selector">
-<select id="yearSelect" onchange="showYearlyAnalysis()"></select>
-<select id="yearPeriod" onchange="showYearlyAnalysis()">
-<option value="all">Todos</option>
-<option value="day">Mediodía</option>
-<option value="night">Noche</option>
-</select>
-</div>
-<div id="yearlyContent"></div>
-</div>
-</div>
-
-<!-- ===== TAB: LA TELARAÑA ===== -->
-<div class="tab-content" id="tab-spider">
-<div class="spider-card card">
-<div class="card-content">
-
-<div class="spider-hero">
-<div class="spider-hero-icon">🕸️</div>
-<h2>LA TELARAÑA UNIVERSAL</h2>
-<p>Cada hilo se conecta con los demás antes de llegar al centro. Todos los análisis convergen en una sola verdad numérica.</p>
-</div>
-
-<div class="spider-mode-selector">
-<div class="spider-mode-btn active" onclick="setSpiderMode('day',this)">☀️ Mediodía</div>
-<div class="spider-mode-btn" onclick="setSpiderMode('night',this)">🌙 Noche</div>
-<div class="spider-mode-btn" onclick="setSpiderMode('all',this)">🌐 Universal</div>
-</div>
-
-<button class="spider-execute-btn" onclick="executeSpider()">
-🕸️ TEJER LA TELARAÑA
-</button>
-
-<div id="spiderLoading" class="loading" style="display:none">
-<div class="spinner"></div>
-<p>Tejiendo los hilos... conectando análisis... convergiendo al centro...</p>
-</div>
-
-<div id="spiderResults" style="display:none"></div>
-
-</div>
-</div>
-</div>
-
-<div class="toast" id="toast"></div>
-
-<script>
-// =============== GLOBAL STATE ===============
-let APP_DATA=[];
-let CURRENT_FILTER='all';
-let SPIDER_MODE='day';
-let FREQ_SORT='desc';
-let CONN_FILTER='all';
-
-// =============== INIT ===============
-document.addEventListener('DOMContentLoaded',()=>{
-loadFromStorage();
-initTabs();
-updateSummary();
-});
-
-function initTabs(){
-document.querySelectorAll('.tab-btn').forEach(btn=>{
-btn.addEventListener('click',()=>{
-document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
-btn.classList.add('active');
-document.getElementById('tab-'+btn.dataset.tab).classList.add('active');
-const t=btn.dataset.tab;
-if(t==='history')renderHistory();
-if(t==='frequency')showFrequency('all');
-if(t==='decades')showDecades('general');
-if(t==='terminals')showTerminals('general');
-if(t==='matrix')showMatrix('all');
-if(t==='vibrations')showVibrations('all');
-if(t==='yearly')initYearly();
-});
-});
+// ===== ORDEN CRONOLÓGICO =====
+function chronoSort(a,b){
+    if(a.drawDate!==b.drawDate)return a.drawDate.localeCompare(b.drawDate);
+    return a.shift==='midday'?-1:1;
+}
+function revSort(a,b){
+    if(a.drawDate!==b.drawDate)return b.drawDate.localeCompare(a.drawDate);
+    return a.shift==='evening'?-1:1;
 }
 
-// =============== FILE PROCESSING ===============
-function processFile(){
-const input=document.getElementById('fileInput');
-if(!input.files.length)return showToast('⚠️ Selecciona un archivo');
-const file=input.files[0];
-const ext=file.name.split('.').pop().toLowerCase();
-if(ext==='json'){
-const r=new FileReader();
-r.onload=e=>{try{const d=JSON.parse(e.target.result);if(Array.isArray(d)){APP_DATA=d;saveToStorage();updateSummary();showToast('✅ '+d.length+' registros importados')}}catch(err){showToast('❌ Error: '+err.message)}};
-r.readAsText(file);
-}else if(ext==='csv'){
-const r=new FileReader();
-r.onload=e=>{parseCSV(e.target.result);saveToStorage();updateSummary();showToast('✅ '+APP_DATA.length+' registros')};
-r.readAsText(file);
-}else if(ext==='xlsx'||ext==='xls'){
-const r=new FileReader();
-r.onload=e=>{try{parseExcel(new Uint8Array(e.target.result));saveToStorage();updateSummary();showToast('✅ '+APP_DATA.length+' registros')}catch(err){showToast('❌ '+err.message)}};
-r.readAsArrayBuffer(file);
-}else showToast('❌ Formato no soportado');
+// ===== ÚLTIMO SORTEO CORREGIDO =====
+function getLastSorteoMes(){
+    const data=LD();if(!data.length)return null;
+    const now=new Date();
+    const ym=`${now.getFullYear()}-${p2(now.getMonth()+1)}`;
+    const mes=data.filter(d=>d.drawDate.startsWith(ym));
+    if(mes.length)return[...mes].sort(revSort)[0];
+    return[...data].sort(revSort)[0];
+}
+function getNextTurno(){
+    const ls=getLastSorteoMes();
+    if(!ls)return{shift:'midday',label:'Mediodía'};
+    if(ls.shift==='evening')return{shift:'midday',label:'Mediodía'};
+    return{shift:'evening',label:'Noche'};
+}
+function renderLsBanner(id){
+    const el=document.getElementById(id);if(!el)return;
+    const ls=getLastSorteoMes();if(!ls){el.innerHTML='';return}
+    const next=getNextTurno();
+    el.innerHTML=`<div class="ls-banner"><div><div class="ls-lbl">Último sorteo registrado</div><div class="ls-num">${ls.number}</div><div class="ls-info">Dec: ${getDec(ls.number)}0s | Term: T${getTerm(ls.number)}</div></div><div style="text-align:right"><div class="ls-info">${fmtD(ls.drawDate)} ${ls.shift==='midday'?'☀️ Mediodía':'🌙 Noche'}</div><div class="ls-next">Próximo: ${next.label}</div></div></div>`;
 }
 
-function parseCSV(text){
-const lines=text.trim().split('\n');const records=[];
-for(let i=0;i<lines.length;i++){
-const cols=lines[i].split(/[,;\t]/).map(c=>c.trim().replace(/"/g,''));
-if(cols.length>=3){
-const num=padNumber(cols[cols.length>=3?2:1]);
-if(num&&num.match(/^\d{2,3}$/)){
-records.push({date:cols[0],period:detectPeriod(cols[1]||cols[0]),number:num.padStart(2,'0')});
+// ===== PARSE =====
+function parseDate(input){
+    if(input===null||input===undefined||input==='')return null;
+    if(input instanceof Date&&!isNaN(input.getTime())){const y=input.getFullYear(),m=String(input.getMonth()+1).padStart(2,'0'),d=String(input.getDate()).padStart(2,'0');return`${y}-${m}-${d}`}
+    let s=String(input).trim();if(!s)return null;
+    if(/^\d+(\.\d+)?$/.test(s)){const num=parseFloat(s);if(num>25569&&num<80000){const ed=new Date((num-25569)*86400*1000);if(!isNaN(ed.getTime())){const y=ed.getUTCFullYear(),m=String(ed.getUTCMonth()+1).padStart(2,'0'),d=String(ed.getUTCDate()).padStart(2,'0');return`${y}-${m}-${d}`}}}
+    s=s.replace(/T.*$/,'').replace(/\s+\d.*$/,'').trim();
+    let m=s.match(/^(\d{4})[-\/\.](\d{1,2})[-\/\.](\d{1,2})$/);if(m)return`${m[1]}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}`;
+    m=s.match(/^(\d{1,2})[-\/\.](\d{1,2})[-\/\.](\d{4})$/);if(m){const d=parseInt(m[1]),mo=parseInt(m[2]);if(d>12)return`${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;if(mo>12)return`${m[3]}-${m[1].padStart(2,'0')}-${m[2].padStart(2,'0')}`;return`${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`}
+    m=s.match(/^(\d{1,2})[-\/\.](\d{1,2})[-\/\.](\d{2})$/);if(m){const yr=parseInt(m[3])>50?'19'+m[3]:'20'+m[3];const d=parseInt(m[1]);if(d>12)return`${yr}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;return`${yr}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`}
+    try{const d=new Date(s);if(!isNaN(d.getTime()))return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}catch(e){}
+    return null;
 }
+function parseShift(input){
+    if(input===null||input===undefined)return null;const s=noTilde(input);if(!s)return null;
+    if(['dia','d','day','midday','mediodia','md','tarde','manana','am','1','m','matutino'].indexOf(s)>=0)return'midday';
+    if(['noche','n','night','evening','eve','ev','pm','2','e','nocturno','vespertino'].indexOf(s)>=0)return'evening';
+    if(s.indexOf('medio')>=0||s.indexOf('dia')>=0||s.indexOf('day')>=0||s.indexOf('mid')>=0)return'midday';
+    if(s.indexOf('noche')>=0||s.indexOf('night')>=0||s.indexOf('even')>=0)return'evening';
+    return null;
 }
+function norm(r){
+    let dateVal=null;for(const k of['drawDate','date','fecha','Fecha','FECHA','DATE']){if(r[k]!==undefined&&r[k]!==null&&r[k]!==''){dateVal=r[k];break}}
+    const rd=parseDate(dateVal);if(!rd||!/^\d{4}-\d{2}-\d{2}$/.test(rd))return null;
+    let numVal=null;for(const k of['number','numero','Numero','NUMERO','Número','num','Num','n','N']){if(r[k]!==undefined&&r[k]!==null&&r[k]!==''){numVal=r[k];break}}
+    const ni=parseInt(String(numVal),10);if(isNaN(ni)||ni<0||ni>99)return null;const n=String(ni).padStart(2,'0');
+    let shiftVal=null;for(const k of['shift','turno','Turno','TURNO','periodo','Periodo','SHIFT']){if(r[k]!==undefined&&r[k]!==null&&r[k]!==''){shiftVal=r[k];break}}
+    const s=parseShift(shiftVal);if(!s)return null;
+    return{id:`${rd}_${s}`,drawDate:rd,shift:s,number:n,createdAt:r.createdAt||Date.now()};
 }
-APP_DATA=records;
+function extractItemsFromSheet(sheet){const allRows=XLSX.utils.sheet_to_json(sheet,{header:1,raw:false,defval:''});if(!allRows.length)return[];const firstRow=allRows[0]||[];const firstStr=firstRow.map(x=>noTilde(String(x||''))).join('|');const hasHeaders=firstStr.indexOf('fecha')>=0||firstStr.indexOf('turno')>=0||firstStr.indexOf('numero')>=0||firstStr.indexOf('date')>=0||firstStr.indexOf('shift')>=0;const startIdx=hasHeaders?1:0;const items=[];for(let i=startIdx;i<allRows.length;i++){const row=allRows[i];if(!row||row.length===0)continue;const nonEmpty=[];for(let j=0;j<row.length;j++){const val=row[j];if(val!==null&&val!==undefined&&String(val).trim()!=='')nonEmpty.push(val)}if(nonEmpty.length<3)continue;items.push({Fecha:nonEmpty[0],Turno:nonEmpty[1],Numero:nonEmpty[2]})}return items}
+function processItems(items,src){const norms=items.map(norm).filter(Boolean);if(!norms.length){hideOv();sAlert(src,'❌ Ningún dato válido','e');return}const ex=LD();const map={};ex.forEach(e=>map[e.id]=e);let a=0,u=0;norms.forEach(nr=>{if(map[nr.id])u++;else a++;map[nr.id]=nr});const final=Object.values(map).sort(revSort);SD(final);rAll();hideOv();sAlert(src,`✅ ${a} nuevos, ${u} actualizados. Total: ${final.length}`,'s')}
+function procImp(txt,src){showOv('Procesando...');setTimeout(()=>{try{const p=JSON.parse(txt.trim());let items=Array.isArray(p)?p:(p.results&&Array.isArray(p.results))?p.results:null;if(!items)throw new Error('Formato no reconocido');processItems(items,src)}catch(e){hideOv();sAlert(src,`❌ ${e.message}`,'e')}},200)}
+function hExcel(ev){const f=ev.target.files[0];if(!f)return;if(typeof XLSX==='undefined'){sAlert('impA','❌ Librería Excel no disponible','e');return}showOv('Leyendo...');const reader=new FileReader();reader.onload=e=>{try{const data=new Uint8Array(e.target.result);const wb=XLSX.read(data,{type:'array',cellDates:true,cellNF:false});if(!wb.SheetNames||!wb.SheetNames.length){hideOv();sAlert('impA','❌ Sin hojas','e');return}let bS=null,bI=[],bV=0;for(const sn of wb.SheetNames){const sh=wb.Sheets[sn];const it=extractItemsFromSheet(sh);const vc=it.map(norm).filter(Boolean).length;if(vc>bV){bV=vc;bS=sn;bI=it}}if(!bI.length||bV===0){hideOv();sAlert('impA','❌ Sin datos válidos','e');return}showOv(`Leyendo "${bS}"...`);setTimeout(()=>processItems(bI,'impA'),200)}catch(err){hideOv();sAlert('impA',`❌ ${err.message}`,'e')}};reader.onerror=()=>{hideOv();sAlert('impA','❌ Error','e')};reader.readAsArrayBuffer(f);ev.target.value=''}
+function hFile(ev){const f=ev.target.files[0];if(!f)return;const r=new FileReader();r.onload=e=>procImp(e.target.result,'impA');r.readAsText(f);ev.target.value=''}
+function impPaste(){const t=document.getElementById('jPaste').value.trim();if(!t){sAlert('impA','⚠️ Pega JSON','e');return}procImp(t,'impA')}
+function addR(){const d=document.getElementById('aDate').value,s=document.getElementById('aShift').value,nr=document.getElementById('aNum').value.trim();if(!d){sAlert('addA','⚠️ Fecha','e');return}if(!nr){sAlert('addA','⚠️ Número','e');return}const ni=parseInt(nr,10);if(isNaN(ni)||ni<0||ni>99){sAlert('addA','⚠️ 00-99','e');return}const n=p2(ni),id=`${d}_${s}`,data=LD();const idx=data.findIndex(x=>x.id===id);const entry={id,drawDate:d,shift:s,number:n,createdAt:Date.now()};if(idx>=0){data[idx]=entry;sAlert('addA','✅ Actualizado','s')}else{data.push(entry);sAlert('addA','✅ Guardado','s')}data.sort(revSort);SD(data);rAll();document.getElementById('aNum').value=''}
+let editId=null;
+function openEdit(id){const data=LD();const item=data.find(x=>x.id===id);if(!item)return;editId=id;document.getElementById('eFecha').value=item.drawDate;document.getElementById('eTurno').value=item.shift;document.getElementById('eNum').value=item.number;document.getElementById('editModal').classList.add('show')}
+function closeEdit(){document.getElementById('editModal').classList.remove('show');editId=null}
+function saveEdit(){if(!editId)return;const fecha=document.getElementById('eFecha').value,turno=document.getElementById('eTurno').value,nr=document.getElementById('eNum').value.trim();if(!fecha||!nr){alert('Completa campos');return}const ni=parseInt(nr,10);if(isNaN(ni)||ni<0||ni>99){alert('00-99');return}const n=p2(ni),newId=`${fecha}_${turno}`;let data=LD();const idx=data.findIndex(x=>x.id===editId);if(idx<0)return;if(newId!==editId&&data.find(x=>x.id===newId)){alert('Ya existe');return}data[idx]={id:newId,drawDate:fecha,shift:turno,number:n,createdAt:data[idx].createdAt||Date.now()};data.sort(revSort);SD(data);closeEdit();rAll();rHist()}
+function delR(id){if(!confirm('¿Eliminar?'))return;SD(LD().filter(d=>d.id!==id));rAll();rHist()}
+function expData(){const d=LD();if(!d.length)return alert('Sin datos');const b=new Blob([JSON.stringify({version:1,exportDate:new Date().toISOString(),results:d},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`sorteos_${new Date().toISOString().substring(0,10)}.json`;a.click()}
+function expExcel(){const d=LD();if(!d.length)return alert('Sin datos');if(typeof XLSX==='undefined')return alert('Sin librería');const rows=d.map(x=>({Fecha:x.drawDate,Turno:x.shift==='midday'?'Mediodía':'Noche',Numero:x.number}));const ws=XLSX.utils.json_to_sheet(rows);const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Sorteos');XLSX.writeFile(wb,`sorteos_${new Date().toISOString().substring(0,10)}.xlsx`)}
+function downTemplate(){if(typeof XLSX==='undefined')return alert('Sin librería');const ws=XLSX.utils.json_to_sheet([{Fecha:'2024-01-01',Turno:'Mediodía',Numero:'91'},{Fecha:'2024-01-01',Turno:'Noche',Numero:'38'}]);const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Sorteos');XLSX.writeFile(wb,'plantilla_sorteos.xlsx')}
+function clearAll(){if(!confirm('⚠️ ¿BORRAR TODO?'))return;if(!confirm('¿Seguro?'))return;localStorage.removeItem(SK);rAll();alert('Borrado')}
+
+// ===== TRANSICIONES CORREGIDAS =====
+function getTransitions(data,type){
+    const sorted=[...data].sort(chronoSort);
+    const pairs=[];
+    if(type==='all'){
+        for(let i=0;i<sorted.length-1;i++) pairs.push({from:sorted[i],to:sorted[i+1]});
+    } else if(type==='dn'){
+        for(let i=0;i<sorted.length-1;i++){
+            if(sorted[i].shift==='midday'&&sorted[i+1].shift==='evening'&&sorted[i].drawDate===sorted[i+1].drawDate)
+                pairs.push({from:sorted[i],to:sorted[i+1]});
+        }
+    } else if(type==='nd'){
+        for(let i=0;i<sorted.length-1;i++){
+            if(sorted[i].shift==='evening'&&sorted[i+1].shift==='midday')
+                pairs.push({from:sorted[i],to:sorted[i+1]});
+        }
+    } else if(type==='dd'){
+        const mids=sorted.filter(d=>d.shift==='midday');
+        for(let i=0;i<mids.length-1;i++) pairs.push({from:mids[i],to:mids[i+1]});
+    } else if(type==='nn'){
+        const nites=sorted.filter(d=>d.shift==='evening');
+        for(let i=0;i<nites.length-1;i++) pairs.push({from:nites[i],to:nites[i+1]});
+    }
+    return pairs;
 }
+function getDecTransFreq(pairs){const f={};for(let i=0;i<=9;i++)for(let j=0;j<=9;j++)f[`${i}->${j}`]=0;pairs.forEach(p=>f[`${getDec(p.from.number)}->${getDec(p.to.number)}`]++);return f}
+function getTermTransFreq(pairs){const f={};for(let i=0;i<=9;i++)for(let j=0;j<=9;j++)f[`${i}->${j}`]=0;pairs.forEach(p=>f[`${getTerm(p.from.number)}->${getTerm(p.to.number)}`]++);return f}
+function calcVibration(data,num,rc){const t=data.length;if(t<10)return{level:0,label:'Sin datos',cls:'vib-low'};const sorted=[...data].sort(revSort);const recent=sorted.slice(0,rc||20);const freq=gFreq(data);const rF=gFreq(recent);const exp=t/100,rE=recent.length/100;const act=freq[num]||0,rA=rF[num]||0;const ratio=(rA/Math.max(rE,0.1))/(Math.max(act,1)/Math.max(exp,0.1));const pct=Math.min(100,Math.round(ratio*50));let label,cls;if(ratio>1.5){label='🔥 MUY ALTA';cls='vib-high'}else if(ratio>1){label='⚡ ALTA';cls='vib-high'}else if(ratio>0.5){label='➡️ MEDIA';cls='vib-med'}else{label='💤 BAJA';cls='vib-low'}return{level:pct,label,cls}}
+function getPullConnections(data,limit){const sorted=[...data].sort(chronoSort);const conn={};for(let i=0;i<sorted.length-1;i++){const from=sorted[i].number,to=sorted[i+1].number,key=`${from}->${to}`;if(!conn[key])conn[key]={from,to,count:0};conn[key].count++}return Object.values(conn).sort((a,b)=>b.count-a.count).slice(0,limit||20)}
 
-function parseExcel(data){
-const records=[];
-try{
-const wb=parseXLSX(data);
-wb.forEach(row=>{
-if(row.length>=3){
-const num=padNumber(String(row[2]||''));
-if(num&&num.match(/^\d{2,3}$/)){
-records.push({date:String(row[0]||''),period:detectPeriod(String(row[1]||'')),number:num.padStart(2,'0')});
+// ===== HOME =====
+function rHome(){
+    const data=LD();const t=data.length;
+    document.getElementById('hsub').textContent=t>0?`${t} sorteos`:'Sin datos — Importar';
+    if(!t){document.getElementById('lastDraw').innerHTML='<div class="empty" style="grid-column:1/-1"><div class="ei">🎲</div><p>Importa datos</p></div>';document.getElementById('lastAnalCard').style.display='none';document.getElementById('hotN').innerHTML='-';document.getElementById('coldN').innerHTML='-';document.getElementById('genStats').innerHTML='';document.getElementById('last2months').innerHTML='Sin datos';document.getElementById('streak').textContent='Sin datos';return}
+    const s=[...data].sort(revSort);
+    const lm=s.find(d=>d.shift==='midday'),le=s.find(d=>d.shift==='evening');
+    let h='';
+    if(lm)h+=`<div class="draw-box"><div class="lbl">☀️ Último Mediodía</div><div class="num">${lm.number}</div><div class="dt">${fmtD(lm.drawDate)}</div></div>`;
+    if(le)h+=`<div class="draw-box"><div class="lbl">🌙 Última Noche</div><div class="num">${le.number}</div><div class="dt">${fmtD(le.drawDate)}</div></div>`;
+    document.getElementById('lastDraw').innerHTML=h;
+    const freq=gFreq(data),sf=sFreq(freq);
+    document.getElementById('hotN').innerHTML=sf.slice(0,5).map(([n,c])=>`<span class="hc-n">${n}<br><span style="font-size:0.6rem">${c}x</span></span>`).join('');
+    document.getElementById('coldN').innerHTML=[...sf].sort((a,b)=>a[1]-b[1]).slice(0,5).map(([n,c])=>`<span class="hc-n">${n}<br><span style="font-size:0.6rem">${c}x</span></span>`).join('');
+    const years=new Set(data.map(d=>d.drawDate.substring(0,4))).size;const mf=sf[0],lf=[...sf].sort((a,b)=>a[1]-b[1])[0];
+    document.getElementById('genStats').innerHTML=`<div class="stat-box"><div class="v">${t}</div><div class="l">Total</div></div><div class="stat-box"><div class="v">${years}</div><div class="l">Años</div></div><div class="stat-box"><div class="v">${mf[0]}</div><div class="l">+Frec(${mf[1]}x)</div></div><div class="stat-box"><div class="v">${lf[0]}</div><div class="l">-Frec(${lf[1]}x)</div></div>`;
+    rLastAnal(s[0],data,freq,sf);rStreak(s);rLast2M(data);
 }
-}
-});
-}catch(e){console.error(e)}
-APP_DATA=records;
-}
-
-function parseXLSX(data){
-const rows=[];
-try{
-const zip=new SZip(data);
-const ss=zip.get('xl/sharedStrings.xml');
-const sh=zip.get('xl/worksheets/sheet1.xml');
-let strings=[];
-if(ss){const m=ss.match(/<t[^>]*>([^<]*)<\/t>/g);if(m)strings=m.map(s=>s.replace(/<[^>]*>/g,''))}
-if(sh){const rm=sh.match(/<row[^>]*>(.*?)<\/row>/gs);if(rm)rm.forEach(rx=>{const cells=[];const cm=rx.match(/<c[^>]*>.*?<\/c>/gs);if(cm)cm.forEach(cx=>{const t=cx.match(/t="([^"]*)"/);const v=cx.match(/<v>([^<]*)<\/v>/);if(v){let val=v[1];if(t&&t[1]==='s')val=strings[parseInt(val)]||val;cells.push(val)}else cells.push('')});if(cells.length)rows.push(cells)})}
-}catch(e){}
-return rows;
-}
-
-class SZip{
-constructor(d){this.d=d;this.e={};this.p()}
-p(){const d=this.d;let p=d.length-22;while(p>0&&!(d[p]===80&&d[p+1]===75&&d[p+2]===5&&d[p+3]===6))p--;if(p<=0)return;const co=d[p+16]|(d[p+17]<<8)|(d[p+18]<<16)|(d[p+19]<<24);const ne=d[p+10]|(d[p+11]<<8);let c=co;for(let i=0;i<ne;i++){if(c+46>d.length)break;const nl=d[c+28]|(d[c+29]<<8);const el=d[c+30]|(d[c+31]<<8);const cl=d[c+32]|(d[c+33]<<8);const cs=d[c+20]|(d[c+21]<<8)|(d[c+22]<<16)|(d[c+23]<<24);const m=d[c+10]|(d[c+11]<<8);const lo=d[c+42]|(d[c+43]<<8)|(d[c+44]<<16)|(d[c+45]<<24);const n=new TextDecoder().decode(d.slice(c+46,c+46+nl));this.e[n]={cs,m,lo};c+=46+nl+el+cl}}
-get(n){const e=this.e[n];if(!e)return null;const d=this.d;let l=e.lo;const nl=d[l+26]|(d[l+27]<<8);const el=d[l+28]|(d[l+29]<<8);const ds=l+30+nl+el;const raw=d.slice(ds,ds+e.cs);if(e.m===0)return new TextDecoder().decode(raw);if(e.m===8)try{return this.inf(raw)}catch(er){return null}return null}
-inf(data){try{const ds=new DecompressionStream('deflate-raw');const w=ds.writable.getWriter();const r=ds.readable.getReader();let result='';const td=new TextDecoder();w.write(data);w.close();return new Promise(async res=>{let out='';while(true){const{done,value}=await r.read();if(done)break;out+=td.decode(value,{stream:true})}res(out)})}catch(e){return new TextDecoder().decode(data)}}
-}
-
-function detectPeriod(s){
-s=String(s).toLowerCase().trim();
-if(s.match(/medio|mid|day|dia|^[dm]$/i)||s.includes('mediod'))return 'day';
-if(s.match(/noch|night|^[ne]$/i))return 'night';
-const tm=s.match(/(\d{1,2}):?(\d{2})?\s*(am|pm)?/i);
-if(tm){let h=parseInt(tm[1]);if(tm[3]&&tm[3].toLowerCase()==='pm'&&h<12)h+=12;return h<17?'day':'night'}
-return 'day';
-}
-
-function padNumber(s){s=String(s).trim().replace(/[^0-9]/g,'');if(s.length===1)s='0'+s;if(s.length>3)s=s.slice(-3);return s}
-
-// =============== STORAGE ===============
-function saveToStorage(){try{localStorage.setItem('pick3data',JSON.stringify(APP_DATA))}catch(e){}}
-function loadFromStorage(){try{const d=localStorage.getItem('pick3data');if(d)APP_DATA=JSON.parse(d)}catch(e){}}
-function clearData(){if(confirm('¿Borrar todos los datos?')){APP_DATA=[];localStorage.removeItem('pick3data');updateSummary();showToast('🗑️ Datos eliminados')}}
-function exportJSON(){
-if(!APP_DATA.length)return showToast('⚠️ No hay datos');
-const b=new Blob([JSON.stringify(APP_DATA,null,2)],{type:'application/json'});
-const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='pick3_'+new Date().toISOString().slice(0,10)+'.json';a.click();showToast('💾 Exportado');
-}
-
-// =============== SUMMARY ===============
-function updateSummary(){
-document.getElementById('totalRecords').textContent=APP_DATA.length;
-document.getElementById('totalDayDraws').textContent=APP_DATA.filter(d=>d.period==='day').length;
-document.getElementById('totalNightDraws').textContent=APP_DATA.filter(d=>d.period==='night').length;
-if(APP_DATA.length>0){const dates=APP_DATA.map(d=>d.date).filter(Boolean).sort();document.getElementById('dateRange').textContent=dates.length>1?dates[0].slice(-4)+'→'+dates[dates.length-1].slice(-4):'-'}else document.getElementById('dateRange').textContent='-';
-}
-
-// =============== HELPERS ===============
-function getFilteredData(f){return f==='day'?APP_DATA.filter(d=>d.period==='day'):f==='night'?APP_DATA.filter(d=>d.period==='night'):[...APP_DATA]}
-function getDataByMode(m){
-if(m==='MM')return getPairData('day','day');
-if(m==='NN')return getPairData('night','night');
-if(m==='MN')return getPairData('day','night');
-if(m==='NM')return getPairData('night','day');
-return APP_DATA;
-}
-function getPairData(from,to){const r=[];for(let i=0;i<APP_DATA.length-1;i++)if(APP_DATA[i].period===from&&APP_DATA[i+1].period===to)r.push(APP_DATA[i+1]);return r}
-function getVibration(n){let s=String(n).split('').reduce((a,b)=>a+parseInt(b),0);while(s>9)s=String(s).split('').reduce((a,b)=>a+parseInt(b),0);return s||9}
-function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000)}
-
-// =============== HISTORY ===============
-function renderHistory(filter='all',search=''){
-let data=getFilteredData(filter);
-if(search)data=data.filter(d=>d.number.includes(search));
-const last=data.slice(-200).reverse();
-let h='<table><thead><tr><th>#</th><th>Fecha</th><th>Sorteo</th><th>Número</th></tr></thead><tbody>';
-last.forEach((d,i)=>{h+=`<tr><td>${data.length-i}</td><td>${d.date||'-'}</td><td>${d.period==='day'?'☀️':'🌙'}</td><td style="color:var(--accent-gold);font-weight:800">${d.number}</td></tr>`});
-h+='</tbody></table>';
-if(data.length>200)h='<p style="font-size:0.75em;color:var(--text-muted);margin-bottom:8px">Últimos 200 de '+data.length+'</p>'+h;
-document.getElementById('historyTable').innerHTML=h;
-}
-function filterHistory(f,el){document.querySelectorAll('#tab-history .pill').forEach(p=>p.classList.remove('active'));if(el)el.classList.add('active');CURRENT_FILTER=f;renderHistory(f,document.getElementById('historySearch').value)}
-function filterHistorySearch(){renderHistory(CURRENT_FILTER,document.getElementById('historySearch').value)}
-
-// =============== FREQUENCY ===============
-function showFrequency(filter,el){
-if(el){el.parentElement.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));el.classList.add('active')}
-CURRENT_FILTER=filter;
-const data=getFilteredData(filter),freq={};
-data.forEach(d=>{const n=d.number.padStart(2,'0');freq[n]=(freq[n]||0)+1});
-let sorted=Object.entries(freq).sort((a,b)=>FREQ_SORT==='desc'?b[1]-a[1]:a[1]-b[1]);
-let g='';
-sorted.slice(0,20).forEach(([n,c],i)=>{g+=`<div class="num-cell ${i<5?'hot':i<10?'warm':'cold'}"><div class="number">${n}</div><div class="freq">${c}x</div></div>`});
-document.getElementById('frequencyGrid').innerHTML=g;
-let t='<table><thead><tr><th>Pos</th><th>Número</th><th>Frec</th><th>%</th><th>Estado</th></tr></thead><tbody>';
-sorted.forEach(([n,c],i)=>{const p=((c/data.length)*100).toFixed(1);const b=i<5?'badge-hot':i<10?'badge-warm':'badge-cold';const l=i<5?'🔥Caliente':i<10?'♨️Tibio':'❄️Frío';t+=`<tr><td>${i+1}</td><td style="color:var(--accent-gold);font-weight:700">${n}</td><td>${c}</td><td>${p}%</td><td><span class="badge ${b}">${l}</span></td></tr>`});
-t+='</tbody></table>';document.getElementById('frequencyTable').innerHTML=t;
-}
-function sortFrequency(o){FREQ_SORT=o;showFrequency(CURRENT_FILTER)}
-
-// =============== DECADES ===============
-function showDecades(mode,el){
-if(el){el.parentElement.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));el.classList.add('active')}
-if(mode==='best'){document.getElementById('decadesContent').innerHTML=getBestAnalysis('decades');return}
-const data=getDataByMode(mode),dc={};for(let i=0;i<=9;i++)dc[i]=0;
-data.forEach(d=>{dc[Math.floor((parseInt(d.number)%100)/10)]++});
-let h='<div class="stats-grid">';for(let i=0;i<=9;i++)h+=`<div class="stat-box"><div class="stat-value">${dc[i]}</div><div class="stat-label">Dec ${i}0-${i}9</div></div>`;h+='</div><div>';
-for(let i=0;i<=9;i++){const nums=data.filter(d=>Math.floor((parseInt(d.number)%100)/10)===i);const f={};nums.forEach(d=>{f[d.number]=(f[d.number]||0)+1});const top=Object.entries(f).sort((a,b)=>b[1]-a[1]).slice(0,5);if(top.length)h+=`<div style="margin:6px 0;padding:8px;background:var(--bg-card-alt);border-radius:8px"><strong style="color:var(--accent-cyan)">Dec ${i}0-${i}9:</strong>${top.map(([n,c])=>`<span style="color:var(--accent-gold);margin-left:8px">${n}(${c})</span>`).join('')}</div>`}
-h+='</div>';document.getElementById('decadesContent').innerHTML=h;
-}
-
-// =============== TERMINALS ===============
-function showTerminals(mode,el){
-if(el){el.parentElement.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));el.classList.add('active')}
-if(mode==='best'){document.getElementById('terminalsContent').innerHTML=getBestAnalysis('terminals');return}
-const data=getDataByMode(mode),tc={};for(let i=0;i<=9;i++)tc[i]=0;
-data.forEach(d=>{tc[parseInt(d.number)%10]++});
-let h='<div class="stats-grid">';for(let i=0;i<=9;i++)h+=`<div class="stat-box"><div class="stat-value">${tc[i]}</div><div class="stat-label">Terminal ${i}</div></div>`;h+='</div><div>';
-for(let i=0;i<=9;i++){const nums=data.filter(d=>parseInt(d.number)%10===i);const f={};nums.forEach(d=>{f[d.number]=(f[d.number]||0)+1});const top=Object.entries(f).sort((a,b)=>b[1]-a[1]).slice(0,5);if(top.length)h+=`<div style="margin:6px 0;padding:8px;background:var(--bg-card-alt);border-radius:8px"><strong style="color:var(--accent-pink)">Terminal ${i}:</strong>${top.map(([n,c])=>`<span style="color:var(--accent-gold);margin-left:8px">${n}(${c})</span>`).join('')}</div>`}
-h+='</div>';document.getElementById('terminalsContent').innerHTML=h;
-}
-
-function getBestAnalysis(type){
-const modes=[{k:'general',l:'General'},{k:'MM',l:'M→M'},{k:'NN',l:'N→N'},{k:'MN',l:'M→N'},{k:'NM',l:'N→M'}];
-let h='<div><strong style="color:var(--accent-gold);font-size:0.95em">⭐ Mejores por modo:</strong>';
-modes.forEach(({k,l})=>{
-const d=getDataByMode(k);if(!d.length)return;
-const f={};
-if(type==='decades')d.forEach(x=>{const dc=Math.floor((parseInt(x.number)%100)/10);f[dc+'0-'+dc+'9']=(f[dc+'0-'+dc+'9']||0)+1});
-else d.forEach(x=>{const t=parseInt(x.number)%10;f['T'+t]=(f['T'+t]||0)+1});
-const top=Object.entries(f).sort((a,b)=>b[1]-a[1]).slice(0,3);
-h+=`<div style="margin:8px 0;padding:8px;background:var(--bg-card-alt);border-radius:8px"><span style="color:var(--accent-cyan)">${l}:</span>${top.map(([k,v])=>`<span style="color:var(--accent-gold);margin-left:8px">${k}(${v})</span>`).join('')}</div>`;
-});
-return h+'</div>';
-}
-
-// =============== MATRIX ===============
-function showMatrix(filter,el){
-if(el){el.parentElement.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));el.classList.add('active')}
-const data=getFilteredData(filter),mx=Array.from({length:10},()=>Array(10).fill(0));
-data.forEach(d=>{const n=parseInt(d.number)%100;mx[Math.floor(n/10)][n%10]++});
-let max=0;mx.forEach(r=>r.forEach(v=>{if(v>max)max=v}));
-let h='<table><thead><tr><th>D\\T</th>';for(let t=0;t<=9;t++)h+=`<th>${t}</th>`;h+='</tr></thead><tbody>';
-for(let d=0;d<=9;d++){h+=`<tr><th>${d}0</th>`;for(let t=0;t<=9;t++){const v=mx[d][t];const i=max>0?v/max:0;h+=`<td style="background:rgba(184,41,247,${i*0.7});color:${i>0.5?'#fff':'var(--text-muted)'};font-weight:${i>0.3?'700':'400'}">${v||''}</td>`}h+='</tr>'}
-h+='</tbody></table>';document.getElementById('matrixContent').innerHTML=h;
-}
-
-// =============== VIBRATIONS ===============
-function showVibrations(filter,el){
-if(el){el.parentElement.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));el.classList.add('active')}
-const data=getFilteredData(filter),vb={};for(let i=1;i<=9;i++)vb[i]={c:0,n:{}};
-data.forEach(d=>{const v=getVibration(d.number);if(vb[v]){vb[v].c++;vb[v].n[d.number]=(vb[v].n[d.number]||0)+1}});
-let h='<div class="stats-grid">';for(let v=1;v<=9;v++)h+=`<div class="stat-box"><div class="stat-value">${vb[v].c}</div><div class="stat-label">Vibración ${v}</div></div>`;h+='</div><div>';
-for(let v=1;v<=9;v++){const top=Object.entries(vb[v].n).sort((a,b)=>b[1]-a[1]).slice(0,8);if(top.length)h+=`<div style="margin:6px 0;padding:8px;background:var(--bg-card-alt);border-radius:8px"><strong style="color:var(--accent-cyan)">Vib ${v} (${vb[v].c}):</strong>${top.map(([n,c])=>`<span style="color:var(--accent-gold);margin-left:8px">${n}(${c})</span>`).join('')}</div>`}
-h+='</div>';document.getElementById('vibrationsContent').innerHTML=h;
-}
-
-// =============== CONNECTIONS ===============
-function setConnFilter(f,el){if(el){el.parentElement.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));el.classList.add('active')}CONN_FILTER=f}
-function findConnections(){
-const num=document.getElementById('connNumber').value.trim().padStart(2,'0');
-if(!num||!num.match(/^\d{2,3}$/))return showToast('⚠️ Número inválido');
-const data=getFilteredData(CONN_FILTER),conn={};
-for(let i=0;i<data.length-1;i++)if(data[i].number===num)conn[data[i+1].number]=(conn[data[i+1].number]||0)+1;
-const sorted=Object.entries(conn).sort((a,b)=>b[1]-a[1]);
-let h=`<div style="padding:10px;background:var(--bg-card-alt);border-radius:10px;margin-bottom:10px"><strong style="color:var(--accent-gold)">Cuando sale ${num}→</strong> <span style="color:var(--text-muted);font-size:0.8em">(${sorted.length} conexiones)</span></div>`;
-if(!sorted.length)h+='<p style="color:var(--text-muted)">Sin conexiones.</p>';
-else{h+='<div class="conn-result">';sorted.slice(0,30).forEach(([t,c])=>{h+=`<div class="conn-item"><div class="target">${t}</div><div class="count">${c}x</div></div>`});h+='</div>'}
-document.getElementById('connectionsContent').innerHTML=h;
-}
-
-// =============== YEARLY ===============
-function initYearly(){
-const years=new Set();APP_DATA.forEach(d=>{const m=String(d.date).match(/(\d{4})/);if(m)years.add(m[1])});
-const sel=document.getElementById('yearSelect');sel.innerHTML='<option value="">Año</option>';
-[...years].sort().reverse().forEach(y=>{sel.innerHTML+=`<option value="${y}">${y}</option>`});
-}
-function showYearlyAnalysis(){
-const year=document.getElementById('yearSelect').value,period=document.getElementById('yearPeriod').value;
-if(!year)return;
-let data=APP_DATA.filter(d=>String(d.date).includes(year));
-if(period==='day')data=data.filter(d=>d.period==='day');
-if(period==='night')data=data.filter(d=>d.period==='night');
-const freq={};data.forEach(d=>{freq[d.number]=(freq[d.number]||0)+1});
-const sorted=Object.entries(freq).sort((a,b)=>b[1]-a[1]);
-let h=`<div class="stats-grid"><div class="stat-box"><div class="stat-value">${data.length}</div><div class="stat-label">Sorteos ${year}</div></div><div class="stat-box"><div class="stat-value">${sorted.length}</div><div class="stat-label"># Distintos</div></div></div>`;
-h+='<div style="margin:12px 0"><strong style="color:var(--accent-gold)">Top 20:</strong></div><div class="number-grid">';
-sorted.slice(0,20).forEach(([n,c],i)=>{h+=`<div class="num-cell ${i<5?'hot':i<10?'warm':'cold'}"><div class="number">${n}</div><div class="freq">${c}x</div></div>`});
-h+='</div>';document.getElementById('yearlyContent').innerHTML=h;
-}
-
-// ================================================================
-//  🕸️ LA TELARAÑA UNIVERSAL — MOTOR DE ANÁLISIS INTERCONECTADO
-// ================================================================
-
-function setSpiderMode(mode,el){
-document.querySelectorAll('.spider-mode-btn').forEach(b=>b.classList.remove('active'));
-if(el)el.classList.add('active');
-SPIDER_MODE=mode;
-}
-
-function executeSpider(){
-if(APP_DATA.length<10)return showToast('⚠️ Mínimo 10 registros necesarios');
-document.getElementById('spiderLoading').style.display='block';
-document.getElementById('spiderResults').style.display='none';
-document.getElementById('spiderResults').innerHTML='';
-
-setTimeout(()=>{
-try{
-const analysis=weaveTheWeb(SPIDER_MODE);
-renderSpider(analysis);
-document.getElementById('spiderLoading').style.display='none';
-document.getElementById('spiderResults').style.display='block';
-showToast('🕸️ ¡Telaraña tejida con éxito!');
-}catch(e){
-document.getElementById('spiderLoading').style.display='none';
-showToast('❌ Error: '+e.message);
-console.error(e);
-}
-},1200);
-}
-
-// ===== THE CORE: WEAVE THE WEB =====
-function weaveTheWeb(mode){
-const data=getFilteredData(mode);
-const total=data.length;
-const allNums=new Set();
-data.forEach(d=>allNums.add(d.number));
-
-// ========================================
-// HILO 1: FRECUENCIA HISTÓRICA (peso base: 20)
-// ========================================
-const H1_freq={};
-data.forEach(d=>{H1_freq[d.number]=(H1_freq[d.number]||0)+1});
-const H1_max=Math.max(...Object.values(H1_freq));
-const H1_scores={};
-allNums.forEach(n=>{H1_scores[n]=((H1_freq[n]||0)/H1_max)*100});
-
-// ========================================
-// HILO 2: FRECUENCIA RECIENTE — últimos 30 (peso base: 18)
-// ========================================
-const recent=data.slice(-30);
-const H2_freq={};
-recent.forEach(d=>{H2_freq[d.number]=(H2_freq[d.number]||0)+1});
-const H2_max=Math.max(...Object.values(H2_freq),1);
-const H2_scores={};
-allNums.forEach(n=>{H2_scores[n]=((H2_freq[n]||0)/H2_max)*100});
-
-// ========================================
-// HILO 3: DECENAS DOMINANTES (peso base: 10)
-// ========================================
-const H3_decFreq={};
-data.forEach(d=>{const dec=Math.floor((parseInt(d.number)%100)/10);H3_decFreq[dec]=(H3_decFreq[dec]||0)+1});
-const H3_maxDec=Math.max(...Object.values(H3_decFreq));
-const H3_scores={};
-allNums.forEach(n=>{const dec=Math.floor((parseInt(n)%100)/10);H3_scores[n]=((H3_decFreq[dec]||0)/H3_maxDec)*100});
-
-// ========================================
-// HILO 4: TERMINALES DOMINANTES (peso base: 10)
-// ========================================
-const H4_termFreq={};
-data.forEach(d=>{const t=parseInt(d.number)%10;H4_termFreq[t]=(H4_termFreq[t]||0)+1});
-const H4_maxTerm=Math.max(...Object.values(H4_termFreq));
-const H4_scores={};
-allNums.forEach(n=>{const t=parseInt(n)%10;H4_scores[n]=((H4_termFreq[t]||0)/H4_maxTerm)*100});
-
-// ========================================
-// HILO 5: VIBRACIONES (peso base: 8)
-// ========================================
-const H5_vibFreq={};
-data.forEach(d=>{const v=getVibration(d.number);H5_vibFreq[v]=(H5_vibFreq[v]||0)+1});
-const H5_maxVib=Math.max(...Object.values(H5_vibFreq));
-const H5_scores={};
-allNums.forEach(n=>{const v=getVibration(n);H5_scores[n]=((H5_vibFreq[v]||0)/H5_maxVib)*100});
-
-// ========================================
-// HILO 6: CONEXIONES desde último número (peso base: 15)
-// ========================================
-const lastNum=data[data.length-1]?.number;
-const H6_conn={};
-if(lastNum){
-for(let i=0;i<data.length-1;i++){
-if(data[i].number===lastNum){
-const next=data[i+1].number;
-H6_conn[next]=(H6_conn[next]||0)+1;
-}
-}
-}
-const H6_maxConn=Math.max(...Object.values(H6_conn),1);
-const H6_scores={};
-allNums.forEach(n=>{H6_scores[n]=((H6_conn[n]||0)/H6_maxConn)*100});
-
-// ========================================
-// HILO 7: MATRIX — cruce decena×terminal (peso base: 7)
-// ========================================
-const mx=Array.from({length:10},()=>Array(10).fill(0));
-data.forEach(d=>{const n=parseInt(d.number)%100;mx[Math.floor(n/10)][n%10]++});
-let mxMax=0;mx.forEach(r=>r.forEach(v=>{if(v>mxMax)mxMax=v}));
-const H7_scores={};
-allNums.forEach(n=>{const nn=parseInt(n)%100;H7_scores[n]=mxMax>0?((mx[Math.floor(nn/10)][nn%10])/mxMax)*100:0});
-
-// ========================================
-// HILO 8: AUSENCIA — números "pendientes" (peso base: 7)
-// ========================================
-const lastSeen={};
-data.forEach((d,i)=>{lastSeen[d.number]=i});
-const avgGap=total/(allNums.size||1);
-const H8_scores={};
-allNums.forEach(n=>{
-const gap=total-1-(lastSeen[n]||0);
-H8_scores[n]=Math.min((gap/Math.max(avgGap,1))*40,100);
-});
-
-// ========================================
-// HILO 9: PARES CONSECUTIVOS — racha (peso base: 5)
-// ========================================
-const H9_pairFreq={};
-for(let i=0;i<data.length-1;i++){
-const pair=data[i].number+'>'+data[i+1].number;
-H9_pairFreq[pair]=(H9_pairFreq[pair]||0)+1;
-}
-// Para cada número, sumar cuántas veces aparece en pares fuertes
-const H9_scores={};
-allNums.forEach(n=>{
-let pairStrength=0;
-Object.entries(H9_pairFreq).forEach(([pair,count])=>{
-if(pair.endsWith('>'+n)&&count>1)pairStrength+=count;
-});
-H9_scores[n]=0;
-});
-const H9_vals=[];
-allNums.forEach(n=>{
-let ps=0;
-Object.entries(H9_pairFreq).forEach(([pair,count])=>{
-if(pair.endsWith('>'+n)&&count>1)ps+=count;
-});
-H9_vals.push(ps);
-H9_scores[n]=ps;
-});
-const H9_max=Math.max(...H9_vals,1);
-allNums.forEach(n=>{H9_scores[n]=(H9_scores[n]/H9_max)*100});
-
-// =====================================================
-// 🕸️ INTERCONEXIONES — Los hilos se cruzan entre sí
-// =====================================================
-
-// INTER-1: Frecuencia × Reciente (momentum)
-// Si un número es frecuente Y está saliendo recientemente → bonus
-const INTER1_scores={};
-allNums.forEach(n=>{
-const f=H1_scores[n]||0;
-const r=H2_scores[n]||0;
-INTER1_scores[n]=(f>50&&r>50)?Math.sqrt(f*r):0; // Geometric mean si ambos son altos
-});
-const INTER1_max=Math.max(...Object.values(INTER1_scores),1);
-allNums.forEach(n=>{INTER1_scores[n]=(INTER1_scores[n]/INTER1_max)*100});
-
-// INTER-2: Decena × Terminal (matrix harmony)
-// Si la decena Y terminal de un número son ambas calientes → bonus
-const INTER2_scores={};
-allNums.forEach(n=>{
-const d=H3_scores[n]||0;
-const t=H4_scores[n]||0;
-INTER2_scores[n]=(d>40&&t>40)?((d+t)/2)*1.2:0;
-});
-const INTER2_max=Math.max(...Object.values(INTER2_scores),1);
-allNums.forEach(n=>{INTER2_scores[n]=Math.min((INTER2_scores[n]/INTER2_max)*100,100)});
-
-// INTER-3: Conexión × Vibración (puente espiritual)
-// Si un número tiene alta conexión Y su vibración es dominante → bonus
-const INTER3_scores={};
-allNums.forEach(n=>{
-const c=H6_scores[n]||0;
-const v=H5_scores[n]||0;
-INTER3_scores[n]=(c>30&&v>50)?((c*0.6)+(v*0.4)):0;
-});
-const INTER3_max=Math.max(...Object.values(INTER3_scores),1);
-allNums.forEach(n=>{INTER3_scores[n]=(INTER3_scores[n]/INTER3_max)*100});
-
-// INTER-4: Ausencia × Frecuencia (el retorno)
-// Número que es frecuente pero lleva tiempo sin salir → muy pendiente
-const INTER4_scores={};
-allNums.forEach(n=>{
-const f=H1_scores[n]||0;
-const a=H8_scores[n]||0;
-INTER4_scores[n]=(f>40&&a>40)?((f*0.5)+(a*0.5)):0;
-});
-const INTER4_max=Math.max(...Object.values(INTER4_scores),1);
-allNums.forEach(n=>{INTER4_scores[n]=(INTER4_scores[n]/INTER4_max)*100});
-
-// =====================================================
-// 🎯 CONVERGENCIA AL CENTRO — Puntuación Universal
-// =====================================================
-const weights={
-H1:{w:0.18,name:'📊 Frecuencia Histórica',color:'#b829f7',desc:'Números más repetidos en toda la data'},
-H2:{w:0.15,name:'🔥 Frecuencia Reciente',color:'#ff3366',desc:'Tendencia de los últimos 30 sorteos'},
-H3:{w:0.08,name:'🔢 Decenas Dominantes',color:'#00ff88',desc:'Decenas con mayor actividad'},
-H4:{w:0.08,name:'🎯 Terminales Activas',color:'#ff8800',desc:'Terminales con mayor frecuencia'},
-H5:{w:0.07,name:'🌊 Vibración Numérica',color:'#ffd700',desc:'Energía vibracional del número'},
-H6:{w:0.13,name:'🔗 Conexión Directa',color:'#00f7ff',desc:'Qué sale después del último: '+lastNum},
-H7:{w:0.06,name:'🧮 Matrix D×T',color:'#ff69b4',desc:'Cruce decena-terminal en la matrix'},
-H8:{w:0.05,name:'⏳ Ausencia/Retorno',color:'#8b5cf6',desc:'Números pendientes de aparecer'},
-H9:{w:0.04,name:'🔄 Pares Consecutivos',color:'#33ccff',desc:'Patrones de secuencia'},
-I1:{w:0.05,name:'⚡ Momentum (F×R)',color:'#ff4488',desc:'Interconexión: Frecuencia cruzada con Reciente'},
-I2:{w:0.04,name:'🎲 Armonía D×T',color:'#44ff88',desc:'Interconexión: Decena caliente + Terminal caliente'},
-I3:{w:0.04,name:'🌀 Puente Espiritual',color:'#ffaa00',desc:'Interconexión: Conexión cruzada con Vibración'},
-I4:{w:0.03,name:'🔮 El Retorno',color:'#aa44ff',desc:'Interconexión: Frecuente + Ausente = próximo a salir'}
-};
-
-const allScores={H1:H1_scores,H2:H2_scores,H3:H3_scores,H4:H4_scores,H5:H5_scores,H6:H6_scores,H7:H7_scores,H8:H8_scores,H9:H9_scores,I1:INTER1_scores,I2:INTER2_scores,I3:INTER3_scores,I4:INTER4_scores};
-
-const universal={};
-const perNumBreakdown={};
-
-allNums.forEach(n=>{
-let total=0;
-const bd={};
-Object.entries(weights).forEach(([key,{w}])=>{
-const score=(allScores[key][n]||0)*w;
-total+=score;
-bd[key]=allScores[key][n]||0;
-});
-universal[n]=Math.round(total*100)/100;
-perNumBreakdown[n]=bd;
-});
-
-const sorted=Object.entries(universal).sort((a,b)=>b[1]-a[1]);
-
-// === Interconexiones summary ===
-const interconData={
-momentum:{label:'⚡ Momentum',desc:'Freq × Reciente',topNum:Object.entries(INTER1_scores).sort((a,b)=>b[1]-a[1])[0]},
-harmony:{label:'🎲 Armonía D×T',desc:'Decena × Terminal',topNum:Object.entries(INTER2_scores).sort((a,b)=>b[1]-a[1])[0]},
-spiritual:{label:'🌀 Puente Espiritual',desc:'Conexión × Vibración',topNum:Object.entries(INTER3_scores).sort((a,b)=>b[1]-a[1])[0]},
-return_:{label:'🔮 El Retorno',desc:'Frecuente + Ausente',topNum:Object.entries(INTER4_scores).sort((a,b)=>b[1]-a[1])[0]}
-};
-
-return{
-mode,total,lastNum,weights,sorted,
-perNumBreakdown,allScores,interconData,
-topDecades:Object.entries(H3_decFreq).sort((a,b)=>b[1]-a[1]),
-topTerminals:Object.entries(H4_termFreq).sort((a,b)=>b[1]-a[1]),
-topVibrations:Object.entries(H5_vibFreq).sort((a,b)=>b[1]-a[1]),
-connections:H6_conn,
-pairFreq:H9_pairFreq
-};
-}
-
-// ===== RENDER THE SPIDER =====
-function renderSpider(A){
-const modeLabel=A.mode==='day'?'☀️ MEDIODÍA':A.mode==='night'?'🌙 NOCHE':'🌐 UNIVERSAL';
-const top5=A.sorted.slice(0,5);
-const top20=A.sorted.slice(0,20);
-const maxScore=top20[0]?top20[0][1]:1;
-
-let html='';
-
-// ===== 1. VEREDICTO PRINCIPAL =====
-html+=`
-<div class="spider-verdict-box">
-<h3>🕸️ VEREDICTO ${modeLabel}</h3>
-<div class="verdict-sub">${A.total} sorteos analizados · 9 hilos + 4 interconexiones · Último: <strong style="color:var(--accent-gold)">${A.lastNum||'-'}</strong></div>
-<p style="font-size:0.8em;color:var(--accent-cyan);margin-bottom:12px">Los 5 números donde TODOS los hilos convergen:</p>
-<div class="verdict-top-row">
-${top5.map(([num,score],i)=>{
-const cls=i===0?'':i===1?'silver':i===2?'bronze':'silver';
-return`<div class="verdict-num ${cls}">
-<div class="rank">${['👑 #1','🥈 #2','🥉 #3','#4','#5'][i]}</div>
-<div class="vn">${num}</div>
-<div class="pts">${score.toFixed(1)} pts</div>
-</div>`;
-}).join('')}
-</div>
-</div>`;
-
-// ===== 2. HILOS DEL ANÁLISIS =====
-html+=`<div class="spider-section">
-<div class="spider-section-title">🧵 Los 13 Hilos de la Telaraña (9 análisis + 4 interconexiones)</div>`;
-Object.entries(A.weights).forEach(([key,{w,name,color,desc}])=>{
-const isInter=key.startsWith('I');
-html+=`<div class="thread-card" style="border-left:3px solid ${color}${isInter?';background:rgba(255,215,0,0.03)':''}">
-<div class="thread-dot" style="background:${color}"></div>
-<div class="thread-info">
-<div class="thread-name">${name}${isInter?' <span class="badge badge-gold">INTER</span>':''}</div>
-<div class="thread-desc">${desc}</div>
-</div>
-<div class="thread-weight">${(w*100).toFixed(0)}%</div>
-</div>`;
-});
-html+='</div>';
-
-// ===== 3. INTERCONEXIONES =====
-html+=`<div class="spider-section gold-border">
-<div class="spider-section-title">🕸️ Interconexiones — Donde los hilos se cruzan</div>
-<p style="font-size:0.75em;color:var(--text-muted);margin-bottom:10px">
-Estos son los puntos donde dos análisis diferentes se potencian mutuamente.
-Un número que brilla en dos hilos a la vez tiene más fuerza que en uno solo.
-</p>
-<div class="intercon-grid">
-${Object.entries(A.interconData).map(([k,v])=>{
-const tn=v.topNum;
-return`<div class="intercon-card">
-<div class="ic-label">${v.label}</div>
-<div class="ic-value">${tn?tn[0]:'—'}</div>
-<div class="ic-detail">${v.desc}</div>
-</div>`;
-}).join('')}
-</div>
-</div>`;
-
-// ===== 4. CANVAS VISUAL =====
-html+=`<div class="spider-section cyan-border">
-<div class="spider-section-title">🕸️ Visualización Radial de la Telaraña</div>
-<div class="web-canvas-wrap"><canvas id="spiderCanvas" width="700" height="700"></canvas></div>
-</div>`;
-
-// ===== 5. TOP 20 BARRAS =====
-html+=`<div class="spider-section red-border">
-<div class="spider-section-title">📊 Top 20 — Puntuación Universal Convergente</div>`;
-top20.forEach(([num,score],i)=>{
-const pct=(score/maxScore)*100;
-const tier=i<3?'t1':i<6?'t2':i<10?'t3':i<15?'t4':'t5';
-html+=`<div class="spider-bar">
-<div class="sb-rank">${i+1}</div>
-<div class="sb-num">${num}</div>
-<div class="sb-bar-wrap"><div class="sb-bar ${tier}" style="width:${pct}%">${score.toFixed(1)}</div></div>
-</div>`;
-});
-html+='</div>';
-
-// ===== 6. DESGLOSE TOP 5 =====
-html+=`<div class="spider-section green-border">
-<div class="spider-section-title">🔬 Desglose de los Top 5 — Hilo por Hilo</div>`;
-top5.forEach(([num,totalScore])=>{
-const bd=A.perNumBreakdown[num];
-html+=`<div class="breakdown-num">
-<div class="breakdown-header">
-<div class="bh-num">#${num}</div>
-<div class="bh-pts">${totalScore.toFixed(1)} puntos universales</div>
-</div>
-<div class="breakdown-bars">`;
-Object.entries(A.weights).forEach(([key,{name,color}])=>{
-const val=bd[key]||0;
-html+=`<div class="bd-bar-row">
-<div class="bd-name">${name.split(' ')[0]}</div>
-<div class="bd-bar-wrap"><div class="bd-bar" style="width:${val}%;background:${color}"></div></div>
-<div class="bd-val">${val.toFixed(0)}</div>
-</div>`;
-});
-html+=`</div></div>`;
-});
-html+='</div>';
-
-// ===== 7. COMBINACIONES SUGERIDAS =====
-html+=`<div class="spider-section gold-border">
-<div class="spider-section-title">💎 Combinaciones Sugeridas por la Telaraña</div>`;
-html+=generateCombos(A);
-html+='</div>';
-
-// ===== 8. EXPORTAR =====
-html+=`<div class="spider-section">
-<div class="spider-section-title">📋 Exportar Análisis Completo</div>
-<button class="btn btn-gold" onclick="exportSpider()">📋 Copiar al Portapapeles</button>
-<div class="export-area" id="spiderExport" style="display:none"></div>
-</div>`;
-
-document.getElementById('spiderResults').innerHTML=html;
-
-// Draw canvas after DOM is ready
-setTimeout(()=>drawWeb(A),100);
-}
-
-function generateCombos(A){
-const top10=A.sorted.slice(0,10);
-const combos=[];
-
-// 1. Los Reyes — Top 3 puro
-combos.push({
-name:'👑 Los Reyes (Convergencia Máxima)',
-nums:top10.slice(0,3).map(x=>x[0]),
-conf:95,cls:'high',
-reason:'Los 3 números donde TODOS los hilos convergen con mayor fuerza.'
-});
-
-// 2. Diversidad Decimal
-const byDec={};
-A.sorted.slice(0,20).forEach(([n,s])=>{const d=Math.floor((parseInt(n)%100)/10);if(!byDec[d])byDec[d]={n,s}});
-combos.push({
-name:'🔢 Diversidad por Decenas',
-nums:Object.values(byDec).sort((a,b)=>b.s-a.s).slice(0,4).map(x=>x.n),
-conf:87,cls:'high',
-reason:'El mejor número de cada decena caliente, maximizando cobertura.'
-});
-
-// 3. Diversidad Terminal
-const byTerm={};
-A.sorted.slice(0,20).forEach(([n,s])=>{const t=parseInt(n)%10;if(!byTerm[t])byTerm[t]={n,s}});
-combos.push({
-name:'🎯 Diversidad por Terminales',
-nums:Object.values(byTerm).sort((a,b)=>b.s-a.s).slice(0,4).map(x=>x.n),
-conf:84,cls:'high',
-reason:'El mejor número de cada terminal activa.'
-});
-
-// 4. Conectados al último
-const connNums=A.sorted.filter(([n])=>(A.connections[n]||0)>0).slice(0,4);
-if(connNums.length>0){
-combos.push({
-name:`🔗 Conectados a ${A.lastNum}`,
-nums:connNums.map(x=>x[0]),
-conf:82,cls:'med',
-reason:`Números que históricamente siguen al ${A.lastNum}.`
-});
-}
-
-// 5. Momentum — interconexión frecuencia × reciente
-const momNums=A.sorted.filter(([n])=>{const bd=A.perNumBreakdown[n];return(bd.H1>50)&&(bd.H2>50)}).slice(0,4);
-if(momNums.length>0){
-combos.push({
-name:'⚡ Momentum Activo',
-nums:momNums.map(x=>x[0]),
-conf:80,cls:'med',
-reason:'Números frecuentes históricamente Y que están saliendo ahora.'
-});
-}
-
-// 6. El Retorno — pendientes
-const dueNums=A.sorted.filter(([n])=>{const bd=A.perNumBreakdown[n];return(bd.H1>40)&&(bd.H8>50)}).slice(0,4);
-if(dueNums.length>0){
-combos.push({
-name:'🔮 El Retorno (Pendientes)',
-nums:dueNums.map(x=>x[0]),
-conf:72,cls:'low',
-reason:'Números frecuentes que llevan tiempo sin aparecer — están por volver.'
-});
-}
-
-// 7. Vibración dominante
-const topVib=A.topVibrations[0];
-if(topVib){
-const vibNums=A.sorted.filter(([n])=>getVibration(n)===parseInt(topVib[0])).slice(0,4);
-combos.push({
-name:`🌊 Vibración ${topVib[0]} (Dominante)`,
-nums:vibNums.map(x=>x[0]),
-conf:70,cls:'low',
-reason:`Mejores números con la vibración más activa: ${topVib[0]}`
-});
-}
-
-let html='';
-combos.forEach(c=>{
-html+=`<div class="combo-card">
-<div class="combo-header">
-<div class="combo-name">${c.name}</div>
-<div class="combo-conf ${c.cls}">${c.conf}% confianza</div>
-</div>
-<div class="combo-nums">${c.nums.map(n=>`<span class="combo-n">${n}</span>`).join('')}</div>
-<div class="combo-reason">${c.reason}</div>
-</div>`;
-});
-return html;
-}
-
-// ===== DRAW WEB CANVAS =====
-function drawWeb(A){
-const canvas=document.getElementById('spiderCanvas');
-if(!canvas)return;
-const ctx=canvas.getContext('2d');
-const W=canvas.width,H=canvas.height;
-const cx=W/2,cy=H/2;
-const maxR=Math.min(W,H)/2-60;
-const threads=Object.keys(A.weights);
-const numT=threads.length;
-const step=(Math.PI*2)/numT;
-
-ctx.clearRect(0,0,W,H);
-
-// Background glow
-const grd=ctx.createRadialGradient(cx,cy,0,cx,cy,maxR+40);
-grd.addColorStop(0,'rgba(255,0,85,0.05)');
-grd.addColorStop(0.5,'rgba(170,0,255,0.03)');
-grd.addColorStop(1,'rgba(0,0,0,0)');
-ctx.fillStyle=grd;
-ctx.fillRect(0,0,W,H);
-
-// Web circles
-for(let r=1;r<=5;r++){
-ctx.beginPath();
-for(let i=0;i<=numT;i++){
-const a=i*step-Math.PI/2;
-const rad=(r/5)*maxR;
-const x=cx+Math.cos(a)*rad,y=cy+Math.sin(a)*rad;
-i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
-}
-ctx.strokeStyle=`rgba(184,41,247,${0.08+r*0.03})`;
-ctx.lineWidth=1;
-ctx.stroke();
-}
-
-// Thread lines (radial)
-threads.forEach((_,i)=>{
-const a=i*step-Math.PI/2;
-ctx.beginPath();
-ctx.moveTo(cx,cy);
-ctx.lineTo(cx+Math.cos(a)*maxR,cy+Math.sin(a)*maxR);
-ctx.strokeStyle='rgba(184,41,247,0.15)';
-ctx.lineWidth=1;
-ctx.stroke();
-});
-
-// Interconexion arcs (connecting threads to each other!)
-const interPairs=[[0,1],[2,3],[5,4],[7,0]]; // Freq-Recent, Dec-Term, Conn-Vib, Absence-Freq
-interPairs.forEach(([a,b])=>{
-const a1=a*step-Math.PI/2,a2=b*step-Math.PI/2;
-const r1=maxR*0.6;
-ctx.beginPath();
-ctx.moveTo(cx+Math.cos(a1)*r1,cy+Math.sin(a1)*r1);
-ctx.quadraticCurveTo(cx,cy,cx+Math.cos(a2)*r1,cy+Math.sin(a2)*r1);
-ctx.strokeStyle='rgba(255,215,0,0.15)';
-ctx.lineWidth=1.5;
-ctx.setLineDash([4,4]);
-ctx.stroke();
-ctx.setLineDash([]);
-});
-
-// Labels
-ctx.textAlign='center';ctx.textBaseline='middle';
-threads.forEach((key,i)=>{
-const a=i*step-Math.PI/2;
-const lx=cx+Math.cos(a)*(maxR+35);
-const ly=cy+Math.sin(a)*(maxR+35);
-const info=A.weights[key];
-ctx.fillStyle=info.color;
-ctx.font='bold 9px Segoe UI';
-const label=info.name.replace(/^[^\s]+\s/,'').substring(0,12);
-ctx.fillText(label,lx,ly);
-// Weight
-ctx.font='8px Segoe UI';
-ctx.fillStyle='rgba(255,255,255,0.4)';
-ctx.fillText((info.w*100).toFixed(0)+'%',lx,ly+12);
-});
-
-// Draw top 3 on web
-const top3=A.sorted.slice(0,3);
-const colors=['#ffd700','#c0c0c0','#cd7f32'];
-const alphas=['44','33','22'];
-
-top3.forEach(([num,score],idx)=>{
-const bd=A.perNumBreakdown[num];
-const points=[];
-threads.forEach((key,i)=>{
-const a=i*step-Math.PI/2;
-const val=(bd[key]||0)/100;
-const radius=val*maxR;
-points.push({x:cx+Math.cos(a)*radius,y:cy+Math.sin(a)*radius});
-});
-
-// Fill
-ctx.beginPath();
-points.forEach((p,i)=>{i===0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y)});
-ctx.closePath();
-ctx.fillStyle=colors[idx]+alphas[idx];
-ctx.fill();
-ctx.strokeStyle=colors[idx]+'99';
-ctx.lineWidth=2;
-ctx.stroke();
-
-// Points
-points.forEach(p=>{
-ctx.beginPath();
-ctx.arc(p.x,p.y,3,0,Math.PI*2);
-ctx.fillStyle=colors[idx];
-ctx.fill();
-});
-});
-
-// Legend at bottom
-top3.forEach(([num,score],i)=>{
-const lx=cx+(i-1)*80;
-const ly=cy+maxR+50;
-ctx.fillStyle=colors[i];
-ctx.font='bold 14px Segoe UI';
-ctx.fillText(num,lx,ly);
-ctx.font='9px Segoe UI';
-ctx.fillStyle='rgba(255,255,255,0.5)';
-ctx.fillText(score.toFixed(1)+' pts',lx,ly+14);
-});
-
-// Center dot
-ctx.beginPath();
-ctx.arc(cx,cy,6,0,Math.PI*2);
-const cGrd=ctx.createRadialGradient(cx,cy,0,cx,cy,6);
-cGrd.addColorStop(0,'#ff0055');
-cGrd.addColorStop(1,'#aa0044');
-ctx.fillStyle=cGrd;
-ctx.fill();
-ctx.strokeStyle='#ff3377';
-ctx.lineWidth=2;
-ctx.stroke();
-
-// Center label
-ctx.fillStyle='#ff0055';
-ctx.font='bold 8px Segoe UI';
-ctx.fillText('CENTRO',cx,cy+16);
-}
-
-// ===== EXPORT SPIDER =====
-function exportSpider(){
-const A=weaveTheWeb(SPIDER_MODE);
-if(!A)return;
-const modeLabel=SPIDER_MODE==='day'?'MEDIODÍA':SPIDER_MODE==='night'?'NOCHE':'UNIVERSAL';
-let txt='🕸️ LA TELARAÑA UNIVERSAL\n';
-txt+='═'.repeat(40)+'\n\n';
-txt+=`Modo: ${modeLabel}\n`;
-txt+=`Fecha: ${new Date().toLocaleString()}\n`;
-txt+=`Sorteos: ${A.total}\n`;
-txt+=`Último número: ${A.lastNum||'-'}\n\n`;
-txt+='HILOS (9 análisis + 4 interconexiones)\n';
-txt+='─'.repeat(40)+'\n';
-Object.entries(A.weights).forEach(([k,{w,name}])=>{
-txt+=`  ${name}: ${(w*100).toFixed(0)}%\n`;
-});
-txt+='\nTOP 20 CONVERGENCIA UNIVERSAL\n';
-txt+='─'.repeat(40)+'\n';
-A.sorted.slice(0,20).forEach(([n,s],i)=>{
-txt+=`  ${String(i+1).padStart(2)}. ${n} → ${s.toFixed(1)} pts\n`;
-});
-txt+='\nDESGLOSE TOP 5\n';
-txt+='─'.repeat(40)+'\n';
-A.sorted.slice(0,5).forEach(([n,s])=>{
-txt+=`\n  #${n} (${s.toFixed(1)} pts):\n`;
-const bd=A.perNumBreakdown[n];
-Object.entries(A.weights).forEach(([k,{name}])=>{
-txt+=`    ${name.split(' ').slice(1).join(' ')}: ${(bd[k]||0).toFixed(0)}/100\n`;
-});
-});
-
-const el=document.getElementById('spiderExport');
-el.textContent=txt;el.style.display='block';
-if(navigator.clipboard)navigator.clipboard.writeText(txt).then(()=>showToast('📋 Copiado'));
-else showToast('📋 Listo para copiar');
-}
-
-// =============== SERVICE WORKER ===============
-if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(e=>console.log('SW:',e));
-
+function rLastAnal(last,data,freq,sf){if(!last)return;document.getElementById('lastAnalCard').style.display='block';const n=last.number,c=freq[n]||0,pct=((c/data.length)*100).toFixed(1),rank=sf.findIndex(([x])=>x===n)+1,ni=parseInt(n,10),dec=getDec(n),term=getTerm(n);let tag=rank<=10?'<span class="tag tag-hot">🔥Caliente</span>':rank>=90?'<span class="tag tag-cold">❄️Frío</span>':'<span class="tag tag-norm">⚖️Normal</span>';const vib=calcVibration(data,n,20);const sorted=[...data].sort(revSort);const pen=sorted[1];let ti='';if(pen)ti=`<div class="divider"></div><div class="card-t fxs mb">🔄 Transición</div><div class="g2"><div class="ai"><div class="al">Anterior</div><div class="av tg">${pen.number}(${pen.shift==='midday'?'☀️':'🌙'})</div></div><div class="ai"><div class="al">Actual</div><div class="av tgr">${n}(${last.shift==='midday'?'☀️':'🌙'})</div></div><div class="ai"><div class="al">Dec</div><div class="av">${getDec(pen.number)}0s→${dec}0s</div></div><div class="ai"><div class="al">Term</div><div class="av">T${getTerm(pen.number)}→T${term}</div></div></div>`;document.getElementById('lastAnal').innerHTML=`<div class="g2"><div class="ai"><div class="al">Número</div><div class="av tg" style="font-size:2rem">${n}</div></div><div class="ai"><div class="al">Rango</div><div class="av">${tag} #${rank}</div></div><div class="ai"><div class="al">Apariciones</div><div class="av">${c}(${pct}%)</div></div><div class="ai"><div class="al">Dec/Term</div><div class="av">${dec}0s/T${term}</div></div><div class="ai"><div class="al">Vibración</div><div class="av">${vib.label}<div class="vib-meter"><div class="vib-fill ${vib.cls}" style="width:${vib.level}%"></div></div></div></div><div class="ai"><div class="al">Par/Impar</div><div class="av">${ni%2===0?'Par':'Impar'}</div></div></div><div class="mt fs td">📅 ${last.shift==='midday'?'☀️Med':'🌙Noc'} — ${fmtD(last.drawDate)}</div>${ti}`}
+function rStreak(sorted){if(sorted.length<2){document.getElementById('streak').textContent='Pocos datos';return}const n=sorted[0].number;let s=0;for(let i=1;i<sorted.length;i++){if(sorted[i].number!==n)s++;else break}document.getElementById('streak').innerHTML=`<span class="tg fw">${n}</span> — ${s>0?`No salió en ${s} anteriores`:'Consecutivo'}<div class="mt">Total: <span class="tgr fw">${sorted.filter(d=>d.number===n).length}</span></div>`}
+function rLast2M(data){if(!data.length){document.getElementById('last2months').innerHTML='Sin datos';return}const ls=getLastSorteoMes();const next=getNextTurno();const sorted=[...data].sort(revSort);const lD=sorted[0].drawDate,lM=lD.substring(0,7);const[ly,lm]=lM.split('-').map(Number);const months=[];for(let i=1;i<=2;i++){let m=lm-i,y=ly;if(m<=0){m+=12;y--}months.push(`${y}-${String(m).padStart(2,'0')}`)}months.unshift(lM);const mn=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];let html='<div class="g3">';months.forEach(ym=>{const mData=data.filter(d=>d.drawDate.startsWith(ym));const[y,m]=ym.split('-');if(!mData.length){html+=`<div class="stat-box"><div style="font-size:0.7rem;color:var(--gold);font-weight:700">${mn[parseInt(m)-1]} ${y}</div><div class="v" style="font-size:1rem">0</div></div>`;return}const top3=sFreq(gFreq(mData)).slice(0,3);const dF={},tF={};for(let i=0;i<=9;i++){dF[i]=0;tF[i]=0}mData.forEach(d=>{dF[getDec(d.number)]++;tF[getTerm(d.number)]++});const tD=Object.entries(dF).sort((a,b)=>b[1]-a[1])[0];const tT=Object.entries(tF).sort((a,b)=>b[1]-a[1])[0];html+=`<div class="stat-box"><div style="font-size:0.7rem;color:var(--gold);font-weight:700">${mn[parseInt(m)-1]} ${y}</div><div class="v" style="font-size:1.2rem">${mData.length}</div><div class="fxs td mt">${top3.map(([n,c])=>`<span class="tg">${n}</span>(${c})`).join(' ')}</div><div class="fxs mt" style="color:var(--green)">D:${tD[0]}0s T:T${tT[0]}</div></div>`});html+='</div>';if(ls){const lsDec=getDec(ls.number),lsTerm=getTerm(ls.number);const l2d=data.filter(d=>months.some(ym=>d.drawDate.startsWith(ym)));const dA={},tA={};const l2s=[...l2d].sort(chronoSort);for(let i=0;i<l2s.length-1;i++){if(getDec(l2s[i].number)===lsDec){const nd=getDec(l2s[i+1].number);dA[nd]=(dA[nd]||0)+1}if(getTerm(l2s[i].number)===lsTerm){const nt=getTerm(l2s[i+1].number);tA[nt]=(tA[nt]||0)+1}}const topDA=Object.entries(dA).sort((a,b)=>b[1]-a[1]).slice(0,5);const topTA=Object.entries(tA).sort((a,b)=>b[1]-a[1]).slice(0,5);html+=`<div class="rec-box mt"><h4>🎯 → ${next.label}</h4>`;if(topDA.length){html+=`<div class="fxs tg mb">Dec tras ${lsDec}0s:</div><div class="rec-nums">`;topDA.forEach(([d,c])=>html+=`<div class="rec-item"><span>${d}0s</span>(${c}x)</div>`);html+='</div>'}if(topTA.length){html+=`<div class="fxs tg mt mb">Term tras T${lsTerm}:</div><div class="rec-nums">`;topTA.forEach(([t,c])=>html+=`<div class="rec-item"><span>T${t}</span>(${c}x)</div>`);html+='</div>'}html+='</div>'}document.getElementById('last2months').innerHTML=html}
+
+// ===== HISTORIAL =====
+let cP=1;const pP=25;
+function gFilt(){const d=LD(),s=document.getElementById('sI').value.toLowerCase(),f=document.getElementById('sF').value;let r=[...d].sort(revSort);if(s)r=r.filter(x=>x.number.includes(s)||x.drawDate.includes(s));if(f)r=r.filter(x=>x.shift===f);return r}
+function rHist(){const f=gFilt(),tp=Math.max(1,Math.ceil(f.length/pP));if(cP>tp)cP=tp;const pg=f.slice((cP-1)*pP,cP*pP);const tb=document.getElementById('hBody');if(!pg.length)tb.innerHTML='<tr><td colspan="6" class="tc td" style="padding:30px">Vacío</td></tr>';else tb.innerHTML=pg.map(d=>`<tr><td>${fmtD(d.drawDate)}</td><td><span class="badge badge-${d.shift==='midday'?'m':'e'}">${d.shift==='midday'?'☀️Med':'🌙Noc'}</span></td><td><span class="pill">${d.number}</span></td><td class="td fxs">${getDec(d.number)}0s</td><td class="td fxs">T${getTerm(d.number)}</td><td style="display:flex;gap:4px"><button class="btn btn-blue" style="padding:3px 8px;font-size:0.7rem" onclick="openEdit('${d.id}')">✏️</button><button class="btn btn-red" style="padding:3px 8px;font-size:0.7rem" onclick="delR('${d.id}')">🗑️</button></td></tr>`).join('');document.getElementById('pInfo').textContent=`${cP}/${tp}(${f.length})`}
+function cPage(dir){const f=gFilt(),tp=Math.max(1,Math.ceil(f.length/pP));cP=Math.max(1,Math.min(tp,cP+dir));rHist()}
+
+// ===== FRECUENCIAS =====
+let curFV='all';
+function freqView(v,btn){curFV=v;document.querySelectorAll('#freqTabs .sub-tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');rFreq()}
+function rFreq(){const data=LD();if(!data.length){document.getElementById('freqContent').innerHTML='<div class="empty"><div class="ei">📊</div><p>Sin datos</p></div>';return}renderLsBanner('lsBannerFreq');if(curFV==='decs'){rFreqDecs(data);return}if(curFV==='terms'){rFreqTerms(data);return}let fData=data,title='';if(curFV==='midday'){fData=data.filter(d=>d.shift==='midday');title='☀️ MEDIODÍA('+fData.length+')'}else if(curFV==='evening'){fData=data.filter(d=>d.shift==='evening');title='🌙 NOCHE('+fData.length+')'}else if(curFV==='top')title='🔥 Top 15';else if(curFV==='bottom')title='❄️ Bottom 15';else title='📊 Todos('+data.length+')';document.getElementById('freqTitle').textContent=title;const freq=gFreq(fData),sf=sFreq(freq);const mx=sf[0]?sf[0][1]:1;let items;if(curFV==='bottom')items=[...sf].sort((a,b)=>a[1]-b[1]).slice(0,15);else if(curFV==='all')items=sf;else items=sf.slice(0,15);document.getElementById('freqContent').innerHTML=items.map(([n,c])=>`<div class="fb"><div class="n">${n}</div><div class="track"><div class="fill ${curFV==='bottom'?'fill-hot':'fill-green'}" style="width:${mx>0?(c/mx*100):0}%"><span>${c}</span></div></div><div class="c">${c}x</div></div>`).join('')}
+function rFreqDecs(data){const ls=getLastSorteoMes();const lsD=ls?getDec(ls.number):null;const dF={};for(let i=0;i<=9;i++)dF[i]=0;data.forEach(d=>dF[getDec(d.number)]++);const sorted=Object.entries(dF).sort((a,b)=>b[1]-a[1]);const mx=sorted[0][1];document.getElementById('freqTitle').textContent='🔢 Decenas';let html=ls?`<div class="fxs td mb">📌 ${ls.number} Dec:${lsD}0s</div>`:'';html+=sorted.map(([d,c])=>{const isLS=parseInt(d)===lsD;return`<div class="fb"><div class="n" style="${isLS?'color:var(--gold2)':''}">${d}0s${isLS?' 📌':''}</div><div class="track"><div class="fill ${isLS?'fill-gold':'fill-blue'}" style="width:${(c/mx*100)}%"><span>${c}</span></div></div><div class="c">${c}x</div></div>`}).join('');document.getElementById('freqContent').innerHTML=html}
+function rFreqTerms(data){const ls=getLastSorteoMes();const lsT=ls?getTerm(ls.number):null;const tF={};for(let i=0;i<=9;i++)tF[i]=0;data.forEach(d=>tF[getTerm(d.number)]++);const sorted=Object.entries(tF).sort((a,b)=>b[1]-a[1]);const mx=sorted[0][1];document.getElementById('freqTitle').textContent='🎯 Terminales';let html=ls?`<div class="fxs td mb">📌 ${ls.number} Term:T${lsT}</div>`:'';html+=sorted.map(([t,c])=>{const isLS=parseInt(t)===lsT;return`<div class="fb"><div class="n" style="${isLS?'color:var(--gold2)':''}">T${t}${isLS?' 📌':''}</div><div class="track"><div class="fill ${isLS?'fill-gold':'fill-purple'}" style="width:${(c/mx*100)}%"><span>${c}</span></div></div><div class="c">${c}x</div></div>`}).join('');document.getElementById('freqContent').innerHTML=html}
+
+// ===== DECENAS =====
+let curDV='general';
+function decView(v,btn){curDV=v;document.querySelectorAll('#sec-dec .sub-tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');rDec()}
+function rDec(){const data=LD();if(!data.length){document.getElementById('decContent').innerHTML='<div class="empty"><p>Sin datos</p></div>';return}renderLsBanner('lsBannerDec');if(curDV==='general')rDecGen(data);else if(curDV==='best')rDecBest(data);else rDecTrans(data,curDV)}
+function rDecGen(data){document.getElementById('decTitle').textContent='🔢 Decenas General';const ls=getLastSorteoMes();const lsD=ls?getDec(ls.number):null;const dF={};for(let i=0;i<=9;i++)dF[i]=0;data.forEach(d=>dF[getDec(d.number)]++);const sorted=Object.entries(dF).sort((a,b)=>b[1]-a[1]);const mx=sorted[0][1];let html=ls?`<div class="fxs td mb">📌 ${ls.number} Dec:${lsD}0s</div>`:'';html+=sorted.map(([d,c])=>{const isLS=parseInt(d)===lsD;return`<div class="fb"><div class="n" style="${isLS?'color:var(--gold2)':''}">${d}0s${isLS?' 📌':''}</div><div class="track"><div class="fill ${isLS?'fill-hot':'fill-gold'}" style="width:${(c/mx*100)}%"><span>${c}</span></div></div><div class="c">${c}x</div></div>`}).join('');document.getElementById('decContent').innerHTML=html}
+function rDecTrans(data,type){const labels={dd:'☀️→☀️ M-M',nn:'🌙→🌙 N-N',dn:'☀️→🌙 M-N',nd:'🌙→☀️ N-M'};document.getElementById('decTitle').textContent=`🔢 ${labels[type]}`;const ls=getLastSorteoMes();const lsD=ls?getDec(ls.number):null;const pairs=getTransitions(data,type);if(!pairs.length){document.getElementById('decContent').innerHTML='<div class="empty"><p>Sin transiciones</p></div>';return}const freq=getDecTransFreq(pairs);const sorted=Object.entries(freq).sort((a,b)=>b[1]-a[1]).filter(([,c])=>c>0);const mx=sorted[0]?sorted[0][1]:1;let html='';if(ls&&lsD!==null){const fl=Object.entries(freq).filter(([k])=>k.startsWith(`${lsD}->`)).sort((a,b)=>b[1]-a[1]).filter(([,c])=>c>0).slice(0,5);if(fl.length){html+=`<div class="rec-box"><h4>🎯 ${lsD}0s(${ls.number})→</h4><div class="rec-nums">`;fl.forEach(([k,c])=>html+=`<div class="rec-item"><span>${k.split('->')[1]}0s</span>(${c}x)</div>`);html+='</div></div>'}}html+=`<p class="fxs td mb">${pairs.length} transiciones</p>`;html+=sorted.slice(0,15).map(([k,c])=>{const[f,t]=k.split('->');return`<div class="fb"><div class="n" style="width:55px;font-size:0.75rem">${f}0s→${t}0s</div><div class="track"><div class="fill fill-gold" style="width:${(c/mx*100)}%"><span>${c}</span></div></div><div class="c">${c}x</div></div>`}).join('');document.getElementById('decContent').innerHTML=html}
+function rDecBest(data){document.getElementById('decTitle').textContent='🏆 Mejores Decenas';const ls=getLastSorteoMes();const sorted=[...data].sort(revSort);const recent=sorted.slice(0,Math.min(40,sorted.length));const gD={},rD={};for(let i=0;i<=9;i++){gD[i]=0;rD[i]=0}data.forEach(d=>gD[getDec(d.number)]++);recent.forEach(d=>rD[getDec(d.number)]++);const scores=[];for(let i=0;i<=9;i++){const mom=(rD[i]/recent.length)/Math.max(gD[i]/data.length,0.001);scores.push({dec:i,g:gD[i],r:rD[i],m:mom.toFixed(2)})}scores.sort((a,b)=>b.m-a.m);let html=ls?`<div class="fxs td mb">📌 ${ls.number}</div>`:'';html+=scores.map((s,idx)=>{const isLS=ls&&s.dec===getDec(ls.number);return`<div class="pull-box" style="${isLS?'border-color:var(--gold);':''}"><div style="font-size:1.5rem;font-weight:900;color:${idx<3?'var(--gold)':'var(--dim)'}">#${idx+1}</div><div><div class="fw tg" style="font-size:1.2rem">${s.dec}0s${isLS?' 📌':''}</div><div class="fxs td">G:${s.g}x R:${s.r}x M:${s.m}x</div><div class="vib-meter" style="width:100px"><div class="vib-fill ${s.m>1.2?'vib-high':s.m>0.8?'vib-med':'vib-low'}" style="width:${Math.min(100,s.m*50)}%"></div></div></div></div>`}).join('');document.getElementById('decContent').innerHTML=html}
+
+// ===== TERMINALES =====
+let curTV='general';
+function termView(v,btn){curTV=v;document.querySelectorAll('#sec-term .sub-tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');rTerm()}
+function rTerm(){const data=LD();if(!data.length){document.getElementById('termContent').innerHTML='<div class="empty"><p>Sin datos</p></div>';return}renderLsBanner('lsBannerTerm');if(curTV==='general')rTermGen(data);else if(curTV==='best')rTermBest(data);else rTermTrans(data,curTV)}
+function rTermGen(data){document.getElementById('termTitle').textContent='🎯 Terminales General';const ls=getLastSorteoMes();const lsT=ls?getTerm(ls.number):null;const tF={};for(let i=0;i<=9;i++)tF[i]=0;data.forEach(d=>tF[getTerm(d.number)]++);const sorted=Object.entries(tF).sort((a,b)=>b[1]-a[1]);const mx=sorted[0][1];let html=ls?`<div class="fxs td mb">📌 ${ls.number} T:T${lsT}</div>`:'';html+=sorted.map(([t,c])=>{const isLS=parseInt(t)===lsT;return`<div class="fb"><div class="n" style="${isLS?'color:var(--gold2)':''}">T${t}${isLS?' 📌':''}</div><div class="track"><div class="fill ${isLS?'fill-hot':'fill-blue'}" style="width:${(c/mx*100)}%"><span>${c}</span></div></div><div class="c">${c}x</div></div>`}).join('');document.getElementById('termContent').innerHTML=html}
+function rTermTrans(data,type){const labels={dd:'☀️→☀️ M-M',nn:'🌙→🌙 N-N',dn:'☀️→🌙 M-N',nd:'🌙→☀️ N-M'};document.getElementById('termTitle').textContent=`🎯 ${labels[type]}`;const ls=getLastSorteoMes();const lsT=ls?getTerm(ls.number):null;const pairs=getTransitions(data,type);if(!pairs.length){document.getElementById('termContent').innerHTML='<div class="empty"><p>Sin transiciones</p></div>';return}const freq=getTermTransFreq(pairs);const sorted=Object.entries(freq).sort((a,b)=>b[1]-a[1]).filter(([,c])=>c>0);const mx=sorted[0]?sorted[0][1]:1;let html='';if(ls&&lsT!==null){const fl=Object.entries(freq).filter(([k])=>k.startsWith(`${lsT}->`)).sort((a,b)=>b[1]-a[1]).filter(([,c])=>c>0).slice(0,5);if(fl.length){html+=`<div class="rec-box"><h4>🎯 T${lsT}(${ls.number})→</h4><div class="rec-nums">`;fl.forEach(([k,c])=>html+=`<div class="rec-item"><span>T${k.split('->')[1]}</span>(${c}x)</div>`);html+='</div></div>'}}html+=`<p class="fxs td mb">${pairs.length} transiciones</p>`;html+=sorted.slice(0,15).map(([k,c])=>{const[f,t]=k.split('->');return`<div class="fb"><div class="n" style="width:50px;font-size:0.75rem">T${f}→T${t}</div><div class="track"><div class="fill fill-blue" style="width:${(c/mx*100)}%"><span>${c}</span></div></div><div class="c">${c}x</div></div>`}).join('');document.getElementById('termContent').innerHTML=html}
+function rTermBest(data){document.getElementById('termTitle').textContent='🏆 Mejores Terminales';const ls=getLastSorteoMes();const sorted=[...data].sort(revSort);const recent=sorted.slice(0,Math.min(40,sorted.length));const gT={},rT={};for(let i=0;i<=9;i++){gT[i]=0;rT[i]=0}data.forEach(d=>gT[getTerm(d.number)]++);recent.forEach(d=>rT[getTerm(d.number)]++);const scores=[];for(let i=0;i<=9;i++){const mom=(rT[i]/recent.length)/Math.max(gT[i]/data.length,0.001);scores.push({term:i,g:gT[i],r:rT[i],m:mom.toFixed(2)})}scores.sort((a,b)=>b.m-a.m);let html=ls?`<div class="fxs td mb">📌 ${ls.number}</div>`:'';html+=scores.map((s,idx)=>{const isLS=ls&&s.term===getTerm(ls.number);return`<div class="pull-box" style="${isLS?'border-color:var(--gold);':''}"><div style="font-size:1.5rem;font-weight:900;color:${idx<3?'var(--gold)':'var(--dim)'}">#${idx+1}</div><div><div class="fw tg" style="font-size:1.2rem">T${s.term}${isLS?' 📌':''}</div><div class="fxs td">G:${s.g}x R:${s.r}x M:${s.m}x</div><div class="vib-meter" style="width:100px"><div class="vib-fill ${s.m>1.2?'vib-high':s.m>0.8?'vib-med':'vib-low'}" style="width:${Math.min(100,s.m*50)}%"></div></div></div></div>`}).join('');document.getElementById('termContent').innerHTML=html}
+
+// ===== MATRIX =====
+let curMV='dec';function matView(v,btn){curMV=v;document.querySelectorAll('#sec-matrix .sub-tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');rMat()}
+function rMat(){const data=LD();if(!data.length){document.getElementById('matContent').innerHTML='<div class="empty"><p>Sin datos</p></div>';return}renderLsBanner('lsBannerMatrix');if(curMV==='dec')rMatD(data);else if(curMV==='term')rMatT(data);else rMatTr(data)}
+function rMatD(data){document.getElementById('matTitle').textContent='🧮 Decenas';const ls=getLastSorteoMes();const lsD=ls?getDec(ls.number):null;const dF={};for(let i=0;i<=9;i++)dF[i]=0;data.forEach(d=>dF[getDec(d.number)]++);const sorted=Object.entries(dF).sort((a,b)=>b[1]-a[1]);let html='<div style="overflow-x:auto"><div class="matrix"><div class="matrix-row"><div class="matrix-cell matrix-header">DEC</div><div class="matrix-cell matrix-header">F</div><div class="matrix-cell matrix-header">%</div><div class="matrix-cell matrix-header">🔥</div></div>';sorted.forEach(([d,c],idx)=>{const pct=((c/data.length)*100).toFixed(1);let cls='normal';if(idx===0)cls='hot-1';else if(idx<=2)cls='hot-2';else if(idx<=4)cls='hot-3';else if(idx>=8)cls='cold-1';const isLS=parseInt(d)===lsD;html+=`<div class="matrix-row"><div class="matrix-cell ${cls}" style="font-weight:800${isLS?';color:var(--gold2)':''}">${d}0s${isLS?' 📌':''}</div><div class="matrix-cell ${cls}">${c}x</div><div class="matrix-cell ${cls}">${pct}%</div><div class="matrix-cell ${cls}">${idx<3?'🔥':idx<7?'➡️':'❄️'}</div></div>`});html+='</div></div>';document.getElementById('matContent').innerHTML=html}
+function rMatT(data){document.getElementById('matTitle').textContent='🧮 Terminales';const ls=getLastSorteoMes();const lsT=ls?getTerm(ls.number):null;const tF={};for(let i=0;i<=9;i++)tF[i]=0;data.forEach(d=>tF[getTerm(d.number)]++);const sorted=Object.entries(tF).sort((a,b)=>b[1]-a[1]);let html='<div style="overflow-x:auto"><div class="matrix"><div class="matrix-row"><div class="matrix-cell matrix-header">T</div><div class="matrix-cell matrix-header">F</div><div class="matrix-cell matrix-header">%</div><div class="matrix-cell matrix-header">🔥</div></div>';sorted.forEach(([t,c],idx)=>{const pct=((c/data.length)*100).toFixed(1);let cls='normal';if(idx===0)cls='hot-1';else if(idx<=2)cls='hot-2';else if(idx<=4)cls='hot-3';else if(idx>=8)cls='cold-1';const isLS=parseInt(t)===lsT;html+=`<div class="matrix-row"><div class="matrix-cell ${cls}" style="font-weight:800${isLS?';color:var(--gold2)':''}">T${t}${isLS?' 📌':''}</div><div class="matrix-cell ${cls}">${c}x</div><div class="matrix-cell ${cls}">${pct}%</div><div class="matrix-cell ${cls}">${idx<3?'🔥':idx<7?'➡️':'❄️'}</div></div>`});html+='</div></div>';document.getElementById('matContent').innerHTML=html}
+function rMatTr(data){document.getElementById('matTitle').textContent='🧮 Transiciones';const pairs=getTransitions(data,'all');const freq=getDecTransFreq(pairs);let html='<div style="overflow-x:auto"><div class="trans-grid"><div class="trans-cell trans-header">→</div>';for(let j=0;j<=9;j++)html+=`<div class="trans-cell trans-header">${j}0s</div>`;for(let i=0;i<=9;i++){html+=`<div class="trans-cell trans-header">${i}0s</div>`;const rM=Math.max(...Array.from({length:10},(_,j)=>freq[`${i}->${j}`]));for(let j=0;j<=9;j++){const c=freq[`${i}->${j}`];let bg='';if(c===rM&&c>0)bg='background:rgba(255,71,87,0.3);color:var(--red);font-weight:800';else if(c>rM*0.7)bg='background:rgba(255,140,0,0.2);color:var(--orange)';else if(c>0)bg='color:var(--text)';else bg='color:var(--border)';html+=`<div class="trans-cell" style="${bg}">${c||'·'}</div>`}}html+='</div></div>';document.getElementById('matContent').innerHTML=html}
+
+// ===== VIBRACIONES =====
+let curVV='nums';function vibView(v,btn){curVV=v;document.querySelectorAll('#sec-vib .sub-tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');rVib()}
+function rVib(){const data=LD();if(!data.length){document.getElementById('vibContent').innerHTML='<div class="empty"><p>Sin datos</p></div>';return}renderLsBanner('lsBannerVib');if(curVV==='nums')rVN(data);else if(curVV==='decs')rVD(data);else rVT(data)}
+function rVN(data){document.getElementById('vibTitle').textContent='📡 Números';const ls=getLastSorteoMes();const next=getNextTurno();const res=[];for(let i=0;i<=99;i++){const n=p2(i);res.push({num:n,vib:calcVibration(data,n,20)})}res.sort((a,b)=>b.vib.level-a.vib.level);let html='';if(ls){html+=`<div class="rec-box"><h4>🎯 ${next.label} | Último:${ls.number}</h4><div class="rec-nums">`;res.filter(r=>r.vib.level>60).slice(0,6).forEach(r=>html+=`<div class="rec-item"><span>${r.num}</span>(${r.vib.level}%)</div>`);html+='</div></div>'}html+=res.slice(0,20).map(r=>`<div class="fb"><div class="n">${r.num}</div><div class="track"><div class="vib-fill ${r.vib.cls}" style="width:${r.vib.level}%;height:100%;border-radius:9px"><span style="font-size:0.55rem;color:var(--bg);font-weight:700;padding-left:3px">${r.vib.label}</span></div></div></div>`).join('');document.getElementById('vibContent').innerHTML=html}
+function rVD(data){document.getElementById('vibTitle').textContent='📡 Decenas';const sorted=[...data].sort(revSort);const recent=sorted.slice(0,20);const gD={},rD={};for(let i=0;i<=9;i++){gD[i]=0;rD[i]=0}data.forEach(d=>gD[getDec(d.number)]++);recent.forEach(d=>rD[getDec(d.number)]++);const res=[];for(let i=0;i<=9;i++){const ratio=(rD[i]/recent.length)/(gD[i]/data.length||0.001);const level=Math.min(100,Math.round(ratio*50));res.push({dec:i,level,cls:ratio>1.2?'vib-high':ratio>0.8?'vib-med':'vib-low',label:ratio>1.5?'🔥MUY ALTA':ratio>1?'⚡ALTA':ratio>0.5?'➡️MEDIA':'💤BAJA'})}res.sort((a,b)=>b.level-a.level);document.getElementById('vibContent').innerHTML=res.map(r=>`<div class="fb"><div class="n">${r.dec}0s</div><div class="track"><div class="vib-fill ${r.cls}" style="width:${r.level}%;height:100%;border-radius:9px"><span style="font-size:0.55rem;color:var(--bg);font-weight:700;padding-left:3px">${r.label}</span></div></div></div>`).join('')}
+function rVT(data){document.getElementById('vibTitle').textContent='📡 Terminales';const sorted=[...data].sort(revSort);const recent=sorted.slice(0,20);const gT={},rT={};for(let i=0;i<=9;i++){gT[i]=0;rT[i]=0}data.forEach(d=>gT[getTerm(d.number)]++);recent.forEach(d=>rT[getTerm(d.number)]++);const res=[];for(let i=0;i<=9;i++){const ratio=(rT[i]/recent.length)/(gT[i]/data.length||0.001);const level=Math.min(100,Math.round(ratio*50));res.push({term:i,level,cls:ratio>1.2?'vib-high':ratio>0.8?'vib-med':'vib-low',label:ratio>1.5?'🔥MUY ALTA':ratio>1?'⚡ALTA':ratio>0.5?'➡️MEDIA':'💤BAJA'})}res.sort((a,b)=>b.level-a.level);document.getElementById('vibContent').innerHTML=res.map(r=>`<div class="fb"><div class="n">T${r.term}</div><div class="track"><div class="vib-fill ${r.cls}" style="width:${r.level}%;height:100%;border-radius:9px"><span style="font-size:0.55rem;color:var(--bg);font-weight:700;padding-left:3px">${r.label}</span></div></div></div>`).join('')}
+
+// ===== CONEXIONES =====
+let curPV='nums';function pullView(v,btn){curPV=v;document.querySelectorAll('#sec-pull .sub-tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');rPull()}
+function rPull(){const data=LD();if(!data.length){document.getElementById('pullContent').innerHTML='<div class="empty"><p>Sin datos</p></div>';return}if(curPV==='nums')rPN(data);else if(curPV==='decs')rPD(data);else rPT(data)}
+function rPN(data){document.getElementById('pullTitle').textContent='🧲 Números';const conns=getPullConnections(data,25);const ln=([...data].sort(revSort)[0])?.number;let html='';if(ln){const fl=getPullConnections(data,1000).filter(c=>c.from===ln).slice(0,5);if(fl.length){html+=`<div class="card-t fxs mb">🎯 Tras ${ln}:</div>`;html+=fl.map(c=>`<div class="pull-box"><div class="pull-from">${c.from}</div><div class="pull-arrow">→</div><div class="pull-to">${c.to}</div><div class="pull-count">${c.count}x</div></div>`).join('');html+='<div class="divider"></div>'}}html+='<div class="card-t fxs mb">🔝 Top</div>';html+=conns.map(c=>`<div class="pull-box"><div class="pull-from">${c.from}</div><div class="pull-arrow">→</div><div class="pull-to">${c.to}</div><div class="pull-count">${c.count}x</div></div>`).join('');document.getElementById('pullContent').innerHTML=html}
+function rPD(data){document.getElementById('pullTitle').textContent='🧲 Decenas';const pairs=getTransitions(data,'all');const freq=getDecTransFreq(pairs);const sorted=Object.entries(freq).sort((a,b)=>b[1]-a[1]).filter(([,c])=>c>0).slice(0,15);const ln=([...data].sort(revSort)[0])?.number;const lD=ln?getDec(ln):null;let html='';if(lD!==null){const fl=Object.entries(freq).filter(([k])=>k.startsWith(`${lD}->`)).sort((a,b)=>b[1]-a[1]).filter(([,c])=>c>0).slice(0,5);if(fl.length){html+=`<div class="card-t fxs mb">🎯 Tras ${lD}0s:</div>`;html+=fl.map(([k,c])=>`<div class="pull-box"><div class="pull-from">${lD}0s</div><div class="pull-arrow">→</div><div class="pull-to">${k.split('->')[1]}0s</div><div class="pull-count">${c}x</div></div>`).join('');html+='<div class="divider"></div>'}}html+='<div class="card-t fxs mb">🔝 Top</div>';html+=sorted.map(([k,c])=>{const[f,t]=k.split('->');return`<div class="pull-box"><div class="pull-from">${f}0s</div><div class="pull-arrow">→</div><div class="pull-to">${t}0s</div><div class="pull-count">${c}x</div></div>`}).join('');document.getElementById('pullContent').innerHTML=html}
+function rPT(data){document.getElementById('pullTitle').textContent='🧲 Terminales';const pairs=getTransitions(data,'all');const freq=getTermTransFreq(pairs);const sorted=Object.entries(freq).sort((a,b)=>b[1]-a[1]).filter(([,c])=>c>0).slice(0,15);const ln=([...data].sort(revSort)[0])?.number;const lT=ln?getTerm(ln):null;let html='';if(lT!==null){const fl=Object.entries(freq).filter(([k])=>k.startsWith(`${lT}->`)).sort((a,b)=>b[1]-a[1]).filter(([,c])=>c>0).slice(0,5);if(fl.length){html+=`<div class="card-t fxs mb">🎯 Tras T${lT}:</div>`;html+=fl.map(([k,c])=>`<div class="pull-box"><div class="pull-from">T${lT}</div><div class="pull-arrow">→</div><div class="pull-to">T${k.split('->')[1]}</div><div class="pull-count">${c}x</div></div>`).join('');html+='<div class="divider"></div>'}}html+='<div class="card-t fxs mb">🔝 Top</div>';html+=sorted.map(([k,c])=>{const[f,t]=k.split('->');return`<div class="pull-box"><div class="pull-from">T${f}</div><div class="pull-arrow">→</div><div class="pull-to">T${t}</div><div class="pull-count">${c}x</div></div>`}).join('');document.getElementById('pullContent').innerHTML=html}
+
+// ===== AÑO =====
+let selYear=null;
+function rYear(){const data=LD();if(!data.length){document.getElementById('yTabs').innerHTML='';document.getElementById('yearContent').innerHTML='';document.getElementById('yearCompare').innerHTML='';return}renderLsBanner('lsBannerYear');const years=[...new Set(data.map(d=>d.drawDate.substring(0,4)))].sort().reverse();if(!selYear||!years.includes(selYear))selYear=years[0];document.getElementById('yTabs').innerHTML=years.map(y=>`<button class="ybtn ${y===selYear?'active':''}" onclick="selY('${y}')">${y}</button>`).join('');rYC(data,selYear);rYComp(data)}
+function selY(y){selYear=y;rYear()}
+function rYC(data,year){const yd=data.filter(d=>d.drawDate.startsWith(year));if(!yd.length){document.getElementById('yearContent').innerHTML='Sin datos';return}const ls=getLastSorteoMes();const sf=sFreq(gFreq(yd)).slice(0,5);const mx=sf[0]?sf[0][1]:1;const dF={},tF={};for(let i=0;i<=9;i++){dF[i]=0;tF[i]=0}yd.forEach(d=>{dF[getDec(d.number)]++;tF[getTerm(d.number)]++});const tD=Object.entries(dF).sort((a,b)=>b[1]-a[1]);const tT=Object.entries(tF).sort((a,b)=>b[1]-a[1]);const lsD=ls?getDec(ls.number):null,lsT=ls?getTerm(ls.number):null;document.getElementById('yearContent').innerHTML=`<div class="g2 mb"><div class="stat-box"><div class="v">${yd.length}</div><div class="l">${year}</div></div><div class="stat-box"><div class="v">${yd.filter(d=>d.shift==='midday').length}/${yd.filter(d=>d.shift==='evening').length}</div><div class="l">☀️/🌙</div></div></div><div class="card-t fxs mb">🔥 Top 5</div>${sf.map(([n,c])=>`<div class="fb"><div class="n">${n}</div><div class="track"><div class="fill fill-green" style="width:${(c/mx*100)}%"><span>${c}</span></div></div><div class="c">${c}x</div></div>`).join('')}<div class="divider"></div><div class="g2"><div><div class="card-t fxs mb">🔢 Dec</div>${tD.slice(0,5).map(([d,c])=>`<div class="fxs mb">${d}0s <span class="tg fw">${c}x</span>${lsD!==null&&parseInt(d)===lsD?' 📌':''}</div>`).join('')}</div><div><div class="card-t fxs mb">🎯 Term</div>${tT.slice(0,5).map(([t,c])=>`<div class="fxs mb">T${t} <span class="tgr fw">${c}x</span>${lsT!==null&&parseInt(t)===lsT?' 📌':''}</div>`).join('')}</div></div>`}
+function rYComp(data){const c=document.getElementById('yearCompare');const ls=getLastSorteoMes();if(!ls){c.innerHTML='';return}const next=getNextTurno();const lsD=getDec(ls.number),lsT=getTerm(ls.number);const years=[...new Set(data.map(d=>d.drawDate.substring(0,4)))].sort().reverse();const aD={},aT={};years.forEach(y=>{const yd=[...data.filter(d=>d.drawDate.startsWith(y))].sort(chronoSort);for(let i=0;i<yd.length-1;i++){if(getDec(yd[i].number)===lsD)aD[getDec(yd[i+1].number)]=(aD[getDec(yd[i+1].number)]||0)+1;if(getTerm(yd[i].number)===lsT)aT[getTerm(yd[i+1].number)]=(aT[getTerm(yd[i+1].number)]||0)+1}});const bD=Object.entries(aD).sort((a,b)=>b[1]-a[1]).slice(0,8);const bT=Object.entries(aT).sort((a,b)=>b[1]-a[1]).slice(0,8);const mxD=bD[0]?bD[0][1]:1,mxT=bT[0]?bT[0][1]:1;let html=`<div class="fxs td mb">📌 ${ls.number}→${next.label}</div><div class="card-t fxs mb">Dec tras ${lsD}0s</div>`;html+=bD.map(([d,cnt])=>`<div class="fb"><div class="n">${d}0s</div><div class="track"><div class="fill fill-hot" style="width:${(cnt/mxD*100)}%"><span>${cnt}</span></div></div><div class="c">${cnt}x</div></div>`).join('');html+=`<div class="divider"></div><div class="card-t fxs mb">Term tras T${lsT}</div>`;html+=bT.map(([t,cnt])=>`<div class="fb"><div class="n">T${t}</div><div class="track"><div class="fill fill-blue" style="width:${(cnt/mxT*100)}%"><span>${cnt}</span></div></div><div class="c">${cnt}x</div></div>`).join('');c.innerHTML=html}
+
+// ===== SEMANA =====
+function rSemana(){const c=document.getElementById('semanaContent');const data=LD();if(!data.length){c.innerHTML='<div class="empty"><p>Sin datos</p></div>';return}renderLsBanner('lsBannerSemana');const ls=getLastSorteoMes();if(!ls){c.innerHTML='Sin datos';return}const next=getNextTurno();const lDate=new Date(ls.drawDate+'T12:00:00');const wAgo=new Date(lDate);wAgo.setDate(wAgo.getDate()-7);const wStr=wAgo.toISOString().split('T')[0];const wData=data.filter(d=>d.drawDate>=wStr&&d.drawDate<=ls.drawDate).sort(chronoSort);let html=`<p class="fxs td mb">${wStr} al ${ls.drawDate} — ${wData.length} sorteos</p><div class="week-grid">`;wData.forEach(s=>html+=`<div class="week-card"><div class="wc-day">${getDayName(s.drawDate)} ${s.drawDate.substring(5)}</div><div class="wc-num">${s.number}</div><div class="wc-info">${s.shift==='midday'?'☀️':'🌙'} ${getDec(s.number)}0s T${getTerm(s.number)}</div></div>`);html+='</div>';const dF={},tF={};for(let i=0;i<=9;i++){dF[i]=0;tF[i]=0}wData.forEach(s=>{dF[getDec(s.number)]++;tF[getTerm(s.number)]++});const topD=Object.entries(dF).sort((a,b)=>b[1]-a[1]).slice(0,5);const topT=Object.entries(tF).sort((a,b)=>b[1]-a[1]).slice(0,5);html+=`<div class="rec-box"><h4>Dec semana</h4><div class="rec-nums">`;topD.forEach(([d,cnt])=>html+=`<div class="rec-item"><span>${d}0s</span>(${cnt}x)</div>`);html+=`</div></div><div class="rec-box"><h4>Term semana</h4><div class="rec-nums">`;topT.forEach(([t,cnt])=>html+=`<div class="rec-item"><span>T${t}</span>(${cnt}x)</div>`);html+=`</div></div><div class="rec-box"><h4>🎯→${next.label}</h4><div class="rec-nums">`;topD.slice(0,3).forEach(([d])=>topT.slice(0,3).forEach(([t])=>html+=`<div class="rec-item"><span>${d}0s</span>+<span>T${t}</span></div>`));html+='</div></div>';c.innerHTML=html}
+
+// ===== ANÁLISIS =====
+let curAV='auto';function analView(v,btn){curAV=v;document.querySelectorAll('#sec-analisis .sub-tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');rAnalisis()}
+function rAnalisis(){const c=document.getElementById('analisisContent');const data=LD();if(data.length<5){c.innerHTML='<div class="empty"><p>Min 5 sorteos</p></div>';return}renderLsBanner('lsBannerAnalisis');const ls=getLastSorteoMes();if(!ls){c.innerHTML='Sin datos';return}if(curAV==='auto'){const next=getNextTurno();document.getElementById('analTitle').textContent=`🎯→${next.label}`;c.innerHTML=buildAnal(data,ls,next.shift,next.label)}else if(curAV==='midday'){document.getElementById('analTitle').textContent='☀️ Mediodía';c.innerHTML=buildAnal(data,ls,'midday','Mediodía')}else if(curAV==='evening'){document.getElementById('analTitle').textContent='🌙 Noche';c.innerHTML=buildAnal(data,ls,'evening','Noche')}else{document.getElementById('analTitle').textContent='📊 Comparar';c.innerHTML=buildComp(data,ls)}}
+function buildAnal(data,ls,tS,tL){const lsD=getDec(ls.number),lsT=getTerm(ls.number);const sorted=[...data].sort(chronoSort);const dA={},tA={},dAT={},tAT={};for(let i=0;i<sorted.length-1;i++){const c=sorted[i],n=sorted[i+1];if(getDec(c.number)===lsD){dA[getDec(n.number)]=(dA[getDec(n.number)]||0)+1;if(n.shift===tS)dAT[getDec(n.number)]=(dAT[getDec(n.number)]||0)+1}if(getTerm(c.number)===lsT){tA[getTerm(n.number)]=(tA[getTerm(n.number)]||0)+1;if(n.shift===tS)tAT[getTerm(n.number)]=(tAT[getTerm(n.number)]||0)+1}}const sD=data.filter(d=>d.shift===tS);const sDec={},sTerm={};for(let i=0;i<=9;i++){sDec[i]=0;sTerm[i]=0}sD.forEach(d=>{sDec[getDec(d.number)]++;sTerm[getTerm(d.number)]++});const dSc={},tSc={};for(let i=0;i<=9;i++){dSc[i]=0;tSc[i]=0}Object.entries(dA).forEach(([k,v])=>dSc[parseInt(k)]+=v*3);Object.entries(tA).forEach(([k,v])=>tSc[parseInt(k)]+=v*3);Object.entries(dAT).forEach(([k,v])=>dSc[parseInt(k)]+=v*2.5);Object.entries(tAT).forEach(([k,v])=>tSc[parseInt(k)]+=v*2.5);Object.entries(sDec).forEach(([k,v])=>dSc[parseInt(k)]+=v*0.05);Object.entries(sTerm).forEach(([k,v])=>tSc[parseInt(k)]+=v*0.05);const bD=Object.entries(dSc).sort((a,b)=>b[1]-a[1]);const bT=Object.entries(tSc).sort((a,b)=>b[1]-a[1]);const mxD=bD[0]?bD[0][1]:1,mxT=bT[0]?bT[0][1]:1;let html=`<div class="rec-box"><h4>🎰 ${ls.number}(${ls.shift==='midday'?'☀️':'🌙'})→${tL}</h4><div class="fxs td">${fmtD(ls.drawDate)} | ${sD.length} sorteos ${tL}</div></div>`;html+=`<div class="card-t fxs mt mb">🎯 Dec→${tL}</div><div>`;bD.forEach(([num,score])=>{const pct=Math.round(score/mxD*100);const cls=pct>70?'prob-high':pct>40?'prob-med':'prob-low';const isLS=parseInt(num)===lsD;html+=`<div class="fb"><div class="n" style="${isLS?'color:var(--gold2)':''}">${num}0s${isLS?' 📌':''}</div><div style="flex:1"><div class="prob-bar"><div class="prob-fill ${cls}" style="width:${pct}%"></div></div></div><div class="c" style="width:45px">${pct}%(${dAT[parseInt(num)]||0})</div></div>`});html+='</div>';html+=`<div class="card-t fxs mt mb">🎯 Term→${tL}</div><div>`;bT.forEach(([num,score])=>{const pct=Math.round(score/mxT*100);const cls=pct>70?'prob-high':pct>40?'prob-med':'prob-low';const isLS=parseInt(num)===lsT;html+=`<div class="fb"><div class="n" style="${isLS?'color:var(--gold2)':''}">T${num}${isLS?' 📌':''}</div><div style="flex:1"><div class="prob-bar"><div class="prob-fill ${cls}" style="width:${pct}%"></div></div></div><div class="c" style="width:45px">${pct}%(${tAT[parseInt(num)]||0})</div></div>`});html+='</div>';const combos=[];bD.slice(0,5).forEach(([d,ds])=>bT.slice(0,5).forEach(([t,ts])=>combos.push({d,t,s:ds+ts})));combos.sort((a,b)=>b.s-a.s);html+=`<div class="rec-box mt"><h4>🏆 Combinaciones→${tL}</h4><div class="rec-nums">`;combos.slice(0,12).forEach((c,i)=>{const em=i<3?['🥇','🥈','🥉'][i]:'';html+=`<div class="rec-item">${em}<span>${c.d}0s</span>+<span>T${c.t}</span></div>`});html+='</div></div>';const nSc={};for(let i=0;i<=99;i++){const n=p2(i);nSc[n]=(dSc[getDec(n)]||0)+(tSc[getTerm(n)]||0)}const bN=Object.entries(nSc).sort((a,b)=>b[1]-a[1]).slice(0,15);html+=`<div class="card-t fxs mt mb">🔢 Números→${tL}</div><div class="rec-nums">`;bN.forEach(([n],i)=>html+=`<div class="rec-item" style="${i<3?'background:rgba(255,71,87,0.15);':''}"><span>${n}</span></div>`);html+='</div>';return html}
+function buildComp(data,ls){const lsD=getDec(ls.number),lsT=getTerm(ls.number);const sorted=[...data].sort(chronoSort);const dBS={midday:{},evening:{}},tBS={midday:{},evening:{}};for(let i=0;i<sorted.length-1;i++){const c=sorted[i],n=sorted[i+1];if(getDec(c.number)===lsD)dBS[n.shift][getDec(n.number)]=(dBS[n.shift][getDec(n.number)]||0)+1;if(getTerm(c.number)===lsT)tBS[n.shift][getTerm(n.number)]=(tBS[n.shift][getTerm(n.number)]||0)+1}const midD=data.filter(d=>d.shift==='midday'),eveD=data.filter(d=>d.shift==='evening');let html=`<div class="rec-box"><h4>📊 ${ls.number} | ☀️${midD.length} 🌙${eveD.length}</h4></div>`;html+=`<div class="card-t fxs mb">Dec tras ${lsD}0s</div><div class="tw"><table><thead><tr><th>Dec</th><th>☀️</th><th>🌙</th><th>Tot</th></tr></thead><tbody>`;for(let i=0;i<=9;i++){const m=dBS.midday[i]||0,e=dBS.evening[i]||0,t=m+e;if(!t)continue;html+=`<tr><td>${i}0s</td><td>${m}x</td><td>${e}x</td><td class="fw">${t}x</td></tr>`}html+='</tbody></table></div>';html+=`<div class="card-t fxs mt mb">Term tras T${lsT}</div><div class="tw"><table><thead><tr><th>Term</th><th>☀️</th><th>🌙</th><th>Tot</th></tr></thead><tbody>`;for(let i=0;i<=9;i++){const m=tBS.midday[i]||0,e=tBS.evening[i]||0,t=m+e;if(!t)continue;html+=`<tr><td>T${i}</td><td>${m}x</td><td>${e}x</td><td class="fw">${t}x</td></tr>`}html+='</tbody></table></div>';html+='<div class="divider"></div><div class="g2"><div><div class="card-t fxs mb">☀️ Top</div><div class="rec-nums">';sFreq(gFreq(midD)).slice(0,8).forEach(([n,c])=>html+=`<div class="rec-item"><span>${n}</span>(${c}x)</div>`);html+='</div></div><div><div class="card-t fxs mb">🌙 Top</div><div class="rec-nums">';sFreq(gFreq(eveD)).slice(0,8).forEach(([n,c])=>html+=`<div class="rec-item"><span>${n}</span>(${c}x)</div>`);html+='</div></div></div>';return html}
+
+// ===== NAV =====
+function goTab(id,btn){document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));document.getElementById('sec-'+id).classList.add('active');btn.classList.add('active');const r={hist:rHist,freq:rFreq,dec:rDec,term:rTerm,matrix:rMat,vib:rVib,pull:rPull,year:rYear,semana:rSemana,analisis:rAnalisis};if(r[id])r[id]()}
+function rAll(){rHome();const a=document.querySelector('.sec.active');if(a){const id=a.id.replace('sec-','');const r={hist:rHist,freq:rFreq,dec:rDec,term:rTerm,matrix:rMat,vib:rVib,pull:rPull,year:rYear,semana:rSemana,analisis:rAnalisis};if(r[id])r[id]()}}
+window.addEventListener('load',()=>{document.getElementById('aDate').value=new Date().toISOString().substring(0,10);updOffStatus();rAll()});
 </script>
 </body>
 </html>
