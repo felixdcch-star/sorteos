@@ -95,7 +95,7 @@
         .ytabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
         .ybtn{padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--dim);cursor:pointer;font-size:0.78rem}
         .ybtn.active{background:var(--gold);color:var(--bg);border-color:var(--gold);font-weight:700}
-        .alert{padding:12px;border-radius:8px;margin-bottom:12px;font-size:0.82rem;display:none}
+        .alert{padding:12px;border-radius:8px;margin-bottom:12px;font-size:0.82rem;display:none;word-wrap:break-word}
         .alert-s{background:rgba(0,212,170,0.12);border:1px solid var(--green);color:var(--green)}
         .alert-e{background:rgba(255,71,87,0.12);border:1px solid var(--red);color:var(--red)}
         .alert-i{background:rgba(52,152,219,0.12);border:1px solid var(--blue);color:var(--blue)}
@@ -285,7 +285,7 @@
         <div class="imp-area excel" onclick="document.getElementById('fExcel').click()">
             <div class="ic">📊</div>
             <p><strong style="color:var(--green)">EXCEL / CSV</strong></p>
-            <p class="fxs td mt">Toca aquí — Acepta .xlsx, .xls, .csv (miles de filas)</p>
+            <p class="fxs td mt">Toca aquí — Acepta .xlsx, .xls, .csv</p>
         </div>
         <input type="file" id="fExcel" accept=".xlsx,.xls,.csv" style="display:none" onchange="hExcel(event)">
         
@@ -304,58 +304,50 @@
     
     <div class="card">
         <div class="card-t">📋 Formato del Excel/CSV</div>
-        <p class="fxs td mb">Tu Excel debe tener 3 columnas: <strong class="tg">Fecha</strong>, <strong class="tg">Turno</strong>, <strong class="tg">Numero</strong></p>
+        <p class="fxs td mb">El Excel debe tener 3 columnas en este orden: <strong class="tg">Fecha</strong>, <strong class="tg">Turno</strong>, <strong class="tg">Numero</strong></p>
         <div class="format-example">
             <table>
                 <thead><tr><th>Fecha</th><th>Turno</th><th>Numero</th></tr></thead>
                 <tbody>
                     <tr><td>16/08/2026</td><td>Mediodía</td><td>74</td></tr>
-                    <tr><td>15/08/2026</td><td>Mediodía</td><td>82</td></tr>
                     <tr><td>15/08/2026</td><td>Noche</td><td>09</td></tr>
-                    <tr><td>14/08/2026</td><td>Mediodía</td><td>02</td></tr>
                 </tbody>
             </table>
         </div>
         <div class="mt fxs td">
-            <p>✅ <strong>Fecha:</strong> 16/08/2026, 2026-08-16, 16-08-2026, etc.</p>
-            <p>✅ <strong>Turno:</strong> Mediodía, Día, Noche, D, N (con o sin tilde)</p>
-            <p>✅ <strong>Número:</strong> Del 00 al 99</p>
-            <p>✅ <strong>Tamaño:</strong> Soporta miles de filas sin problema</p>
+            <p>✅ Funciona con o sin encabezados</p>
+            <p>✅ Ignora columnas vacías al inicio</p>
+            <p>✅ Acepta: Mediodía, Día, Noche, D, N (con o sin tilde)</p>
+            <p>✅ Fechas: 16/08/2026, 2026-08-16, 16-08-2026, etc.</p>
+            <p>✅ Números: 00-99 (agrega ceros automáticamente)</p>
         </div>
         <div class="mt"><button class="btn btn-purple" onclick="downTemplate()">📥 Descargar Plantilla</button></div>
     </div>
 </div>
 
 <script>
-const SK='sorteos_super_v6';
+const SK='sorteos_super_v7';
 const LD=()=>{try{const r=localStorage.getItem(SK);return r?JSON.parse(r):[]}catch(e){return[]}};
 const SD=a=>localStorage.setItem(SK,JSON.stringify(a));
 
-// Quitar tildes
 function noTilde(s){
     if(!s)return '';
     return String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
 }
 
-// Parser universal de fecha - MUY ROBUSTO
 function parseDate(input){
     if(input===null||input===undefined||input==='')return null;
-    
-    // Si es un objeto Date
     if(input instanceof Date && !isNaN(input.getTime())){
         const y=input.getFullYear();
         const m=String(input.getMonth()+1).padStart(2,'0');
         const d=String(input.getDate()).padStart(2,'0');
         return `${y}-${m}-${d}`;
     }
-    
-    let s = String(input).trim();
+    let s=String(input).trim();
     if(!s)return null;
-    
-    // Si es número (Excel serial date)
     if(/^\d+(\.\d+)?$/.test(s)){
         const num=parseFloat(s);
-        if(num>25569 && num<80000){
+        if(num>25569&&num<80000){
             const excelDate=new Date((num-25569)*86400*1000);
             if(!isNaN(excelDate.getTime())){
                 const y=excelDate.getUTCFullYear();
@@ -365,15 +357,9 @@ function parseDate(input){
             }
         }
     }
-    
-    // Quitar hora si viene
     s=s.replace(/T.*$/,'').replace(/\s+\d.*$/,'').trim();
-    
-    // Formato YYYY-MM-DD o YYYY/MM/DD
     let m=s.match(/^(\d{4})[-\/\.](\d{1,2})[-\/\.](\d{1,2})$/);
     if(m)return `${m[1]}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}`;
-    
-    // Formato DD/MM/YYYY o DD-MM-YYYY (formato latino)
     m=s.match(/^(\d{1,2})[-\/\.](\d{1,2})[-\/\.](\d{4})$/);
     if(m){
         const d=parseInt(m[1]),mo=parseInt(m[2]);
@@ -381,18 +367,16 @@ function parseDate(input){
         if(mo>12)return `${m[3]}-${m[1].padStart(2,'0')}-${m[2].padStart(2,'0')}`;
         return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
     }
-    
-    // DD/MM/YY (año corto)
     m=s.match(/^(\d{1,2})[-\/\.](\d{1,2})[-\/\.](\d{2})$/);
     if(m){
+        const d=parseInt(m[1]),mo=parseInt(m[2]);
         const yr=parseInt(m[3])>50?'19'+m[3]:'20'+m[3];
+        if(d>12)return `${yr}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
+        if(mo>12)return `${yr}-${m[1].padStart(2,'0')}-${m[2].padStart(2,'0')}`;
         return `${yr}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
     }
-    
-    // Con nombre de mes: 16-Ago-2026 o 16 Agosto 2026
     const meses={ene:'01',feb:'02',mar:'03',abr:'04',may:'05',jun:'06',jul:'07',ago:'08',sep:'09',oct:'10',nov:'11',dic:'12',
-                 enero:'01',febrero:'02',marzo:'03',abril:'04',mayo:'05',junio:'06',julio:'07',agosto:'08',septiembre:'09',octubre:'10',noviembre:'11',diciembre:'12',
-                 jan:'01',apr:'04',aug:'08',dec:'12',jun:'06',jul:'07'};
+                 enero:'01',febrero:'02',marzo:'03',abril:'04',mayo:'05',junio:'06',julio:'07',agosto:'08',septiembre:'09',octubre:'10',noviembre:'11',diciembre:'12'};
     const sl=noTilde(s);
     m=sl.match(/(\d{1,2})[-\/\s]([a-z]+)[-\/\s](\d{2,4})/);
     if(m){
@@ -402,8 +386,6 @@ function parseDate(input){
             return `${yr}-${mn}-${m[1].padStart(2,'0')}`;
         }
     }
-    
-    // Último intento con Date
     try{
         const d=new Date(s);
         if(!isNaN(d.getTime())){
@@ -413,61 +395,42 @@ function parseDate(input){
             return `${y}-${mo}-${dd}`;
         }
     }catch(e){}
-    
     return null;
 }
 
-// Parser universal de turno - ACEPTA TODO
 function parseShift(input){
     if(input===null||input===undefined)return null;
     const s=noTilde(input);
     if(!s)return null;
-    
-    // Coincidencias exactas
     const midday=['dia','d','day','midday','mediodia','md','tarde','manana','am','1','m','matutino'];
     const evening=['noche','n','night','evening','eve','ev','pm','2','e','nocturno','vespertino'];
-    
     if(midday.indexOf(s)>=0)return 'midday';
     if(evening.indexOf(s)>=0)return 'evening';
-    
-    // Contiene
     if(s.indexOf('medio')>=0||s.indexOf('dia')>=0||s.indexOf('day')>=0||s.indexOf('mid')>=0||s.indexOf('tarde')>=0||s.indexOf('manan')>=0||s.indexOf('matut')>=0)return 'midday';
     if(s.indexOf('noche')>=0||s.indexOf('night')>=0||s.indexOf('even')>=0||s.indexOf('nite')>=0||s.indexOf('noct')>=0||s.indexOf('vesper')>=0)return 'evening';
-    
     return null;
 }
 
-// Normalizar un registro
 function norm(r){
-    // Buscar fecha en múltiples nombres de campo
     let dateVal=null;
     const dateKeys=['drawDate','date','fecha','Fecha','FECHA','DATE'];
     for(const k of dateKeys){if(r[k]!==undefined&&r[k]!==null&&r[k]!==''){dateVal=r[k];break}}
-    
     const rd=parseDate(dateVal);
     if(!rd||!/^\d{4}-\d{2}-\d{2}$/.test(rd))return null;
-    
-    // Buscar número en múltiples nombres
     let numVal=null;
     const numKeys=['number','numero','Numero','NUMERO','Número','NÚMERO','num','Num','NUM','n','N'];
     for(const k of numKeys){if(r[k]!==undefined&&r[k]!==null&&r[k]!==''){numVal=r[k];break}}
-    
     const ni=parseInt(String(numVal),10);
     if(isNaN(ni)||ni<0||ni>99)return null;
     const n=String(ni).padStart(2,'0');
-    
-    // Buscar turno en múltiples nombres
     let shiftVal=null;
     const shiftKeys=['shift','turno','Turno','TURNO','periodo','período','Periodo','Período','SHIFT'];
     for(const k of shiftKeys){if(r[k]!==undefined&&r[k]!==null&&r[k]!==''){shiftVal=r[k];break}}
-    
     const s=parseShift(shiftVal);
     if(!s)return null;
-    
     return {id:`${rd}_${s}`,drawDate:rd,shift:s,number:n,createdAt:r.createdAt||Date.now()};
 }
 
-// Importar JSON
 function procImp(txt,src){
     showOv('Procesando JSON...');
     setTimeout(()=>{
@@ -485,12 +448,10 @@ function processItems(items,src){
     const norms=items.map(norm).filter(Boolean);
     if(!norms.length){
         hideOv();
-        // Diagnóstico: mostrar primera fila para ayudar
-        const firstRow=items[0]?JSON.stringify(items[0]).substring(0,150):'vacío';
+        const firstRow=items[0]?JSON.stringify(items[0]).substring(0,200):'vacío';
         sAlert(src,`❌ Ningún dato válido. Primera fila leída: ${firstRow}`,'e');
         return;
     }
-    
     const ex=LD();
     const map={};
     ex.forEach(e=>map[e.id]=e);
@@ -501,7 +462,7 @@ function processItems(items,src){
     sAlert(src,`✅ ${a} nuevos, ${u} actualizados. Total: ${final.length} sorteos`,'s');
 }
 
-// Importar Excel
+// NUEVA función Excel - detecta automáticamente las 3 columnas con datos
 function hExcel(ev){
     const f=ev.target.files[0];if(!f)return;
     showOv('Leyendo Excel...');
@@ -509,15 +470,53 @@ function hExcel(ev){
     reader.onload=e=>{
         try{
             const data=new Uint8Array(e.target.result);
-            const wb=XLSX.read(data,{type:'array',cellDates:true,cellNF:false,cellText:false});
+            const wb=XLSX.read(data,{type:'array',cellDates:true,cellNF:false});
             const sheet=wb.Sheets[wb.SheetNames[0]];
-            const rows=XLSX.utils.sheet_to_json(sheet,{raw:false,defval:''});
             
-            if(!rows.length){hideOv();sAlert('impA','❌ Excel vacío','e');return}
+            // Leer como array de arrays SIN depender de encabezados
+            const allRows=XLSX.utils.sheet_to_json(sheet,{header:1,raw:false,defval:''});
             
-            // Los objetos ya tienen las llaves originales del Excel
-            // norm() ya busca en múltiples variantes
-            processItems(rows,'impA');
+            if(!allRows.length){hideOv();sAlert('impA','❌ Excel vacío','e');return}
+            
+            // Detectar si la primera fila son encabezados o datos
+            const firstRow=allRows[0]||[];
+            const firstStr=firstRow.map(x=>noTilde(String(x||''))).join('|');
+            const hasHeaders=firstStr.indexOf('fecha')>=0||firstStr.indexOf('turno')>=0||firstStr.indexOf('numero')>=0||firstStr.indexOf('date')>=0||firstStr.indexOf('shift')>=0;
+            
+            const startIdx=hasHeaders?1:0;
+            const items=[];
+            let skippedRows=0;
+            
+            for(let i=startIdx;i<allRows.length;i++){
+                const row=allRows[i];
+                if(!row||row.length===0){skippedRows++;continue}
+                
+                // Filtrar celdas vacías al inicio, medio y final
+                const nonEmpty=[];
+                for(let j=0;j<row.length;j++){
+                    const val=row[j];
+                    if(val!==null&&val!==undefined&&String(val).trim()!==''){
+                        nonEmpty.push(val);
+                    }
+                }
+                
+                if(nonEmpty.length<3){skippedRows++;continue}
+                
+                // Tomar las primeras 3 celdas con datos
+                items.push({
+                    Fecha:nonEmpty[0],
+                    Turno:nonEmpty[1],
+                    Numero:nonEmpty[2]
+                });
+            }
+            
+            if(!items.length){
+                hideOv();
+                sAlert('impA',`❌ No se encontraron filas con 3 datos. Filas revisadas: ${allRows.length-startIdx}`,'e');
+                return;
+            }
+            
+            processItems(items,'impA');
         }catch(err){
             hideOv();
             sAlert('impA',`❌ Error al leer Excel: ${err.message}`,'e');
@@ -600,7 +599,7 @@ function downTemplate(){
 
 function clearAll(){
     if(!confirm('⚠️ ¿BORRAR TODO el historial? NO se puede deshacer.\n\nRecomendado: exportar antes.'))return;
-    if(!confirm('⚠️ ¿COMPLETAMENTE seguro? Se borrarán TODOS los sorteos.'))return;
+    if(!confirm('⚠️ ¿COMPLETAMENTE seguro?'))return;
     localStorage.removeItem(SK);rAll();alert('✅ Todo borrado');
 }
 
@@ -677,12 +676,10 @@ function rHome(){
     if(lm)h+=`<div class="draw-box"><div class="lbl">☀️ Último Mediodía</div><div class="num">${lm.number}</div><div class="dt">${fmtD(lm.drawDate)}</div></div>`;
     if(le)h+=`<div class="draw-box"><div class="lbl">🌙 Última Noche</div><div class="num">${le.number}</div><div class="dt">${fmtD(le.drawDate)}</div></div>`;
     document.getElementById('lastDraw').innerHTML=h;
-    
     const freq=gFreq(data),sf=sFreq(freq);
     const top5=sf.slice(0,5),cold5=[...sf].sort((a,b)=>a[1]-b[1]).slice(0,5);
     document.getElementById('hotN').innerHTML=top5.map(([n,c])=>`<span class="hc-n">${n}<br><span style="font-size:0.6rem">${c}x</span></span>`).join('');
     document.getElementById('coldN').innerHTML=cold5.map(([n,c])=>`<span class="hc-n">${n}<br><span style="font-size:0.6rem">${c}x</span></span>`).join('');
-    
     const years=new Set(data.map(d=>d.drawDate.substring(0,4))).size;
     const mf=sf[0],lf=[...sf].sort((a,b)=>a[1]-b[1])[0];
     document.getElementById('genStats').innerHTML=`
@@ -1142,7 +1139,7 @@ function goTab(id,btn){
     const renders={hist:rHist,freq:rFreq,dec:rDec,term:rTerm,matrix:rMat,vib:rVib,pull:rPull,year:rYear,day:rDay};
     if(renders[id])renders[id]();
 }
-function sAlert(id,msg,type){const el=document.getElementById(id);if(!el)return;el.className=`alert alert-${type}`;el.textContent=msg;el.style.display='block';setTimeout(()=>el.style.display='none',8000)}
+function sAlert(id,msg,type){const el=document.getElementById(id);if(!el)return;el.className=`alert alert-${type}`;el.textContent=msg;el.style.display='block';setTimeout(()=>el.style.display='none',10000)}
 function showOv(msg){document.getElementById('ovt').textContent=msg;document.getElementById('ov').classList.add('show')}
 function hideOv(){document.getElementById('ov').classList.remove('show')}
 function rAll(){
