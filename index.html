@@ -285,7 +285,7 @@
         <div class="imp-area excel" onclick="document.getElementById('fExcel').click()">
             <div class="ic">📊</div>
             <p><strong style="color:var(--green)">EXCEL / CSV</strong></p>
-            <p class="fxs td mt">Toca aquí — Acepta .xlsx, .xls, .csv</p>
+            <p class="fxs td mt">Toca aquí — Acepta .xlsx, .xls, .csv (múltiples pestañas)</p>
         </div>
         <input type="file" id="fExcel" accept=".xlsx,.xls,.csv" style="display:none" onchange="hExcel(event)">
         
@@ -304,21 +304,21 @@
     
     <div class="card">
         <div class="card-t">📋 Formato del Excel/CSV</div>
-        <p class="fxs td mb">El Excel debe tener 3 columnas en este orden: <strong class="tg">Fecha</strong>, <strong class="tg">Turno</strong>, <strong class="tg">Numero</strong></p>
+        <p class="fxs td mb">El Excel debe tener 3 columnas: <strong class="tg">Fecha</strong>, <strong class="tg">Turno</strong>, <strong class="tg">Numero</strong></p>
         <div class="format-example">
             <table>
                 <thead><tr><th>Fecha</th><th>Turno</th><th>Numero</th></tr></thead>
                 <tbody>
-                    <tr><td>16/08/2026</td><td>Mediodía</td><td>74</td></tr>
-                    <tr><td>15/08/2026</td><td>Noche</td><td>09</td></tr>
+                    <tr><td>2024-01-01</td><td>Mediodía</td><td>91</td></tr>
+                    <tr><td>2024-01-01</td><td>Noche</td><td>38</td></tr>
                 </tbody>
             </table>
         </div>
         <div class="mt fxs td">
+            <p>✅ Detecta automáticamente la pestaña correcta si hay varias</p>
             <p>✅ Funciona con o sin encabezados</p>
-            <p>✅ Ignora columnas vacías al inicio</p>
             <p>✅ Acepta: Mediodía, Día, Noche, D, N (con o sin tilde)</p>
-            <p>✅ Fechas: 16/08/2026, 2026-08-16, 16-08-2026, etc.</p>
+            <p>✅ Fechas: cualquier formato común</p>
             <p>✅ Números: 00-99 (agrega ceros automáticamente)</p>
         </div>
         <div class="mt"><button class="btn btn-purple" onclick="downTemplate()">📥 Descargar Plantilla</button></div>
@@ -326,7 +326,7 @@
 </div>
 
 <script>
-const SK='sorteos_super_v7';
+const SK='sorteos_super_v8';
 const LD=()=>{try{const r=localStorage.getItem(SK);return r?JSON.parse(r):[]}catch(e){return[]}};
 const SD=a=>localStorage.setItem(SK,JSON.stringify(a));
 
@@ -449,7 +449,7 @@ function processItems(items,src){
     if(!norms.length){
         hideOv();
         const firstRow=items[0]?JSON.stringify(items[0]).substring(0,200):'vacío';
-        sAlert(src,`❌ Ningún dato válido. Primera fila leída: ${firstRow}`,'e');
+        sAlert(src,`❌ Ningún dato válido. Primera fila: ${firstRow}`,'e');
         return;
     }
     const ex=LD();
@@ -462,7 +462,43 @@ function processItems(items,src){
     sAlert(src,`✅ ${a} nuevos, ${u} actualizados. Total: ${final.length} sorteos`,'s');
 }
 
-// NUEVA función Excel - detecta automáticamente las 3 columnas con datos
+// Función para extraer datos de una hoja del Excel
+function extractItemsFromSheet(sheet){
+    const allRows=XLSX.utils.sheet_to_json(sheet,{header:1,raw:false,defval:''});
+    if(!allRows.length)return [];
+    
+    // Detectar si primera fila son encabezados
+    const firstRow=allRows[0]||[];
+    const firstStr=firstRow.map(x=>noTilde(String(x||''))).join('|');
+    const hasHeaders=firstStr.indexOf('fecha')>=0||firstStr.indexOf('turno')>=0||firstStr.indexOf('numero')>=0||firstStr.indexOf('date')>=0||firstStr.indexOf('shift')>=0;
+    
+    const startIdx=hasHeaders?1:0;
+    const items=[];
+    
+    for(let i=startIdx;i<allRows.length;i++){
+        const row=allRows[i];
+        if(!row||row.length===0)continue;
+        
+        const nonEmpty=[];
+        for(let j=0;j<row.length;j++){
+            const val=row[j];
+            if(val!==null&&val!==undefined&&String(val).trim()!==''){
+                nonEmpty.push(val);
+            }
+        }
+        
+        if(nonEmpty.length<3)continue;
+        
+        items.push({
+            Fecha:nonEmpty[0],
+            Turno:nonEmpty[1],
+            Numero:nonEmpty[2]
+        });
+    }
+    return items;
+}
+
+// NUEVA función Excel — busca en TODAS las pestañas y usa la mejor
 function hExcel(ev){
     const f=ev.target.files[0];if(!f)return;
     showOv('Leyendo Excel...');
@@ -471,52 +507,41 @@ function hExcel(ev){
         try{
             const data=new Uint8Array(e.target.result);
             const wb=XLSX.read(data,{type:'array',cellDates:true,cellNF:false});
-            const sheet=wb.Sheets[wb.SheetNames[0]];
             
-            // Leer como array de arrays SIN depender de encabezados
-            const allRows=XLSX.utils.sheet_to_json(sheet,{header:1,raw:false,defval:''});
-            
-            if(!allRows.length){hideOv();sAlert('impA','❌ Excel vacío','e');return}
-            
-            // Detectar si la primera fila son encabezados o datos
-            const firstRow=allRows[0]||[];
-            const firstStr=firstRow.map(x=>noTilde(String(x||''))).join('|');
-            const hasHeaders=firstStr.indexOf('fecha')>=0||firstStr.indexOf('turno')>=0||firstStr.indexOf('numero')>=0||firstStr.indexOf('date')>=0||firstStr.indexOf('shift')>=0;
-            
-            const startIdx=hasHeaders?1:0;
-            const items=[];
-            let skippedRows=0;
-            
-            for(let i=startIdx;i<allRows.length;i++){
-                const row=allRows[i];
-                if(!row||row.length===0){skippedRows++;continue}
-                
-                // Filtrar celdas vacías al inicio, medio y final
-                const nonEmpty=[];
-                for(let j=0;j<row.length;j++){
-                    const val=row[j];
-                    if(val!==null&&val!==undefined&&String(val).trim()!==''){
-                        nonEmpty.push(val);
-                    }
-                }
-                
-                if(nonEmpty.length<3){skippedRows++;continue}
-                
-                // Tomar las primeras 3 celdas con datos
-                items.push({
-                    Fecha:nonEmpty[0],
-                    Turno:nonEmpty[1],
-                    Numero:nonEmpty[2]
-                });
+            if(!wb.SheetNames||!wb.SheetNames.length){
+                hideOv();sAlert('impA','❌ Excel sin hojas','e');return;
             }
             
-            if(!items.length){
+            // Buscar en TODAS las pestañas
+            let bestSheet=null;
+            let bestItems=[];
+            let bestValidCount=0;
+            let sheetInfo=[];
+            
+            for(const sheetName of wb.SheetNames){
+                const sheet=wb.Sheets[sheetName];
+                const items=extractItemsFromSheet(sheet);
+                
+                // Contar cuántos items son válidos (norm devuelve null si no lo son)
+                const validCount=items.map(norm).filter(Boolean).length;
+                sheetInfo.push(`"${sheetName}": ${items.length} filas, ${validCount} válidas`);
+                
+                if(validCount>bestValidCount){
+                    bestValidCount=validCount;
+                    bestSheet=sheetName;
+                    bestItems=items;
+                }
+            }
+            
+            if(!bestItems.length||bestValidCount===0){
                 hideOv();
-                sAlert('impA',`❌ No se encontraron filas con 3 datos. Filas revisadas: ${allRows.length-startIdx}`,'e');
+                sAlert('impA',`❌ Ninguna pestaña tiene datos válidos. Pestañas revisadas: ${sheetInfo.join(' | ')}`,'e');
                 return;
             }
             
-            processItems(items,'impA');
+            showOv(`Leyendo pestaña "${bestSheet}"...`);
+            setTimeout(()=>processItems(bestItems,'impA'),200);
+            
         }catch(err){
             hideOv();
             sAlert('impA',`❌ Error al leer Excel: ${err.message}`,'e');
@@ -585,11 +610,10 @@ function expExcel(){
 
 function downTemplate(){
     const rows=[
-        {Fecha:'16/08/2026',Turno:'Mediodía',Numero:'74'},
-        {Fecha:'15/08/2026',Turno:'Mediodía',Numero:'82'},
-        {Fecha:'15/08/2026',Turno:'Noche',Numero:'09'},
-        {Fecha:'14/08/2026',Turno:'Mediodía',Numero:'02'},
-        {Fecha:'14/08/2026',Turno:'Noche',Numero:'55'}
+        {Fecha:'2024-01-01',Turno:'Mediodía',Numero:'91'},
+        {Fecha:'2024-01-01',Turno:'Noche',Numero:'38'},
+        {Fecha:'2024-01-02',Turno:'Mediodía',Numero:'56'},
+        {Fecha:'2024-01-02',Turno:'Noche',Numero:'84'}
     ];
     const ws=XLSX.utils.json_to_sheet(rows);
     const wb=XLSX.utils.book_new();
