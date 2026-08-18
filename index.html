@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#0a0a1a">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <title>Super Análisis de Sorteos</title>
-    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiU3VwZXIgU29ydGVvcyIsInNob3J0X25hbWUiOiJTb3J0ZW9zIiwic3RhcnRfdXJsIjoiLiIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwiYmFja2dyb3VuZF9jb2xvciI6IiMwYTBhMWEiLCJ0aGVtZV9jb2xvciI6IiMwYTBhMWEifQ==">
+    <link rel="manifest" href="manifest.json">
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
@@ -20,7 +20,6 @@
         .header{background:linear-gradient(135deg,#0a0a2e,#1a0a3e,#0a1a3e);padding:18px;text-align:center;border-bottom:2px solid var(--gold);position:sticky;top:0;z-index:100}
         .header h1{color:var(--gold);font-size:1.3rem;letter-spacing:3px}
         .header p{color:var(--dim);font-size:0.75rem;margin-top:4px}
-        .offline-badge{display:inline-block;padding:2px 8px;background:var(--green);color:var(--bg);border-radius:10px;font-size:0.65rem;font-weight:700;margin-left:6px}
         .nav{display:flex;background:var(--bg2);overflow-x:auto;border-bottom:1px solid var(--border);scrollbar-width:none;position:sticky;top:62px;z-index:99}
         .nav::-webkit-scrollbar{display:none}
         .nav button{flex:none;padding:11px 16px;background:none;border:none;color:var(--dim);cursor:pointer;font-size:0.78rem;white-space:nowrap;border-bottom:3px solid transparent;transition:all .3s}
@@ -322,7 +321,6 @@
             <p>✅ Funciona 100% sin internet</p>
             <p>✅ Detecta automáticamente la pestaña con datos</p>
             <p>✅ Acepta: Mediodía, Día, Noche, D, N (con o sin tilde)</p>
-            <p>✅ Fechas: cualquier formato común</p>
         </div>
         <div class="mt"><button class="btn btn-purple" onclick="downTemplate()">📥 Descargar Plantilla</button></div>
     </div>
@@ -331,45 +329,15 @@
 <div class="offline-status" id="offStatus">🌐 Cargando...</div>
 
 <script>
-// ===== SERVICE WORKER PARA FUNCIONAMIENTO 100% OFFLINE =====
+// ===== REGISTRAR SERVICE WORKER =====
 if('serviceWorker' in navigator){
-    const swCode=`
-        const CACHE='sorteos-v1';
-        const FILES=[
-            './',
-            './index.html',
-            'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js'
-        ];
-        self.addEventListener('install',e=>{
-            e.waitUntil(caches.open(CACHE).then(c=>c.addAll(FILES).catch(()=>{})));
-            self.skipWaiting();
-        });
-        self.addEventListener('activate',e=>{
-            e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));
-            self.clients.claim();
-        });
-        self.addEventListener('fetch',e=>{
-            e.respondWith(
-                caches.match(e.request).then(r=>{
-                    if(r)return r;
-                    return fetch(e.request).then(resp=>{
-                        if(!resp||resp.status!==200)return resp;
-                        const clone=resp.clone();
-                        caches.open(CACHE).then(c=>c.put(e.request,clone)).catch(()=>{});
-                        return resp;
-                    }).catch(()=>caches.match('./index.html'));
-                })
-            );
-        });
-    `;
-    const blob=new Blob([swCode],{type:'application/javascript'});
-    const swUrl=URL.createObjectURL(blob);
-    navigator.serviceWorker.register(swUrl).then(()=>{
-        console.log('✅ Modo offline activado');
-    }).catch(e=>console.log('SW error:',e));
+    window.addEventListener('load',()=>{
+        navigator.serviceWorker.register('./sw.js').then(reg=>{
+            console.log('✅ Service Worker registrado');
+        }).catch(err=>console.log('SW error:',err));
+    });
 }
 
-// ===== INDICADOR ONLINE/OFFLINE =====
 function updOffStatus(){
     const el=document.getElementById('offStatus');
     if(navigator.onLine){
@@ -385,7 +353,7 @@ function updOffStatus(){
 window.addEventListener('online',updOffStatus);
 window.addEventListener('offline',updOffStatus);
 
-const SK='sorteos_super_v9';
+const SK='sorteos_super_v10';
 const LD=()=>{try{const r=localStorage.getItem(SK);return r?JSON.parse(r):[]}catch(e){return[]}};
 const SD=a=>localStorage.setItem(SK,JSON.stringify(a));
 
@@ -548,7 +516,7 @@ function extractItemsFromSheet(sheet){
 function hExcel(ev){
     const f=ev.target.files[0];if(!f)return;
     if(typeof XLSX==='undefined'){
-        sAlert('impA','❌ La librería Excel no está disponible. Conecta a internet una vez para descargarla y luego funcionará offline.','e');
+        sAlert('impA','❌ La librería Excel no está disponible. Conecta a internet una vez para descargarla.','e');
         return;
     }
     showOv('Leyendo Excel...');
