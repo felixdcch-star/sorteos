@@ -2,12 +2,11 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scale=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Pick 3 Analyzer Pro</title>
 <meta name="description" content="Análisis avanzado de sorteos Pick 3">
 <meta name="theme-color" content="#1a1a2e">
 <link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon-192.png">
 <style>
 :root {
   --bg-primary: #0a0a1a;
@@ -54,8 +53,6 @@ body {
   background-clip: text;
 }
 .header small { color: var(--text-dim); font-size: 0.75em; }
-
-/* Tabs */
 .tabs-wrapper {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
@@ -64,11 +61,7 @@ body {
   border-bottom: 1px solid var(--border);
 }
 .tabs-wrapper::-webkit-scrollbar { display: none; }
-.tabs {
-  display: flex;
-  min-width: max-content;
-  padding: 0 5px;
-}
+.tabs { display: flex; min-width: max-content; padding: 0 5px; }
 .tab-btn {
   background: none;
   border: none;
@@ -81,19 +74,11 @@ body {
   transition: all 0.3s;
   font-weight: 500;
 }
-.tab-btn.active {
-  color: var(--accent3);
-  border-bottom-color: var(--accent3);
-  background: rgba(0,210,255,0.05);
-}
+.tab-btn.active { color: var(--accent3); border-bottom-color: var(--accent3); background: rgba(0,210,255,0.05); }
 .tab-btn:hover { color: var(--text); }
-
-/* Tab content */
 .tab-content { display: none; padding: 15px; animation: fadeIn 0.3s; }
 .tab-content.active { display: block; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-/* Cards */
+@keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
 .card {
   background: var(--bg-card);
   border-radius: 12px;
@@ -102,21 +87,8 @@ body {
   border: 1px solid var(--border);
   box-shadow: var(--shadow);
 }
-.card h3 {
-  color: var(--accent3);
-  margin-bottom: 12px;
-  font-size: 1em;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.card h4 {
-  color: var(--gold);
-  margin: 10px 0 6px;
-  font-size: 0.9em;
-}
-
-/* Buttons */
+.card h3 { color: var(--accent3); margin-bottom: 12px; font-size: 1em; display: flex; align-items: center; gap: 8px; }
+.card h4 { color: var(--gold); margin: 10px 0 6px; font-size: 0.9em; }
 .btn {
   padding: 10px 20px;
   border: none;
@@ -137,8 +109,6 @@ body {
 .btn-info { background: linear-gradient(135deg, var(--cyan), #0097a7); color: #fff; }
 .btn-small { padding: 6px 12px; font-size: 0.75em; }
 .btn-danger { background: linear-gradient(135deg, var(--red), #b71c1c); color: #fff; }
-
-/* Forms */
 .form-group { margin-bottom: 12px; }
 .form-group label { display: block; margin-bottom: 5px; color: var(--text-dim); font-size: 0.85em; }
 .form-group input, .form-group select {
@@ -152,66 +122,23 @@ body {
 }
 .form-row { display: flex; gap: 10px; }
 .form-row .form-group { flex: 1; }
-
-/* Tables */
 .table-container { overflow-x: auto; margin: 10px 0; }
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.8em;
-}
-th, td {
-  padding: 8px 10px;
-  text-align: center;
-  border-bottom: 1px solid var(--border);
-}
-th { background: var(--accent2); color: var(--accent3); font-weight: 600; position: sticky; top: 0; }
+table { width: 100%; border-collapse: collapse; font-size: 0.8em; }
+th, td { padding: 8px 10px; text-align: center; border-bottom: 1px solid var(--border); }
+th { background: var(--accent2); color: var(--accent3); font-weight: 600; }
 tr:hover { background: rgba(255,255,255,0.03); }
-
-/* Number badges */
-.num-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: var(--accent2);
-  color: var(--accent3);
-  font-weight: 700;
-  font-size: 0.85em;
-  margin: 3px;
-  border: 2px solid var(--accent3);
-}
-.num-badge.hot { border-color: var(--red); color: var(--red); background: rgba(255,82,82,0.15); }
-.num-badge.cold { border-color: #64b5f6; color: #64b5f6; background: rgba(100,181,246,0.15); }
-.num-badge.gold { border-color: var(--gold); color: var(--gold); background: rgba(255,215,0,0.15); }
-
-/* Stats grid */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
   gap: 10px;
   margin: 10px 0;
 }
-.stat-item {
-  background: var(--bg-card-alt);
-  padding: 12px;
-  border-radius: 8px;
-  text-align: center;
-}
+.stat-item { background: var(--bg-card-alt); padding: 12px; border-radius: 8px; text-align: center; }
 .stat-item .value { font-size: 1.5em; font-weight: 700; color: var(--accent3); }
 .stat-item .label { font-size: 0.7em; color: var(--text-dim); margin-top: 4px; }
-
-/* Bar chart */
 .bar-chart { margin: 10px 0; }
-.bar-row {
-  display: flex;
-  align-items: center;
-  margin: 4px 0;
-  font-size: 0.8em;
-}
-.bar-label { width: 30px; text-align: right; margin-right: 8px; color: var(--text-dim); font-weight: 600; }
+.bar-row { display: flex; align-items: center; margin: 4px 0; font-size: 0.8em; }
+.bar-label { width: 35px; text-align: right; margin-right: 8px; color: var(--text-dim); font-weight: 600; font-size: 0.85em; }
 .bar-fill {
   height: 22px;
   border-radius: 4px;
@@ -228,13 +155,7 @@ tr:hover { background: rgba(255,255,255,0.03); }
 .bar-fill.hot { background: linear-gradient(90deg, #c62828, var(--red)); }
 .bar-fill.med { background: linear-gradient(90deg, #e65100, var(--orange)); }
 .bar-fill.cold { background: linear-gradient(90deg, #1565c0, #42a5f5); }
-
-/* Matrix */
-.matrix-grid {
-  display: grid;
-  gap: 2px;
-  font-size: 0.65em;
-}
+.matrix-grid { display: grid; gap: 2px; font-size: 0.65em; }
 .matrix-cell {
   aspect-ratio: 1;
   display: flex;
@@ -243,16 +164,10 @@ tr:hover { background: rgba(255,255,255,0.03); }
   border-radius: 4px;
   font-weight: 700;
   cursor: default;
-  min-width: 28px;
-  min-height: 28px;
+  min-width: 26px;
+  min-height: 26px;
 }
-.matrix-header {
-  background: var(--accent2);
-  color: var(--accent3);
-  font-weight: 700;
-}
-
-/* Rec box */
+.matrix-header { background: var(--accent2); color: var(--accent3); font-weight: 700; }
 .rec-box {
   background: linear-gradient(135deg, rgba(233,69,96,0.15), rgba(0,210,255,0.1));
   border: 1px solid var(--accent);
@@ -261,21 +176,9 @@ tr:hover { background: rgba(255,255,255,0.03); }
   margin: 10px 0;
 }
 .rec-box h4 { color: var(--accent); margin-bottom: 8px; }
-.rec-nums {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin: 8px 0;
-}
-.rec-item {
-  background: rgba(0,0,0,0.3);
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 0.85em;
-}
+.rec-nums { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+.rec-item { background: rgba(0,0,0,0.3); padding: 6px 12px; border-radius: 6px; font-size: 0.85em; }
 .rec-item span { color: var(--gold); font-weight: 700; }
-
-/* Modal */
 .modal-overlay {
   display: none;
   position: fixed;
@@ -299,8 +202,6 @@ tr:hover { background: rgba(255,255,255,0.03); }
 }
 .modal h3 { color: var(--accent3); margin-bottom: 15px; }
 .modal-actions { display: flex; gap: 10px; margin-top: 15px; justify-content: flex-end; }
-
-/* Toast */
 .toast {
   position: fixed;
   bottom: 80px;
@@ -316,43 +217,6 @@ tr:hover { background: rgba(255,255,255,0.03); }
   border: 1px solid var(--accent3);
 }
 .toast.show { transform: translateX(-50%) translateY(0); }
-
-/* Guide styles */
-.guide-section {
-  margin-bottom: 20px;
-  padding: 15px;
-  background: var(--bg-card-alt);
-  border-radius: 10px;
-  border-left: 3px solid var(--accent3);
-}
-.guide-section h4 { color: var(--accent3); margin-bottom: 8px; }
-.guide-section p, .guide-section li { color: var(--text-dim); font-size: 0.85em; line-height: 1.6; }
-.guide-section ul { margin-left: 20px; margin-top: 5px; }
-
-/* Collapsible */
-.collapsible-header {
-  cursor: pointer;
-  padding: 10px;
-  background: var(--bg-card-alt);
-  border-radius: 8px;
-  margin: 5px 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-weight: 600;
-  font-size: 0.9em;
-}
-.collapsible-header:hover { background: rgba(255,255,255,0.05); }
-.collapsible-body { padding: 10px; display: none; }
-.collapsible-body.open { display: block; }
-
-/* Highlights */
-.highlight-green { color: var(--green); font-weight: 700; }
-.highlight-red { color: var(--red); font-weight: 700; }
-.highlight-gold { color: var(--gold); font-weight: 700; }
-.highlight-cyan { color: var(--accent3); font-weight: 700; }
-
-/* Last sorteo banner */
 .last-sorteo-banner {
   background: linear-gradient(135deg, rgba(0,210,255,0.1), rgba(233,69,96,0.1));
   border: 1px solid var(--accent3);
@@ -368,55 +232,49 @@ tr:hover { background: rgba(255,255,255,0.03); }
 .last-sorteo-banner .ls-label { font-size: 0.75em; color: var(--text-dim); }
 .last-sorteo-banner .ls-num { font-size: 1.4em; font-weight: 700; color: var(--gold); }
 .last-sorteo-banner .ls-info { font-size: 0.8em; color: var(--accent3); }
-
-/* Responsive adjustments */
+.guide-section {
+  margin-bottom: 20px;
+  padding: 15px;
+  background: var(--bg-card-alt);
+  border-radius: 10px;
+  border-left: 3px solid var(--accent3);
+}
+.guide-section h4 { color: var(--accent3); margin-bottom: 8px; }
+.guide-section p, .guide-section li { color: var(--text-dim); font-size: 0.85em; line-height: 1.6; }
+.guide-section ul { margin-left: 20px; margin-top: 5px; }
+.collapsible-header {
+  cursor: pointer;
+  padding: 10px;
+  background: var(--bg-card-alt);
+  border-radius: 8px;
+  margin: 5px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+  font-size: 0.9em;
+}
+.collapsible-header:hover { background: rgba(255,255,255,0.05); }
+.collapsible-body { padding: 10px; display: none; }
+.collapsible-body.open { display: block; }
+.week-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
+.week-day-card { background: var(--bg-card-alt); border-radius: 8px; padding: 10px; text-align: center; }
+.week-day-card .day-name { font-size: 0.75em; color: var(--text-dim); margin-bottom: 4px; }
+.week-day-card .day-nums { font-size: 1.1em; font-weight: 700; color: var(--accent3); }
+.week-day-card .day-turno { font-size: 0.65em; color: var(--orange); }
+.prob-meter { width: 100%; height: 8px; background: var(--bg-primary); border-radius: 4px; overflow: hidden; margin: 4px 0; }
+.prob-meter-fill { height: 100%; border-radius: 4px; transition: width 0.5s; }
+.prob-high { background: linear-gradient(90deg, var(--green), #69f0ae); }
+.prob-med { background: linear-gradient(90deg, var(--orange), #ffcc02); }
+.prob-low { background: linear-gradient(90deg, var(--red), #ff8a80); }
+.scroll-table { max-height: 450px; overflow-y: auto; }
+.scroll-table thead th { position: sticky; top: 0; z-index: 2; }
 @media (max-width: 400px) {
   .form-row { flex-direction: column; gap: 5px; }
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
   .tab-btn { padding: 10px 12px; font-size: 0.72em; }
   .header h1 { font-size: 1.2em; }
 }
-
-/* Week grid */
-.week-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 8px;
-}
-.week-day-card {
-  background: var(--bg-card-alt);
-  border-radius: 8px;
-  padding: 10px;
-  text-align: center;
-}
-.week-day-card .day-name { font-size: 0.75em; color: var(--text-dim); margin-bottom: 4px; }
-.week-day-card .day-nums { font-size: 1.1em; font-weight: 700; color: var(--accent3); }
-.week-day-card .day-turno { font-size: 0.65em; color: var(--orange); }
-
-/* Probability meter */
-.prob-meter {
-  width: 100%;
-  height: 8px;
-  background: var(--bg-primary);
-  border-radius: 4px;
-  overflow: hidden;
-  margin: 4px 0;
-}
-.prob-meter-fill {
-  height: 100%;
-  border-radius: 4px;
-  transition: width 0.5s;
-}
-.prob-high { background: linear-gradient(90deg, var(--green), #69f0ae); }
-.prob-med { background: linear-gradient(90deg, var(--orange), #ffcc02); }
-.prob-low { background: linear-gradient(90deg, var(--red), #ff8a80); }
-
-/* Edit row highlight */
-tr.editing { background: rgba(233,69,96,0.15) !important; }
-
-/* Scrollable tables */
-.scroll-table { max-height: 400px; overflow-y: auto; }
-.scroll-table thead th { position: sticky; top: 0; z-index: 2; }
 </style>
 </head>
 <body>
@@ -442,17 +300,12 @@ tr.editing { background: rgba(233,69,96,0.15) !important; }
   </div>
 </div>
 
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
-<!-- MODAL EDITAR -->
 <div class="modal-overlay" id="editModal">
   <div class="modal">
     <h3>✏️ Editar Sorteo</h3>
-    <div class="form-group">
-      <label>Fecha</label>
-      <input type="date" id="editFecha">
-    </div>
+    <div class="form-group"><label>Fecha</label><input type="date" id="editFecha"></div>
     <div class="form-group">
       <label>Turno</label>
       <select id="editTurno">
@@ -470,7 +323,9 @@ tr.editing { background: rgba(233,69,96,0.15) !important; }
       <button class="btn btn-success" onclick="saveEdit()">💾 Guardar</button>
     </div>
   </div>
-</div><!-- ============ TAB: INICIO ============ -->
+</div>
+
+<!-- TAB INICIO -->
 <div class="tab-content active" id="tab-inicio">
   <div class="card">
     <h3>📥 Importar Datos</h3>
@@ -484,13 +339,9 @@ tr.editing { background: rgba(233,69,96,0.15) !important; }
     <input type="file" id="jsonInput" accept=".json" style="display:none" onchange="importJSON(event)">
     <div id="importStatus"></div>
   </div>
-
   <div class="card">
     <h3>➕ Agregar Sorteo Manual</h3>
-    <div class="form-group">
-      <label>Fecha</label>
-      <input type="date" id="addFecha">
-    </div>
+    <div class="form-group"><label>Fecha</label><input type="date" id="addFecha"></div>
     <div class="form-group">
       <label>Turno</label>
       <select id="addTurno">
@@ -505,12 +356,10 @@ tr.editing { background: rgba(233,69,96,0.15) !important; }
     </div>
     <button class="btn btn-success" onclick="addSorteo()">✅ Agregar</button>
   </div>
-
-  <!-- Últimos 2 meses -->
   <div id="inicio-resumen"></div>
 </div>
 
-<!-- ============ TAB: HISTORIAL ============ -->
+<!-- TAB HISTORIAL -->
 <div class="tab-content" id="tab-historial">
   <div class="card">
     <h3>📋 Historial de Sorteos</h3>
@@ -520,12 +369,10 @@ tr.editing { background: rgba(233,69,96,0.15) !important; }
       </select>
       <select id="filtroMes" onchange="renderHistorial()" style="padding:8px;background:var(--bg-primary);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.85em;">
         <option value="">Todos los meses</option>
-        <option value="01">Enero</option><option value="02">Febrero</option>
-        <option value="03">Marzo</option><option value="04">Abril</option>
-        <option value="05">Mayo</option><option value="06">Junio</option>
-        <option value="07">Julio</option><option value="08">Agosto</option>
-        <option value="09">Septiembre</option><option value="10">Octubre</option>
-        <option value="11">Noviembre</option><option value="12">Diciembre</option>
+        <option value="01">Enero</option><option value="02">Febrero</option><option value="03">Marzo</option>
+        <option value="04">Abril</option><option value="05">Mayo</option><option value="06">Junio</option>
+        <option value="07">Julio</option><option value="08">Agosto</option><option value="09">Septiembre</option>
+        <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
       </select>
       <select id="filtroTurno" onchange="renderHistorial()" style="padding:8px;background:var(--bg-primary);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.85em;">
         <option value="">Todos</option>
@@ -534,45 +381,34 @@ tr.editing { background: rgba(233,69,96,0.15) !important; }
       </select>
     </div>
     <div id="historialCount" style="color:var(--text-dim);font-size:0.8em;margin-bottom:8px;"></div>
-    <div class="scroll-table">
-      <div id="historialTable"></div>
-    </div>
+    <div class="scroll-table"><div id="historialTable"></div></div>
   </div>
 </div>
 
-<!-- ============ TAB: FRECUENCIAS ============ -->
+<!-- TAB FRECUENCIAS -->
 <div class="tab-content" id="tab-frecuencias">
   <div id="lastSorteoBannerFreq"></div>
   <div class="card">
-    <h3>📊 Frecuencias de Números (0-9)</h3>
+    <h3>📊 Frecuencias de Dígitos (0-9)</h3>
     <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
-      <button class="btn btn-small btn-primary active" onclick="setFreqFilter('all',this)">Todos</button>
-      <button class="btn btn-small btn-secondary" onclick="setFreqFilter('M',this)">Mediodía</button>
-      <button class="btn btn-small btn-secondary" onclick="setFreqFilter('N',this)">Noche</button>
+      <button class="btn btn-small btn-primary" id="fBtn_all" onclick="setFreqFilter('all',this)">Todos</button>
+      <button class="btn btn-small btn-secondary" id="fBtn_M" onclick="setFreqFilter('M',this)">Mediodía</button>
+      <button class="btn btn-small btn-secondary" id="fBtn_N" onclick="setFreqFilter('N',this)">Noche</button>
     </div>
     <div id="freqChart"></div>
   </div>
-  <div class="card">
-    <h3>📊 Frecuencia por Posición</h3>
-    <div id="freqByPos"></div>
-  </div>
-  <div class="card">
-    <h3>🔢 Frecuencias por Decenas (00-99)</h3>
-    <div id="freqDecenas"></div>
-  </div>
-  <div class="card">
-    <h3>🔢 Frecuencias por Terminales (00-99)</h3>
-    <div id="freqTerminales"></div>
-  </div>
+  <div class="card"><h3>📊 Frecuencia por Posición</h3><div id="freqByPos"></div></div>
+  <div class="card"><h3>🔢 Top Decenas (D1+D2)</h3><div id="freqDecenas"></div></div>
+  <div class="card"><h3>🔢 Top Terminales (D2+D3)</h3><div id="freqTerminales"></div></div>
 </div>
 
-<!-- ============ TAB: DEC/TERM ============ -->
+<!-- TAB DEC/TERM -->
 <div class="tab-content" id="tab-decterm">
   <div id="lastSorteoBannerDT"></div>
   <div class="card">
-    <h3>🔢 Decenas y Terminales - General</h3>
+    <h3>🔢 Decenas y Terminales</h3>
     <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
-      <button class="btn btn-small btn-primary active" onclick="setDTView('general',this)">General</button>
+      <button class="btn btn-small btn-primary" onclick="setDTView('general',this)">General</button>
       <button class="btn btn-small btn-secondary" onclick="setDTView('MM',this)">M→M</button>
       <button class="btn btn-small btn-secondary" onclick="setDTView('NN',this)">N→N</button>
       <button class="btn btn-small btn-secondary" onclick="setDTView('MN',this)">M→N</button>
@@ -581,37 +417,37 @@ tr.editing { background: rgba(233,69,96,0.15) !important; }
     </div>
     <div id="dtContent"></div>
   </div>
-</div><!-- ============ TAB: MATRIX ============ -->
+</div>
+
+<!-- TAB MATRIX -->
 <div class="tab-content" id="tab-matrix">
   <div id="lastSorteoBannerMatrix"></div>
   <div class="card">
     <h3>🧮 Matrix de Decenas</h3>
-    <p style="font-size:0.75em;color:var(--text-dim);margin-bottom:10px;">Filas=D1, Columnas=D2. Color según frecuencia.</p>
+    <p style="font-size:0.75em;color:var(--text-dim);margin-bottom:10px;">Filas=D1, Columnas=D2. Verde=alto, Amarillo=medio, Azul=bajo.</p>
     <div id="matrixDecenas"></div>
   </div>
   <div class="card">
     <h3>🧮 Matrix de Terminales</h3>
-    <p style="font-size:0.75em;color:var(--text-dim);margin-bottom:10px;">Filas=D2, Columnas=D3. Color según frecuencia.</p>
+    <p style="font-size:0.75em;color:var(--text-dim);margin-bottom:10px;">Filas=D2, Columnas=D3. Borde dorado=último sorteo.</p>
     <div id="matrixTerminales"></div>
   </div>
 </div>
 
-<!-- ============ TAB: VIBRACIONES ============ -->
+<!-- TAB VIBRACIONES -->
 <div class="tab-content" id="tab-vibraciones">
   <div id="lastSorteoBannerVib"></div>
   <div class="card">
     <h3>🔮 Vibraciones del Último Sorteo</h3>
-    <p style="font-size:0.75em;color:var(--text-dim);margin-bottom:10px;">
-      Relación entre el último sorteo, las matrices de decenas/terminales y las frecuencias históricas.
-    </p>
+    <p style="font-size:0.75em;color:var(--text-dim);margin-bottom:10px;">Relación entre el último sorteo, las matrices y el historial.</p>
     <div id="vibContent"></div>
   </div>
 </div>
 
-<!-- ============ TAB: CONEXIONES ============ -->
+<!-- TAB CONEXIONES -->
 <div class="tab-content" id="tab-conexiones">
   <div class="card">
-    <h3>🔗 Conexiones (¿Qué número hala a otro?)</h3>
+    <h3>🔗 Conexiones</h3>
     <div class="form-row">
       <div class="form-group">
         <label>Número (000-999)</label>
@@ -625,185 +461,148 @@ tr.editing { background: rgba(233,69,96,0.15) !important; }
   </div>
 </div>
 
-<!-- ============ TAB: ÚLTIMA SEMANA ============ -->
+<!-- TAB SEMANA -->
 <div class="tab-content" id="tab-semana">
   <div id="lastSorteoBannerSemana"></div>
   <div class="card">
-    <h3>📅 Análisis de Última Semana</h3>
-    <p style="font-size:0.75em;color:var(--text-dim);margin-bottom:10px;">
-      Sorteos de los últimos 7 días antes del próximo sorteo, con análisis de decenas y terminales.
-    </p>
+    <h3>📅 Análisis Última Semana</h3>
+    <p style="font-size:0.75em;color:var(--text-dim);margin-bottom:10px;">Sorteos de los últimos 7 días con análisis de decenas y terminales.</p>
     <div id="semanaContent"></div>
   </div>
 </div>
 
-<!-- ============ TAB: POR AÑO ============ -->
+<!-- TAB ANUAL -->
 <div class="tab-content" id="tab-anual">
   <div id="lastSorteoBannerAnual"></div>
   <div class="card">
     <h3>📆 Análisis por Año</h3>
     <div class="form-group">
       <label>Seleccionar Año</label>
-      <select id="anualYear" onchange="renderAnual()">
-        <option value="">Seleccione...</option>
-      </select>
+      <select id="anualYear" onchange="renderAnual()"><option value="">Seleccione...</option></select>
     </div>
     <div id="anualContent"></div>
   </div>
   <div class="card">
-    <h3>📊 Comparar Años y Recomendar</h3>
-    <p style="font-size:0.75em;color:var(--text-dim);margin-bottom:10px;">
-      Compara estadísticas de todos los años con el último sorteo del mes actual para recomendar.
-    </p>
+    <h3>📊 Comparar Años → Recomendación</h3>
     <div id="anualCompare"></div>
   </div>
 </div>
 
-<!-- ============ TAB: ANÁLISIS ============ -->
+<!-- TAB ANALISIS -->
 <div class="tab-content" id="tab-analisis">
   <div id="lastSorteoBannerAnalisis"></div>
   <div class="card">
-    <h3>🎯 Análisis del Último Sorteo → Próximo Sorteo</h3>
-    <p style="font-size:0.75em;color:var(--text-dim);margin-bottom:10px;">
-      Busca las mejores decenas y terminales con mayor probabilidad para el PRÓXIMO sorteo,
-      basado en historial completo y tendencias del mes actual.
-    </p>
+    <h3>🎯 Análisis → Próximo Sorteo</h3>
+    <p style="font-size:0.75em;color:var(--text-dim);margin-bottom:10px;">Mejores decenas y terminales para el PRÓXIMO sorteo basado en historial completo y mes actual.</p>
     <div id="analisisContent"></div>
   </div>
 </div>
 
-<!-- ============ TAB: GUÍA ============ -->
+<!-- TAB GUIA -->
 <div class="tab-content" id="tab-guia">
   <div class="card">
     <h3>📖 Guía Completa de la App</h3>
-
     <div class="guide-section">
       <h4>🏠 Inicio</h4>
-      <p>Pantalla principal donde puedes:</p>
       <ul>
-        <li><strong>Importar datos:</strong> Carga archivos Excel (.xlsx/.xls), CSV o JSON con tu historial de sorteos Pick 3.</li>
-        <li><strong>Agregar sorteos manualmente:</strong> Ingresa fecha, turno (M=mediodía, N=noche) y los 3 dígitos.</li>
-        <li><strong>Exportar:</strong> Descarga tus datos como JSON para respaldo.</li>
-        <li><strong>Resumen 2 meses:</strong> Muestra las mejores decenas y terminales de los últimos 2 meses comparados con el último sorteo.</li>
+        <li><strong>Importar Excel/CSV/JSON:</strong> Carga tu historial de sorteos Pick 3.</li>
+        <li><strong>Agregar manual:</strong> Fecha, turno (M=mediodía, N=noche) y los 3 dígitos.</li>
+        <li><strong>Exportar JSON:</strong> Guarda tus datos como respaldo.</li>
+        <li><strong>Últimos 2 meses:</strong> Decenas y terminales más frecuentes comparadas con el último sorteo.</li>
       </ul>
     </div>
-
     <div class="guide-section">
       <h4>📋 Historial</h4>
-      <p>Vista completa de todos los sorteos cargados. Permite:</p>
       <ul>
         <li><strong>Filtrar:</strong> Por año, mes y turno.</li>
-        <li><strong>Editar:</strong> Modificar cualquier sorteo sin necesidad de borrarlo usando el botón ✏️.</li>
-        <li><strong>Eliminar:</strong> Borrar sorteos individuales con el botón 🗑️.</li>
+        <li><strong>✏️ Editar:</strong> Modifica cualquier sorteo sin borrarlo.</li>
+        <li><strong>🗑️ Eliminar:</strong> Borra sorteos individuales.</li>
       </ul>
     </div>
-
     <div class="guide-section">
       <h4>📊 Frecuencias</h4>
-      <p>Muestra cuántas veces aparece cada dígito (0-9) en el historial:</p>
       <ul>
-        <li><strong>General, Mediodía, Noche:</strong> Filtra las frecuencias por turno.</li>
-        <li><strong>Por posición:</strong> Frecuencia de cada dígito en posición D1, D2, D3.</li>
-        <li><strong>Por Decenas:</strong> Frecuencia de combinaciones D1+D2 (00-99).</li>
-        <li><strong>Por Terminales:</strong> Frecuencia de combinaciones D2+D3 (00-99).</li>
+        <li><strong>Dígitos 0-9:</strong> Cuántas veces aparece cada dígito. Filtrable por turno (CORREGIDO: Mediodía y Noche correctos).</li>
+        <li><strong>Por posición:</strong> Frecuencia en D1, D2, D3.</li>
+        <li><strong>Por Decenas:</strong> Top combinaciones D1+D2.</li>
+        <li><strong>Por Terminales:</strong> Top combinaciones D2+D3.</li>
       </ul>
     </div>
-
     <div class="guide-section">
       <h4>🔢 Decenas y Terminales</h4>
-      <p>Análisis detallado de las combinaciones de 2 dígitos:</p>
       <ul>
-        <li><strong>General:</strong> Todas las decenas y terminales más frecuentes.</li>
+        <li><strong>General:</strong> Frecuencias del historial completo vs último sorteo.</li>
         <li><strong>M→M:</strong> Qué decena/terminal de mediodía sigue a otra de mediodía.</li>
         <li><strong>N→N:</strong> Noche sigue a noche.</li>
         <li><strong>M→N:</strong> Qué sale en noche después de mediodía.</li>
         <li><strong>N→M:</strong> Qué sale en mediodía después de noche.</li>
-        <li><strong>Mejores:</strong> Las combinaciones con mayor frecuencia general.</li>
-        <li>Cada vista compara con el último sorteo del mes actual.</li>
+        <li><strong>⭐ Mejores:</strong> Top histórico general.</li>
       </ul>
     </div>
-
     <div class="guide-section">
       <h4>🧮 Matrix</h4>
-      <p>Matrices visuales 10x10 que muestran:</p>
       <ul>
-        <li><strong>Matrix de Decenas:</strong> Cruza D1 (fila) con D2 (columna). El color indica la frecuencia.</li>
-        <li><strong>Matrix de Terminales:</strong> Cruza D2 (fila) con D3 (columna).</li>
-        <li>🟢 Verde = Alta frecuencia, 🟡 Amarillo = Media, 🔴 Rojo = Baja, Gris = Nunca.</li>
+        <li><strong>Decenas:</strong> Cruza D1 (fila) × D2 (columna). Verde=alta frec, Amarillo=media, Azul=baja.</li>
+        <li><strong>Terminales:</strong> Cruza D2 (fila) × D3 (columna). Borde dorado=posición del último sorteo.</li>
       </ul>
     </div>
-
     <div class="guide-section">
       <h4>🔮 Vibraciones</h4>
-      <p>Toma el último sorteo del mes actual y analiza:</p>
-      <ul>
-        <li>Qué decenas y terminales "vibran" con ese número según las matrices.</li>
-        <li>Frecuencias históricas de esas combinaciones.</li>
-        <li>Sugiere las combinaciones más fuertes para el próximo sorteo.</li>
-      </ul>
-    </div>
-
-    <div class="guide-section">
-      <h4>🔗 Conexiones</h4>
-      <p>Ingresa un número de 3 dígitos y descubre:</p>
-      <ul>
-        <li>Qué números salieron DESPUÉS de ese número en el historial.</li>
-        <li>Se muestra separado por turno (M→M, M→N, N→N, N→M).</li>
-        <li>Útil para ver "qué jala" cada número.</li>
-      </ul>
-    </div>
-
-    <div class="guide-section">
-      <h4>📅 Última Semana</h4>
-      <p>Analiza los sorteos de los últimos 7 días antes del próximo sorteo:</p>
-      <ul>
-        <li>Muestra cada sorteo de la semana con su decena y terminal.</li>
-        <li>Calcula las decenas y terminales más repetidas esa semana.</li>
-        <li>Compara con el último sorteo para dar recomendaciones.</li>
-      </ul>
-    </div>
-
-    <div class="guide-section">
-      <h4>📆 Por Año</h4>
-      <p>Estadísticas anuales que incluyen:</p>
-      <ul>
-        <li>Frecuencias de decenas y terminales de cada año.</li>
-        <li>Comparación entre todos los años disponibles.</li>
-        <li>Recomendación de mejores decenas y terminales comparando con el último sorteo del mes actual.</li>
-      </ul>
-    </div>
-
-    <div class="guide-section">
-      <h4>🎯 Análisis</h4>
-      <p>El análisis más completo:</p>
       <ul>
         <li>Toma el último sorteo del mes actual.</li>
-        <li>Busca en todo el historial las mejores decenas y terminales para el PRÓXIMO sorteo.</li>
-        <li>Considera: frecuencias históricas, tendencias del mes, matrices, conexiones y vibraciones.</li>
-        <li>Muestra barras de probabilidad para cada recomendación.</li>
-        <li>Separa recomendaciones para Mediodía y Noche.</li>
+        <li>Analiza qué decenas y terminales "vibran" con él según las matrices.</li>
+        <li>Combina frecuencias históricas para sugerir combinaciones fuertes.</li>
       </ul>
     </div>
-
     <div class="guide-section">
-      <h4>💡 Consejos de Uso</h4>
+      <h4>🔗 Conexiones</h4>
       <ul>
-        <li>Importa la mayor cantidad de historial posible para mejores análisis.</li>
-        <li>Revisa las pestañas Vibraciones y Análisis antes de cada sorteo.</li>
-        <li>Combina la información de varias pestañas para tomar decisiones.</li>
-        <li>La app funciona 100% offline una vez cargada.</li>
+        <li>Ingresa un número de 3 dígitos y descubre qué números salieron DESPUÉS en el historial.</li>
+        <li>Separado por turno: Med→Med, Med→Noc, Noc→Noc, Noc→Med.</li>
+      </ul>
+    </div>
+    <div class="guide-section">
+      <h4>📅 Última Semana</h4>
+      <ul>
+        <li>Muestra los sorteos de los últimos 7 días.</li>
+        <li>Calcula decenas y terminales más repetidas esa semana.</li>
+        <li>Da recomendación para el próximo sorteo.</li>
+      </ul>
+    </div>
+    <div class="guide-section">
+      <h4>📆 Por Año</h4>
+      <ul>
+        <li>Estadísticas detalladas de cada año.</li>
+        <li>Comparación entre todos los años disponibles.</li>
+        <li>Recomienda mejores decenas y terminales según el último sorteo del mes actual.</li>
+      </ul>
+    </div>
+    <div class="guide-section">
+      <h4>🎯 Análisis</h4>
+      <ul>
+        <li>Sistema de puntuación que combina: historial completo, transiciones por turno, matrices y tendencias del mes.</li>
+        <li>Barras de probabilidad para cada decena y terminal.</li>
+        <li>Recomendaciones separadas para Mediodía y Noche.</li>
+        <li>Top 15 combinaciones Dec+Term con mayor puntaje.</li>
+      </ul>
+    </div>
+    <div class="guide-section">
+      <h4>💡 Consejos</h4>
+      <ul>
+        <li>Importa el mayor historial posible para análisis más precisos.</li>
+        <li>Revisa Vibraciones y Análisis antes de cada sorteo.</li>
+        <li>Combina varias pestañas para decidir.</li>
         <li>Exporta tu JSON regularmente como respaldo.</li>
+        <li>La app funciona 100% offline una vez cargada.</li>
       </ul>
     </div>
   </div>
 </div><script>
-// ===== DATOS Y ESTADO =====
 let sorteos = [];
 let editIndex = -1;
 let freqFilter = 'all';
 let dtView = 'general';
 
-// ===== INIT =====
 document.addEventListener('DOMContentLoaded', () => {
   loadData();
   initTabs();
@@ -825,241 +624,65 @@ function initTabs() {
 
 function setDefaultDate() {
   const today = new Date().toISOString().split('T')[0];
-  document.getElementById('addFecha').value = today;
+  const el = document.getElementById('addFecha');
+  if (el) el.value = today;
 }
 
-// ===== STORAGE =====
-function saveData() {
-  localStorage.setItem('pick3data', JSON.stringify(sorteos));
-}
-function loadData() {
-  const d = localStorage.getItem('pick3data');
-  if (d) sorteos = JSON.parse(d);
-}
+function saveData() { localStorage.setItem('pick3data', JSON.stringify(sorteos)); }
+function loadData() { const d = localStorage.getItem('pick3data'); if (d) sorteos = JSON.parse(d); }
 
-// ===== TOAST =====
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
+  setTimeout(() => t.classList.remove('show'), 2800);
 }
 
-// ===== AGREGAR SORTEO =====
-function addSorteo() {
-  const fecha = document.getElementById('addFecha').value;
-  const turno = document.getElementById('addTurno').value;
-  const d1 = document.getElementById('addD1').value;
-  const d2 = document.getElementById('addD2').value;
-  const d3 = document.getElementById('addD3').value;
-  if (!fecha || d1==='' || d2==='' || d3==='' ) { showToast('⚠️ Completa todos los campos'); return; }
-  if (d1<0||d1>9||d2<0||d2>9||d3<0||d3>9) { showToast('⚠️ Dígitos deben ser 0-9'); return; }
-  const exists = sorteos.find(s => s.fecha === fecha && s.turno === turno);
-  if (exists) { showToast('⚠️ Ya existe sorteo para esa fecha y turno'); return; }
-  sorteos.push({ fecha, turno, d1: +d1, d2: +d2, d3: +d3 });
-  sorteos.sort((a,b) => {
-    if (a.fecha !== b.fecha) return a.fecha.localeCompare(b.fecha);
-    return a.turno === 'M' ? -1 : 1;
-  });
-  saveData();
-  document.getElementById('addD1').value = '';
-  document.getElementById('addD2').value = '';
-  document.getElementById('addD3').value = '';
-  showToast('✅ Sorteo agregado');
-  renderAll();
-}
-
-// ===== IMPORTAR =====
-function importFile(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  const ext = file.name.split('.').pop().toLowerCase();
-  if (ext === 'csv') {
-    const reader = new FileReader();
-    reader.onload = (ev) => { parseCSV(ev.target.result); };
-    reader.readAsText(file);
-  } else {
-    const reader = new FileReader();
-    reader.onload = (ev) => { parseExcel(ev.target.result); };
-    reader.readAsArrayBuffer(file);
-  }
-  e.target.value = '';
-}
-
-function parseCSV(text) {
-  const lines = text.split('\n').map(l => l.trim()).filter(l => l);
-  let added = 0;
-  for (let i = 0; i < lines.length; i++) {
-    const parts = lines[i].split(/[,;\t]/).map(p => p.trim());
-    const result = parseSorteoLine(parts);
-    if (result) {
-      const exists = sorteos.find(s => s.fecha === result.fecha && s.turno === result.turno);
-      if (!exists) { sorteos.push(result); added++; }
-    }
-  }
-  finishImport(added);
-}
-
-function parseExcel(buffer) {
-  // Simple XLSX parser - reads SheetJS if available, otherwise basic
-  if (typeof XLSX !== 'undefined') {
-    const wb = XLSX.read(buffer, {type:'array'});
-    const ws = wb.Sheets[wb.SheetNames[0]];
-    const data = XLSX.utils.sheet_to_json(ws, {header:1});
-    let added = 0;
-    data.forEach(row => {
-      const result = parseSorteoLine(row.map(String));
-      if (result) {
-        const exists = sorteos.find(s => s.fecha === result.fecha && s.turno === result.turno);
-        if (!exists) { sorteos.push(result); added++; }
-      }
-    });
-    finishImport(added);
-  } else {
-    showToast('⚠️ Para Excel, usa CSV o carga la librería XLSX');
-  }
-}
-
-function parseSorteoLine(parts) {
-  if (parts.length < 3) return null;
-  let fecha = null, turno = 'M', d1, d2, d3;
-
-  // Try different formats
-  for (let p of parts) {
-    if (!p) continue;
-    p = p.toString().trim();
-    // Date detection
-    if (/^\d{4}-\d{2}-\d{2}$/.test(p)) { fecha = p; continue; }
-    if (/^\d{1,2}\/\d{1,2}\/\d{2,4}$/.test(p)) {
-      const dp = p.split('/');
-      const yr = dp[2].length === 2 ? '20' + dp[2] : dp[2];
-      fecha = `${yr}-${dp[0].padStart(2,'0')}-${dp[1].padStart(2,'0')}`;
-      continue;
-    }
-    // Turno detection
-    if (/^[MmDd]$/i.test(p) || /mediod/i.test(p) || /^day$/i.test(p)) { turno = 'M'; continue; }
-    if (/^[NnEe]$/i.test(p) || /noche/i.test(p) || /^night$/i.test(p) || /^evening$/i.test(p)) { turno = 'N'; continue; }
-    // 3-digit number
-    if (/^\d{3}$/.test(p)) {
-      d1 = +p[0]; d2 = +p[1]; d3 = +p[2];
-      continue;
-    }
-  }
-
-  // If no 3-digit found, try last 3 single digits
-  if (d1 === undefined) {
-    const nums = parts.filter(p => /^\d$/.test(p.toString().trim())).map(Number);
-    if (nums.length >= 3) {
-      d1 = nums[nums.length-3]; d2 = nums[nums.length-2]; d3 = nums[nums.length-1];
-    }
-  }
-
-  if (!fecha) fecha = new Date().toISOString().split('T')[0];
-  if (d1 !== undefined && d2 !== undefined && d3 !== undefined &&
-      d1 >= 0 && d1 <= 9 && d2 >= 0 && d2 <= 9 && d3 >= 0 && d3 <= 9) {
-    return { fecha, turno, d1, d2, d3 };
-  }
-  return null;
-}
-
-function finishImport(added) {
-  sorteos.sort((a,b) => {
-    if (a.fecha !== b.fecha) return a.fecha.localeCompare(b.fecha);
-    return a.turno === 'M' ? -1 : 1;
-  });
-  saveData();
-  showToast(`✅ ${added} sorteos importados`);
-  document.getElementById('importStatus').innerHTML = `<span style="color:var(--green)">✅ ${added} sorteos importados. Total: ${sorteos.length}</span>`;
-  renderAll();
-}
-
-function importJSON(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (ev) => {
-    try {
-      const data = JSON.parse(ev.target.result);
-      if (Array.isArray(data)) {
-        let added = 0;
-        data.forEach(s => {
-          if (s.fecha && s.d1 !== undefined) {
-            if (!s.turno) s.turno = 'M';
-            const exists = sorteos.find(x => x.fecha === s.fecha && x.turno === s.turno);
-            if (!exists) { sorteos.push(s); added++; }
-          }
-        });
-        finishImport(added);
-      }
-    } catch(err) { showToast('⚠️ Error en archivo JSON'); }
-  };
-  reader.readAsText(file);
-  e.target.value = '';
-}
-
-function exportJSON() {
-  if (!sorteos.length) { showToast('⚠️ No hay datos'); return; }
-  const blob = new Blob([JSON.stringify(sorteos, null, 2)], {type:'application/json'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `pick3_${new Date().toISOString().split('T')[0]}.json`;
-  a.click();
-  showToast('💾 Exportado');
-}
-
-function clearAllData() {
-  if (confirm('¿Borrar TODOS los datos? Esta acción no se puede deshacer.')) {
-    sorteos = [];
-    saveData();
-    showToast('🗑️ Datos borrados');
-    renderAll();
-  }
-}
-
-// ===== UTILIDADES =====
+function pad2(n) { return n.toString().padStart(2, '0'); }
 function getDecena(s) { return s.d1 * 10 + s.d2; }
 function getTerminal(s) { return s.d2 * 10 + s.d3; }
 function getNumStr(s) { return `${s.d1}${s.d2}${s.d3}`; }
-function pad2(n) { return n.toString().padStart(2, '0'); }
 
-function getLastSorteo() {
-  if (!sorteos.length) return null;
-  return sorteos[sorteos.length - 1];
+function sortSorteos() {
+  sorteos.sort((a, b) => {
+    if (a.fecha !== b.fecha) return a.fecha.localeCompare(b.fecha);
+    return a.turno === 'M' ? -1 : 1;
+  });
 }
 
 function getLastSorteoCurrentMonth() {
   const now = new Date();
-  const ym = `${now.getFullYear()}-${pad2(now.getMonth()+1)}`;
-  const monthSorteos = sorteos.filter(s => s.fecha.startsWith(ym));
-  if (monthSorteos.length) return monthSorteos[monthSorteos.length - 1];
-  return getLastSorteo();
+  const ym = `${now.getFullYear()}-${pad2(now.getMonth() + 1)}`;
+  const mes = sorteos.filter(s => s.fecha.startsWith(ym));
+  if (mes.length) return mes[mes.length - 1];
+  if (sorteos.length) return sorteos[sorteos.length - 1];
+  return null;
 }
 
 function getNextTurno() {
-  const last = getLastSorteoCurrentMonth();
-  if (!last) return { turno: 'M', label: 'Mediodía' };
-  if (last.turno === 'M') return { turno: 'N', label: 'Noche' };
-  return { turno: 'M', label: 'Mediodía' };
+  const ls = getLastSorteoCurrentMonth();
+  if (!ls) return { turno: 'M', label: 'Mediodía' };
+  return ls.turno === 'M' ? { turno: 'N', label: 'Noche' } : { turno: 'M', label: 'Mediodía' };
 }
 
-function renderLastSorteoBanner(containerId) {
-  const el = document.getElementById(containerId);
+function renderLastSorteoBanner(id) {
+  const el = document.getElementById(id);
   if (!el) return;
   const ls = getLastSorteoCurrentMonth();
-  if (!ls) { el.innerHTML = '<p style="color:var(--text-dim);font-size:0.85em;">No hay sorteos cargados.</p>'; return; }
+  if (!ls) { el.innerHTML = ''; return; }
   const next = getNextTurno();
-  el.innerHTML = `
-    <div class="last-sorteo-banner">
-      <div>
-        <div class="ls-label">Último sorteo del mes</div>
-        <div class="ls-num">${getNumStr(ls)}</div>
-      </div>
-      <div style="text-align:right">
-        <div class="ls-info">${ls.fecha} | ${ls.turno==='M'?'Mediodía':'Noche'}</div>
-        <div class="ls-info" style="color:var(--gold);">Próximo: ${next.label}</div>
-        <div class="ls-info">Dec: ${pad2(getDecena(ls))} | Term: ${pad2(getTerminal(ls))}</div>
-      </div>
-    </div>`;
+  el.innerHTML = `<div class="last-sorteo-banner">
+    <div>
+      <div class="ls-label">Último sorteo del mes</div>
+      <div class="ls-num">${getNumStr(ls)}</div>
+      <div class="ls-info">Dec: ${pad2(getDecena(ls))} | Term: ${pad2(getTerminal(ls))}</div>
+    </div>
+    <div style="text-align:right">
+      <div class="ls-info">${ls.fecha}</div>
+      <div class="ls-info">${ls.turno === 'M' ? '☀️ Mediodía' : '🌙 Noche'}</div>
+      <div class="ls-info" style="color:var(--gold);">Próximo: ${next.label}</div>
+    </div>
+  </div>`;
 }
 
 function renderAll() {
@@ -1073,55 +696,175 @@ function renderAll() {
   renderSemana();
   renderAnual();
   renderAnalisis();
-  // Banners
   ['lastSorteoBannerFreq','lastSorteoBannerDT','lastSorteoBannerMatrix',
    'lastSorteoBannerVib','lastSorteoBannerSemana','lastSorteoBannerAnual',
    'lastSorteoBannerAnalisis'].forEach(id => renderLastSorteoBanner(id));
 }
 
 function updateYearFilters() {
-  const years = [...new Set(sorteos.map(s => s.fecha.substring(0,4)))].sort();
-  ['filtroAnio','anualYear'].forEach(id => {
+  const years = [...new Set(sorteos.map(s => s.fecha.substring(0, 4)))].sort();
+  ['filtroAnio', 'anualYear'].forEach(id => {
     const sel = document.getElementById(id);
     if (!sel) return;
     const curr = sel.value;
-    const firstOpt = sel.options[0].outerHTML;
-    sel.innerHTML = firstOpt;
-    years.forEach(y => { sel.innerHTML += `<option value="${y}" ${y===curr?'selected':''}>${y}</option>`; });
+    const first = sel.options[0].outerHTML;
+    sel.innerHTML = first;
+    years.forEach(y => sel.innerHTML += `<option value="${y}" ${y === curr ? 'selected' : ''}>${y}</option>`);
   });
 }
 
-// ===== HISTORIAL =====
+function addSorteo() {
+  const fecha = document.getElementById('addFecha').value;
+  const turno = document.getElementById('addTurno').value;
+  const d1 = document.getElementById('addD1').value;
+  const d2 = document.getElementById('addD2').value;
+  const d3 = document.getElementById('addD3').value;
+  if (!fecha || d1 === '' || d2 === '' || d3 === '') { showToast('⚠️ Completa todos los campos'); return; }
+  const nd1 = +d1, nd2 = +d2, nd3 = +d3;
+  if (nd1 < 0 || nd1 > 9 || nd2 < 0 || nd2 > 9 || nd3 < 0 || nd3 > 9) { showToast('⚠️ Dígitos deben ser 0-9'); return; }
+  if (sorteos.find(s => s.fecha === fecha && s.turno === turno)) { showToast('⚠️ Ya existe ese sorteo'); return; }
+  sorteos.push({ fecha, turno, d1: nd1, d2: nd2, d3: nd3 });
+  sortSorteos();
+  saveData();
+  ['addD1','addD2','addD3'].forEach(id => document.getElementById(id).value = '');
+  showToast('✅ Sorteo agregado');
+  renderAll();
+}
+
+function importFile(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const ext = file.name.split('.').pop().toLowerCase();
+  if (ext === 'csv') {
+    const reader = new FileReader();
+    reader.onload = ev => parseCSV(ev.target.result);
+    reader.readAsText(file);
+  } else {
+    if (typeof XLSX !== 'undefined') {
+      const reader = new FileReader();
+      reader.onload = ev => {
+        const wb = XLSX.read(ev.target.result, { type: 'array' });
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
+        let added = 0;
+        data.forEach(row => {
+          const r = parseSorteoLine(row.map(String));
+          if (r && !sorteos.find(s => s.fecha === r.fecha && s.turno === r.turno)) { sorteos.push(r); added++; }
+        });
+        finishImport(added);
+      };
+      reader.readAsArrayBuffer(file);
+    } else { showToast('⚠️ Usa CSV para importar'); }
+  }
+  e.target.value = '';
+}
+
+function parseCSV(text) {
+  const lines = text.split('\n').map(l => l.trim()).filter(l => l);
+  let added = 0;
+  lines.forEach(line => {
+    const parts = line.split(/[,;\t]/).map(p => p.trim());
+    const r = parseSorteoLine(parts);
+    if (r && !sorteos.find(s => s.fecha === r.fecha && s.turno === r.turno)) { sorteos.push(r); added++; }
+  });
+  finishImport(added);
+}
+
+function parseSorteoLine(parts) {
+  let fecha = null, turno = 'M', d1, d2, d3;
+  for (let p of parts) {
+    if (!p) continue;
+    p = p.toString().trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(p)) { fecha = p; continue; }
+    if (/^\d{1,2}\/\d{1,2}\/\d{2,4}$/.test(p)) {
+      const dp = p.split('/');
+      const yr = dp[2].length === 2 ? '20' + dp[2] : dp[2];
+      fecha = `${yr}-${dp[0].padStart(2,'0')}-${dp[1].padStart(2,'0')}`;
+      continue;
+    }
+    if (/^[Mm]$/i.test(p) || /mediod/i.test(p)) { turno = 'M'; continue; }
+    if (/^[Nn]$/i.test(p) || /noche/i.test(p) || /night/i.test(p)) { turno = 'N'; continue; }
+    if (/^\d{3}$/.test(p)) { d1 = +p[0]; d2 = +p[1]; d3 = +p[2]; continue; }
+  }
+  if (d1 === undefined) {
+    const nums = parts.filter(p => /^\d$/.test(p.toString().trim())).map(Number);
+    if (nums.length >= 3) { d1 = nums[0]; d2 = nums[1]; d3 = nums[2]; }
+  }
+  if (!fecha) return null;
+  if (d1 !== undefined && d1 >= 0 && d1 <= 9 && d2 >= 0 && d2 <= 9 && d3 >= 0 && d3 <= 9)
+    return { fecha, turno, d1, d2, d3 };
+  return null;
+}
+
+function finishImport(added) {
+  sortSorteos();
+  saveData();
+  document.getElementById('importStatus').innerHTML = `<span style="color:var(--green)">✅ ${added} sorteos importados. Total: ${sorteos.length}</span>`;
+  showToast(`✅ ${added} sorteos importados`);
+  renderAll();
+}
+
+function importJSON(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      let added = 0;
+      if (Array.isArray(data)) {
+        data.forEach(s => {
+          if (s.fecha && s.d1 !== undefined) {
+            if (!s.turno) s.turno = 'M';
+            if (!sorteos.find(x => x.fecha === s.fecha && x.turno === s.turno)) { sorteos.push(s); added++; }
+          }
+        });
+      }
+      finishImport(added);
+    } catch(err) { showToast('⚠️ Error en JSON'); }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+function exportJSON() {
+  if (!sorteos.length) { showToast('⚠️ No hay datos'); return; }
+  const blob = new Blob([JSON.stringify(sorteos, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `pick3_${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+  showToast('💾 Exportado correctamente');
+}
+
+function clearAllData() {
+  if (confirm('¿Borrar TODOS los datos? No se puede deshacer.')) {
+    sorteos = [];
+    saveData();
+    showToast('🗑️ Datos borrados');
+    renderAll();
+  }
+}
+
 function renderHistorial() {
   const container = document.getElementById('historialTable');
   const countEl = document.getElementById('historialCount');
-  if (!sorteos.length) {
-    container.innerHTML = '<p style="color:var(--text-dim)">No hay sorteos cargados.</p>';
-    countEl.textContent = '';
-    return;
-  }
+  if (!sorteos.length) { container.innerHTML = '<p style="color:var(--text-dim)">No hay datos.</p>'; countEl.textContent = ''; return; }
   let filtered = [...sorteos];
-  const fAnio = document.getElementById('filtroAnio').value;
-  const fMes = document.getElementById('filtroMes').value;
-  const fTurno = document.getElementById('filtroTurno').value;
-  if (fAnio) filtered = filtered.filter(s => s.fecha.startsWith(fAnio));
-  if (fMes) filtered = filtered.filter(s => s.fecha.substring(5,7) === fMes);
-  if (fTurno) filtered = filtered.filter(s => s.turno === fTurno);
-
+  const fA = document.getElementById('filtroAnio').value;
+  const fM = document.getElementById('filtroMes').value;
+  const fT = document.getElementById('filtroTurno').value;
+  if (fA) filtered = filtered.filter(s => s.fecha.startsWith(fA));
+  if (fM) filtered = filtered.filter(s => s.fecha.substring(5, 7) === fM);
+  if (fT) filtered = filtered.filter(s => s.turno === fT);
   countEl.textContent = `Mostrando ${filtered.length} de ${sorteos.length} sorteos`;
-
-  // Reverse for display (newest first)
   const display = [...filtered].reverse();
-
-  let html = `<table><thead><tr>
-    <th>Fecha</th><th>Turno</th><th>Número</th><th>Dec</th><th>Term</th><th>Acc</th>
-  </tr></thead><tbody>`;
-
+  let html = `<table><thead><tr><th>Fecha</th><th>Turno</th><th>Número</th><th>Dec</th><th>Term</th><th>Acciones</th></tr></thead><tbody>`;
   display.forEach(s => {
     const idx = sorteos.indexOf(s);
     html += `<tr>
       <td>${s.fecha}</td>
-      <td><span style="color:${s.turno==='M'?'var(--orange)':'var(--purple)'}">${s.turno==='M'?'Med':'Noc'}</span></td>
+      <td><span style="color:${s.turno==='M'?'var(--orange)':'var(--purple)'}">${s.turno==='M'?'☀️Med':'🌙Noc'}</span></td>
       <td style="font-weight:700;color:var(--gold)">${getNumStr(s)}</td>
       <td>${pad2(getDecena(s))}</td>
       <td>${pad2(getTerminal(s))}</td>
@@ -1139,12 +882,11 @@ function deleteSorteo(idx) {
   if (confirm('¿Eliminar este sorteo?')) {
     sorteos.splice(idx, 1);
     saveData();
-    showToast('🗑️ Sorteo eliminado');
+    showToast('🗑️ Eliminado');
     renderAll();
   }
 }
 
-// ===== EDITAR MODAL =====
 function openEditModal(idx) {
   editIndex = idx;
   const s = sorteos[idx];
@@ -1170,1033 +912,518 @@ function saveEdit() {
   const d3 = +document.getElementById('editD3').value;
   if (!fecha || isNaN(d1) || isNaN(d2) || isNaN(d3)) { showToast('⚠️ Datos inválidos'); return; }
   if (d1<0||d1>9||d2<0||d2>9||d3<0||d3>9) { showToast('⚠️ Dígitos 0-9'); return; }
-  // Check duplicate (excluding current)
-  const dup = sorteos.find((s,i) => i !== editIndex && s.fecha === fecha && s.turno === turno);
-  if (dup) { showToast('⚠️ Ya existe sorteo en esa fecha/turno'); return; }
+  if (sorteos.find((s, i) => i !== editIndex && s.fecha === fecha && s.turno === turno)) { showToast('⚠️ Ya existe ese sorteo'); return; }
   sorteos[editIndex] = { fecha, turno, d1, d2, d3 };
-  sorteos.sort((a,b) => {
-    if (a.fecha !== b.fecha) return a.fecha.localeCompare(b.fecha);
-    return a.turno === 'M' ? -1 : 1;
-  });
+  sortSorteos();
   saveData();
   closeEditModal();
   showToast('✅ Sorteo actualizado');
   renderAll();
-}// ===== FRECUENCIAS =====
+}
+
 function setFreqFilter(f, btn) {
   freqFilter = f;
-  btn.parentElement.querySelectorAll('.btn').forEach(b => { b.classList.remove('active','btn-primary'); b.classList.add('btn-secondary'); });
-  btn.classList.add('active','btn-primary');
-  btn.classList.remove('btn-secondary');
+  document.querySelectorAll('#tab-frecuencias .btn-small').forEach(b => { b.classList.remove('btn-primary'); b.classList.add('btn-secondary'); });
+  btn.classList.add('btn-primary'); btn.classList.remove('btn-secondary');
   renderFrequencies();
 }
 
 function renderFrequencies() {
-  const container = document.getElementById('freqChart');
-  const posContainer = document.getElementById('freqByPos');
-  const decContainer = document.getElementById('freqDecenas');
-  const termContainer = document.getElementById('freqTerminales');
   if (!sorteos.length) {
-    container.innerHTML = posContainer.innerHTML = decContainer.innerHTML = termContainer.innerHTML = '<p style="color:var(--text-dim)">No hay datos.</p>';
+    ['freqChart','freqByPos','freqDecenas','freqTerminales'].forEach(id => {
+      document.getElementById(id).innerHTML = '<p style="color:var(--text-dim)">No hay datos.</p>';
+    });
     return;
   }
-
-  // CORREGIDO: M = Mediodía, N = Noche (estaban intercambiados)
   let data = sorteos;
   if (freqFilter === 'M') data = sorteos.filter(s => s.turno === 'M');
   if (freqFilter === 'N') data = sorteos.filter(s => s.turno === 'N');
 
-  // Digit frequency
   const freq = Array(10).fill(0);
   const freqPos = [Array(10).fill(0), Array(10).fill(0), Array(10).fill(0)];
   data.forEach(s => {
     freq[s.d1]++; freq[s.d2]++; freq[s.d3]++;
-    freqPos[0][s.d1]++;
-    freqPos[1][s.d2]++;
-    freqPos[2][s.d3]++;
+    freqPos[0][s.d1]++; freqPos[1][s.d2]++; freqPos[2][s.d3]++;
   });
-  const maxFreq = Math.max(...freq, 1);
-
+  const maxF = Math.max(...freq, 1);
   let html = '<div class="bar-chart">';
   for (let i = 0; i <= 9; i++) {
-    const pct = (freq[i] / maxFreq * 100);
-    const cls = pct > 70 ? 'hot' : pct > 40 ? 'med' : 'cold';
-    html += `<div class="bar-row">
-      <div class="bar-label">${i}</div>
-      <div class="bar-fill ${cls}" style="width:${Math.max(pct,2)}%">${freq[i]}</div>
-    </div>`;
+    const pct = freq[i] / maxF * 100;
+    html += `<div class="bar-row"><div class="bar-label">${i}</div>
+      <div class="bar-fill ${pct>70?'hot':pct>40?'med':'cold'}" style="width:${Math.max(pct,2)}%">${freq[i]}</div></div>`;
   }
-  html += '</div>';
-  container.innerHTML = html;
+  document.getElementById('freqChart').innerHTML = html + '</div>';
 
-  // By position
   let posHtml = '';
   ['D1 (Centena)', 'D2 (Decena)', 'D3 (Unidad)'].forEach((label, pi) => {
     const mx = Math.max(...freqPos[pi], 1);
     posHtml += `<h4>${label}</h4><div class="bar-chart">`;
     for (let i = 0; i <= 9; i++) {
-      const pct = (freqPos[pi][i] / mx * 100);
-      const cls = pct > 70 ? 'hot' : pct > 40 ? 'med' : 'cold';
-      posHtml += `<div class="bar-row">
-        <div class="bar-label">${i}</div>
-        <div class="bar-fill ${cls}" style="width:${Math.max(pct,2)}%">${freqPos[pi][i]}</div>
-      </div>`;
+      const pct = freqPos[pi][i] / mx * 100;
+      posHtml += `<div class="bar-row"><div class="bar-label">${i}</div>
+        <div class="bar-fill ${pct>70?'hot':pct>40?'med':'cold'}" style="width:${Math.max(pct,2)}%">${freqPos[pi][i]}</div></div>`;
     }
     posHtml += '</div>';
   });
-  posContainer.innerHTML = posHtml;
+  document.getElementById('freqByPos').innerHTML = posHtml;
 
-  // Decenas freq
-  const decFreq = {};
+  const decFreq = {}, termFreq = {};
   data.forEach(s => {
-    const d = pad2(getDecena(s));
-    decFreq[d] = (decFreq[d] || 0) + 1;
+    const d = pad2(getDecena(s)); decFreq[d] = (decFreq[d]||0) + 1;
+    const t = pad2(getTerminal(s)); termFreq[t] = (termFreq[t]||0) + 1;
   });
-  const decSorted = Object.entries(decFreq).sort((a,b) => b[1] - a[1]).slice(0, 20);
-  const maxDec = decSorted.length ? decSorted[0][1] : 1;
-  let decHtml = '<p style="font-size:0.75em;color:var(--text-dim);margin-bottom:8px;">Top 20 más frecuentes</p><div class="bar-chart">';
-  decSorted.forEach(([num, cnt]) => {
-    const pct = (cnt / maxDec * 100);
-    decHtml += `<div class="bar-row">
-      <div class="bar-label">${num}</div>
-      <div class="bar-fill med" style="width:${Math.max(pct,2)}%">${cnt}</div>
-    </div>`;
-  });
-  decHtml += '</div>';
-  decContainer.innerHTML = decHtml;
+  const topDec = Object.entries(decFreq).sort((a,b)=>b[1]-a[1]).slice(0,20);
+  const topTerm = Object.entries(termFreq).sort((a,b)=>b[1]-a[1]).slice(0,20);
+  const mxD = topDec.length ? topDec[0][1] : 1;
+  const mxT = topTerm.length ? topTerm[0][1] : 1;
 
-  // Terminales freq
-  const termFreq = {};
-  data.forEach(s => {
-    const t = pad2(getTerminal(s));
-    termFreq[t] = (termFreq[t] || 0) + 1;
-  });
-  const termSorted = Object.entries(termFreq).sort((a,b) => b[1] - a[1]).slice(0, 20);
-  const maxTerm = termSorted.length ? termSorted[0][1] : 1;
-  let termHtml = '<p style="font-size:0.75em;color:var(--text-dim);margin-bottom:8px;">Top 20 más frecuentes</p><div class="bar-chart">';
-  termSorted.forEach(([num, cnt]) => {
-    const pct = (cnt / maxTerm * 100);
-    termHtml += `<div class="bar-row">
-      <div class="bar-label">${num}</div>
-      <div class="bar-fill med" style="width:${Math.max(pct,2)}%">${cnt}</div>
-    </div>`;
-  });
-  termHtml += '</div>';
-  termContainer.innerHTML = termHtml;
+  let decHtml = '<p style="font-size:0.75em;color:var(--text-dim);margin-bottom:8px;">Top 20</p><div class="bar-chart">';
+  topDec.forEach(([n,c]) => { const p=c/mxD*100; decHtml+=`<div class="bar-row"><div class="bar-label">${n}</div><div class="bar-fill med" style="width:${Math.max(p,2)}%">${c}</div></div>`; });
+  document.getElementById('freqDecenas').innerHTML = decHtml + '</div>';
+
+  let termHtml = '<p style="font-size:0.75em;color:var(--text-dim);margin-bottom:8px;">Top 20</p><div class="bar-chart">';
+  topTerm.forEach(([n,c]) => { const p=c/mxT*100; termHtml+=`<div class="bar-row"><div class="bar-label">${n}</div><div class="bar-fill med" style="width:${Math.max(p,2)}%">${c}</div></div>`; });
+  document.getElementById('freqTerminales').innerHTML = termHtml + '</div>';
 }
 
-// ===== DECENAS / TERMINALES =====
 function setDTView(v, btn) {
   dtView = v;
-  btn.parentElement.querySelectorAll('.btn').forEach(b => { b.classList.remove('active','btn-primary'); b.classList.add('btn-secondary'); });
-  btn.classList.add('active','btn-primary');
-  btn.classList.remove('btn-secondary');
+  btn.parentElement.querySelectorAll('.btn').forEach(b => { b.classList.remove('btn-primary'); b.classList.add('btn-secondary'); });
+  btn.classList.add('btn-primary'); btn.classList.remove('btn-secondary');
   renderDecTerm();
 }
 
 function renderDecTerm() {
   const container = document.getElementById('dtContent');
   if (!sorteos.length) { container.innerHTML = '<p style="color:var(--text-dim)">No hay datos.</p>'; return; }
-
   const ls = getLastSorteoCurrentMonth();
-  const lsDec = ls ? pad2(getDecena(ls)) : null;
-  const lsTerm = ls ? pad2(getTerminal(ls)) : null;
-
-  if (dtView === 'general') {
-    container.innerHTML = renderDTGeneral(sorteos, ls);
-  } else if (dtView === 'best') {
-    container.innerHTML = renderDTBest(sorteos, ls);
-  } else {
-    // MM, NN, MN, NM
-    container.innerHTML = renderDTTransition(dtView, ls);
-  }
+  if (dtView === 'general') container.innerHTML = renderDTGeneral(ls);
+  else if (dtView === 'best') container.innerHTML = renderDTBest(ls);
+  else container.innerHTML = renderDTTransition(dtView, ls);
 }
 
-function renderDTGeneral(data, ls) {
+function renderDTGeneral(ls) {
   const decFreq = {}, termFreq = {};
-  data.forEach(s => {
-    const d = pad2(getDecena(s));
-    const t = pad2(getTerminal(s));
-    decFreq[d] = (decFreq[d] || 0) + 1;
-    termFreq[t] = (termFreq[t] || 0) + 1;
+  sorteos.forEach(s => {
+    const d = pad2(getDecena(s)); decFreq[d] = (decFreq[d]||0)+1;
+    const t = pad2(getTerminal(s)); termFreq[t] = (termFreq[t]||0)+1;
   });
-
-  const topDec = Object.entries(decFreq).sort((a,b) => b[1] - a[1]).slice(0, 15);
-  const topTerm = Object.entries(termFreq).sort((a,b) => b[1] - a[1]).slice(0, 15);
-
-  let html = '';
-  if (ls) {
-    html += `<div class="rec-box"><h4>📌 Último sorteo: ${getNumStr(ls)} | Dec: ${pad2(getDecena(ls))} | Term: ${pad2(getTerminal(ls))}</h4></div>`;
-  }
-
-  html += '<h4>📊 Top 15 Decenas</h4>';
-  html += renderDTTable(topDec, ls ? pad2(getDecena(ls)) : null);
-  html += '<h4 style="margin-top:15px;">📊 Top 15 Terminales</h4>';
-  html += renderDTTable(topTerm, ls ? pad2(getTerminal(ls)) : null);
+  const topDec = Object.entries(decFreq).sort((a,b)=>b[1]-a[1]).slice(0,15);
+  const topTerm = Object.entries(termFreq).sort((a,b)=>b[1]-a[1]).slice(0,15);
+  const lsDec = ls ? pad2(getDecena(ls)) : null;
+  const lsTerm = ls ? pad2(getTerminal(ls)) : null;
+  let html = ls ? `<div class="rec-box"><h4>📌 Último: ${getNumStr(ls)} | Dec: ${lsDec} | Term: ${lsTerm}</h4></div>` : '';
+  html += '<h4>📊 Top 15 Decenas</h4>' + renderBarChart(topDec, lsDec);
+  html += '<h4 style="margin-top:15px;">📊 Top 15 Terminales</h4>' + renderBarChart(topTerm, lsTerm);
   return html;
 }
 
-function renderDTTable(items, highlight) {
-  const max = items.length ? items[0][1] : 1;
+function renderBarChart(items, highlight) {
+  const mx = items.length ? items[0][1] : 1;
   let html = '<div class="bar-chart">';
   items.forEach(([num, cnt]) => {
-    const pct = (cnt / max * 100);
+    const pct = cnt / mx * 100;
     const isHL = num === highlight;
     html += `<div class="bar-row">
-      <div class="bar-label" style="${isHL?'color:var(--gold);font-size:1em;':''}">${num}</div>
+      <div class="bar-label" style="${isHL?'color:var(--gold);':''}">${num}</div>
       <div class="bar-fill ${isHL?'hot':'med'}" style="width:${Math.max(pct,2)}%">${cnt}${isHL?' ⭐':''}</div>
     </div>`;
   });
-  html += '</div>';
-  return html;
+  return html + '</div>';
 }
 
 function renderDTTransition(type, ls) {
-  // type: MM, NN, MN, NM
-  const fromTurno = type[0] === 'M' ? 'M' : 'N';
-  const toTurno = type[1] === 'M' ? 'M' : 'N';
-  const label = `${fromTurno==='M'?'Mediodía':'Noche'} → ${toTurno==='M'?'Mediodía':'Noche'}`;
-
-  // Build transitions
+  const fromT = type[0], toT = type[1];
+  const label = `${fromT==='M'?'Mediodía':'Noche'} → ${toT==='M'?'Mediodía':'Noche'}`;
   const decTrans = {}, termTrans = {};
-
   for (let i = 0; i < sorteos.length - 1; i++) {
-    const curr = sorteos[i];
-    const next = sorteos[i + 1];
-    if (curr.turno === fromTurno && next.turno === toTurno) {
-      const currDec = pad2(getDecena(curr));
-      const nextDec = pad2(getDecena(next));
-      const currTerm = pad2(getTerminal(curr));
-      const nextTerm = pad2(getTerminal(next));
-
-      if (!decTrans[currDec]) decTrans[currDec] = {};
-      decTrans[currDec][nextDec] = (decTrans[currDec][nextDec] || 0) + 1;
-
-      if (!termTrans[currTerm]) termTrans[currTerm] = {};
-      termTrans[currTerm][nextTerm] = (termTrans[currTerm][nextTerm] || 0) + 1;
+    const c = sorteos[i], n = sorteos[i+1];
+    if (c.turno === fromT && n.turno === toT) {
+      const cd = pad2(getDecena(c)), nd = pad2(getDecena(n));
+      const ct = pad2(getTerminal(c)), nt = pad2(getTerminal(n));
+      if (!decTrans[cd]) decTrans[cd] = {};
+      decTrans[cd][nd] = (decTrans[cd][nd]||0)+1;
+      if (!termTrans[ct]) termTrans[ct] = {};
+      termTrans[ct][nt] = (termTrans[ct][nt]||0)+1;
     }
   }
-
   let html = `<h4>🔄 ${label}</h4>`;
-
   if (ls) {
-    const lsDec = pad2(getDecena(ls));
-    const lsTerm = pad2(getTerminal(ls));
-
-    html += `<div class="rec-box"><h4>📌 Último sorteo: ${getNumStr(ls)} (Dec:${lsDec} Term:${lsTerm})</h4>`;
-
-    // Best transitions from last sorteo's decena
+    const lsDec = pad2(getDecena(ls)), lsTerm = pad2(getTerminal(ls));
+    html += `<div class="rec-box"><h4>📌 Último: ${getNumStr(ls)} | Dec:${lsDec} | Term:${lsTerm}</h4>`;
     if (decTrans[lsDec]) {
-      const sorted = Object.entries(decTrans[lsDec]).sort((a,b) => b[1] - a[1]).slice(0, 10);
-      html += `<p style="margin-top:8px;"><strong>Decena ${lsDec} →</strong></p><div class="rec-nums">`;
-      sorted.forEach(([num, cnt]) => {
-        html += `<div class="rec-item"><span>${num}</span> (${cnt}x)</div>`;
-      });
+      const sd = Object.entries(decTrans[lsDec]).sort((a,b)=>b[1]-a[1]).slice(0,10);
+      html += `<p style="margin-top:8px;font-size:0.85em;color:var(--accent3);">Decenas que siguen a ${lsDec}:</p><div class="rec-nums">`;
+      sd.forEach(([n,c]) => { html += `<div class="rec-item"><span>${n}</span> (${c}x)</div>`; });
       html += '</div>';
-    } else {
-      html += `<p style="color:var(--text-dim);font-size:0.8em;">No hay transiciones para decena ${lsDec} en ${label}</p>`;
-    }
-
+    } else html += `<p style="color:var(--text-dim);font-size:0.8em;">Sin datos para Dec ${lsDec} en ${label}</p>`;
     if (termTrans[lsTerm]) {
-      const sorted = Object.entries(termTrans[lsTerm]).sort((a,b) => b[1] - a[1]).slice(0, 10);
-      html += `<p style="margin-top:8px;"><strong>Terminal ${lsTerm} →</strong></p><div class="rec-nums">`;
-      sorted.forEach(([num, cnt]) => {
-        html += `<div class="rec-item"><span>${num}</span> (${cnt}x)</div>`;
-      });
+      const st = Object.entries(termTrans[lsTerm]).sort((a,b)=>b[1]-a[1]).slice(0,10);
+      html += `<p style="margin-top:8px;font-size:0.85em;color:var(--accent3);">Terminales que siguen a ${lsTerm}:</p><div class="rec-nums">`;
+      st.forEach(([n,c]) => { html += `<div class="rec-item"><span>${n}</span> (${c}x)</div>`; });
       html += '</div>';
-    } else {
-      html += `<p style="color:var(--text-dim);font-size:0.8em;">No hay transiciones para terminal ${lsTerm} en ${label}</p>`;
-    }
+    } else html += `<p style="color:var(--text-dim);font-size:0.8em;">Sin datos para Term ${lsTerm} en ${label}</p>`;
     html += '</div>';
   }
-
-  // General stats for this transition
-  const allDecPairs = {};
-  Object.entries(decTrans).forEach(([from, tos]) => {
-    Object.entries(tos).forEach(([to, cnt]) => {
-      allDecPairs[`${from}→${to}`] = cnt;
-    });
-  });
-  const topDecPairs = Object.entries(allDecPairs).sort((a,b) => b[1] - a[1]).slice(0, 10);
-
-  const allTermPairs = {};
-  Object.entries(termTrans).forEach(([from, tos]) => {
-    Object.entries(tos).forEach(([to, cnt]) => {
-      allTermPairs[`${from}→${to}`] = cnt;
-    });
-  });
-  const topTermPairs = Object.entries(allTermPairs).sort((a,b) => b[1] - a[1]).slice(0, 10);
-
-  html += `<h4 style="margin-top:15px;">📊 Top 10 Transiciones de Decenas (${label})</h4>`;
-  if (topDecPairs.length) {
-    const mx = topDecPairs[0][1];
-    html += '<div class="bar-chart">';
-    topDecPairs.forEach(([pair, cnt]) => {
-      const pct = cnt / mx * 100;
-      html += `<div class="bar-row"><div class="bar-label" style="width:60px">${pair}</div>
-        <div class="bar-fill med" style="width:${Math.max(pct,2)}%">${cnt}</div></div>`;
-    });
-    html += '</div>';
-  } else html += '<p style="color:var(--text-dim);font-size:0.8em;">Sin datos</p>';
-
-  html += `<h4 style="margin-top:15px;">📊 Top 10 Transiciones de Terminales (${label})</h4>`;
-  if (topTermPairs.length) {
-    const mx = topTermPairs[0][1];
-    html += '<div class="bar-chart">';
-    topTermPairs.forEach(([pair, cnt]) => {
-      const pct = cnt / mx * 100;
-      html += `<div class="bar-row"><div class="bar-label" style="width:60px">${pair}</div>
-        <div class="bar-fill med" style="width:${Math.max(pct,2)}%">${cnt}</div></div>`;
-    });
-    html += '</div>';
-  } else html += '<p style="color:var(--text-dim);font-size:0.8em;">Sin datos</p>';
-
+  const allD = {}, allT = {};
+  Object.entries(decTrans).forEach(([f,ts]) => Object.entries(ts).forEach(([t,c]) => { allD[`${f}→${t}`]=(allD[`${f}→${t}`]||0)+c; }));
+  Object.entries(termTrans).forEach(([f,ts]) => Object.entries(ts).forEach(([t,c]) => { allT[`${f}→${t}`]=(allT[`${f}→${t}`]||0)+c; }));
+  const topD = Object.entries(allD).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  const topT = Object.entries(allT).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  html += `<h4 style="margin-top:15px;">📊 Top Transiciones Decenas</h4>`;
+  if (topD.length) { const mx=topD[0][1]; html+='<div class="bar-chart">'; topD.forEach(([p,c])=>{const pct=c/mx*100;html+=`<div class="bar-row"><div class="bar-label" style="width:55px;font-size:0.75em">${p}</div><div class="bar-fill med" style="width:${Math.max(pct,2)}%">${c}</div></div>`;}); html+='</div>'; }
+  else html += '<p style="color:var(--text-dim);font-size:0.8em;">Sin datos</p>';
+  html += `<h4 style="margin-top:15px;">📊 Top Transiciones Terminales</h4>`;
+  if (topT.length) { const mx=topT[0][1]; html+='<div class="bar-chart">'; topT.forEach(([p,c])=>{const pct=c/mx*100;html+=`<div class="bar-row"><div class="bar-label" style="width:55px;font-size:0.75em">${p}</div><div class="bar-fill med" style="width:${Math.max(pct,2)}%">${c}</div></div>`;}); html+='</div>'; }
+  else html += '<p style="color:var(--text-dim);font-size:0.8em;">Sin datos</p>';
   return html;
 }
 
-function renderDTBest(data, ls) {
+function renderDTBest(ls) {
   const decFreq = {}, termFreq = {};
-  data.forEach(s => {
-    const d = pad2(getDecena(s));
-    const t = pad2(getTerminal(s));
-    decFreq[d] = (decFreq[d] || 0) + 1;
-    termFreq[t] = (termFreq[t] || 0) + 1;
+  sorteos.forEach(s => {
+    const d = pad2(getDecena(s)); decFreq[d]=(decFreq[d]||0)+1;
+    const t = pad2(getTerminal(s)); termFreq[t]=(termFreq[t]||0)+1;
   });
-  const topDec = Object.entries(decFreq).sort((a,b) => b[1] - a[1]).slice(0, 10);
-  const topTerm = Object.entries(termFreq).sort((a,b) => b[1] - a[1]).slice(0, 10);
-
-  let html = '<div class="rec-box"><h4>⭐ Mejores Decenas del Historial</h4>';
-  html += '<div class="rec-nums">';
-  topDec.forEach(([num, cnt]) => {
-    const isLS = ls && num === pad2(getDecena(ls));
-    html += `<div class="rec-item" style="${isLS?'border:1px solid var(--gold);':''}"><span>${num}</span> (${cnt}x)${isLS?' 📌':''}</div>`;
+  const topDec = Object.entries(decFreq).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  const topTerm = Object.entries(termFreq).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  let html = '<div class="rec-box"><h4>⭐ Mejores Decenas Históricas</h4><div class="rec-nums">';
+  topDec.forEach(([n,c]) => {
+    const isLS = ls && n === pad2(getDecena(ls));
+    html += `<div class="rec-item" style="${isLS?'border:1px solid var(--gold);':''}"><span>${n}</span> (${c}x)${isLS?' 📌':''}</div>`;
   });
-  html += '</div></div>';
-
-  html += '<div class="rec-box"><h4>⭐ Mejores Terminales del Historial</h4>';
-  html += '<div class="rec-nums">';
-  topTerm.forEach(([num, cnt]) => {
-    const isLS = ls && num === pad2(getTerminal(ls));
-    html += `<div class="rec-item" style="${isLS?'border:1px solid var(--gold);':''}"><span>${num}</span> (${cnt}x)${isLS?' 📌':''}</div>`;
+  html += '</div></div><div class="rec-box"><h4>⭐ Mejores Terminales Históricas</h4><div class="rec-nums">';
+  topTerm.forEach(([n,c]) => {
+    const isLS = ls && n === pad2(getTerminal(ls));
+    html += `<div class="rec-item" style="${isLS?'border:1px solid var(--gold);':''}"><span>${n}</span> (${c}x)${isLS?' 📌':''}</div>`;
   });
   html += '</div></div>';
-
   return html;
 }
 
-// ===== MATRIX =====
 function renderMatrix() {
   if (!sorteos.length) {
     document.getElementById('matrixDecenas').innerHTML = '<p style="color:var(--text-dim)">No hay datos.</p>';
     document.getElementById('matrixTerminales').innerHTML = '<p style="color:var(--text-dim)">No hay datos.</p>';
     return;
   }
-
   const ls = getLastSorteoCurrentMonth();
-
-  // Decenas matrix (D1 x D2)
-  const decMatrix = Array.from({length:10}, () => Array(10).fill(0));
-  sorteos.forEach(s => { decMatrix[s.d1][s.d2]++; });
-  document.getElementById('matrixDecenas').innerHTML = buildMatrixHTML(decMatrix, ls ? ls.d1 : -1, ls ? ls.d2 : -1);
-
-  // Terminales matrix (D2 x D3)
-  const termMatrix = Array.from({length:10}, () => Array(10).fill(0));
-  sorteos.forEach(s => { termMatrix[s.d2][s.d3]++; });
-  document.getElementById('matrixTerminales').innerHTML = buildMatrixHTML(termMatrix, ls ? ls.d2 : -1, ls ? ls.d3 : -1);
+  const dm = Array.from({length:10},()=>Array(10).fill(0));
+  const tm = Array.from({length:10},()=>Array(10).fill(0));
+  sorteos.forEach(s => { dm[s.d1][s.d2]++; tm[s.d2][s.d3]++; });
+  document.getElementById('matrixDecenas').innerHTML = buildMatrix(dm, ls?ls.d1:-1, ls?ls.d2:-1);
+  document.getElementById('matrixTerminales').innerHTML = buildMatrix(tm, ls?ls.d2:-1, ls?ls.d3:-1);
 }
 
-function buildMatrixHTML(matrix, hlRow, hlCol) {
+function buildMatrix(matrix, hlR, hlC) {
   let max = 0;
-  matrix.forEach(row => row.forEach(v => { if (v > max) max = v; }));
-  if (max === 0) max = 1;
-
-  let html = `<div class="matrix-grid" style="grid-template-columns:repeat(11, 1fr);">`;
-  // Header
+  matrix.forEach(row => row.forEach(v => { if(v>max) max=v; }));
+  if (max===0) max=1;
+  let html = `<div class="matrix-grid" style="grid-template-columns:repeat(11,1fr);">`;
   html += '<div class="matrix-cell matrix-header"></div>';
-  for (let c = 0; c <= 9; c++) {
-    html += `<div class="matrix-cell matrix-header" style="${c===hlCol?'background:var(--accent);':''}">${c}</div>`;
-  }
-  // Rows
-  for (let r = 0; r <= 9; r++) {
-    html += `<div class="matrix-cell matrix-header" style="${r===hlRow?'background:var(--accent);':''}">${r}</div>`;
-    for (let c = 0; c <= 9; c++) {
-      const v = matrix[r][c];
-      const pct = v / max;
-      let bg, clr;
-      if (v === 0) { bg = 'rgba(255,255,255,0.03)'; clr = '#555'; }
-      else if (pct > 0.7) { bg = `rgba(0,230,118,${0.3+pct*0.5})`; clr = '#fff'; }
-      else if (pct > 0.4) { bg = `rgba(255,152,0,${0.2+pct*0.4})`; clr = '#fff'; }
-      else { bg = `rgba(100,181,246,${0.1+pct*0.3})`; clr = '#ccc'; }
-      const border = (r === hlRow && c === hlCol) ? 'border:2px solid var(--gold);' : '';
-      html += `<div class="matrix-cell" style="background:${bg};color:${clr};${border}" title="${r}${c}: ${v}x">${v||''}</div>`;
+  for (let c=0;c<=9;c++) html+=`<div class="matrix-cell matrix-header" style="${c===hlC?'background:var(--accent);':''}">${c}</div>`;
+  for (let r=0;r<=9;r++) {
+    html+=`<div class="matrix-cell matrix-header" style="${r===hlR?'background:var(--accent);':''}">${r}</div>`;
+    for (let c=0;c<=9;c++) {
+      const v=matrix[r][c], pct=v/max;
+      let bg,clr;
+      if(v===0){bg='rgba(255,255,255,0.03)';clr='#444';}
+      else if(pct>0.7){bg=`rgba(0,230,118,${0.3+pct*0.5})`;clr='#fff';}
+      else if(pct>0.4){bg=`rgba(255,152,0,${0.2+pct*0.4})`;clr='#fff';}
+      else{bg=`rgba(100,181,246,${0.1+pct*0.3})`;clr='#ccc';}
+      const border=(r===hlR&&c===hlC)?'border:2px solid var(--gold);':'';
+      html+=`<div class="matrix-cell" style="background:${bg};color:${clr};${border}" title="${r}${c}:${v}x">${v||''}</div>`;
     }
   }
-  html += '</div>';
-  return html;
+  return html+'</div>';
 }
 
-// ===== VIBRACIONES =====
 function renderVibraciones() {
   const container = document.getElementById('vibContent');
   if (!sorteos.length) { container.innerHTML = '<p style="color:var(--text-dim)">No hay datos.</p>'; return; }
-
   const ls = getLastSorteoCurrentMonth();
-  if (!ls) { container.innerHTML = '<p style="color:var(--text-dim)">No hay sorteos este mes.</p>'; return; }
-
-  const lsDec = getDecena(ls);
-  const lsTerm = getTerminal(ls);
+  if (!ls) { container.innerHTML = '<p style="color:var(--text-dim)">Sin sorteos este mes.</p>'; return; }
   const next = getNextTurno();
-
-  // Build matrices
-  const decMatrix = Array.from({length:10}, () => Array(10).fill(0));
-  const termMatrix = Array.from({length:10}, () => Array(10).fill(0));
-  sorteos.forEach(s => {
-    decMatrix[s.d1][s.d2]++;
-    termMatrix[s.d2][s.d3]++;
-  });
-
-  // Get vibrations from matrices based on last sorteo
-  const d1 = ls.d1, d2 = ls.d2, d3 = ls.d3;
-
-  // Decenas that vibrate: same d1 row or same d2 col
-  const vibDec = [];
-  for (let c = 0; c <= 9; c++) {
-    if (decMatrix[d1][c] > 0) vibDec.push({ dec: pad2(d1*10+c), freq: decMatrix[d1][c], type: 'fila-d1' });
-  }
-  for (let r = 0; r <= 9; r++) {
-    if (r !== d1 && decMatrix[r][d2] > 0) vibDec.push({ dec: pad2(r*10+d2), freq: decMatrix[r][d2], type: 'col-d2' });
-  }
-  vibDec.sort((a,b) => b.freq - a.freq);
-
-  // Terminales that vibrate
-  const vibTerm = [];
-  for (let c = 0; c <= 9; c++) {
-    if (termMatrix[d2][c] > 0) vibTerm.push({ term: pad2(d2*10+c), freq: termMatrix[d2][c], type: 'fila-d2' });
-  }
-  for (let r = 0; r <= 9; r++) {
-    if (r !== d2 && termMatrix[r][d3] > 0) vibTerm.push({ term: pad2(r*10+d3), freq: termMatrix[r][d3], type: 'col-d3' });
-  }
-  vibTerm.sort((a,b) => b.freq - a.freq);
-
-  // Historical frequency of these combinations
-  const decFreq = {}, termFreq = {};
-  sorteos.forEach(s => {
-    const d = pad2(getDecena(s));
-    const t = pad2(getTerminal(s));
-    decFreq[d] = (decFreq[d] || 0) + 1;
-    termFreq[t] = (termFreq[t] || 0) + 1;
-  });
-
-  let html = `<div class="rec-box">
-    <h4>🎰 Último: ${getNumStr(ls)} (Dec:${pad2(lsDec)} Term:${pad2(lsTerm)}) → Próximo: ${next.label}</h4>
-  </div>`;
-
-  html += '<h4>🔮 Decenas que vibran con el último sorteo</h4>';
-  html += '<div class="table-container"><table><thead><tr><th>Decena</th><th>Frec. Matrix</th><th>Frec. Historial</th><th>Relación</th></tr></thead><tbody>';
-  vibDec.slice(0, 15).forEach(v => {
-    const hf = decFreq[v.dec] || 0;
-    html += `<tr>
-      <td style="font-weight:700;color:var(--gold)">${v.dec}</td>
-      <td>${v.freq}</td>
-      <td>${hf}</td>
-      <td style="font-size:0.75em;color:var(--text-dim)">${v.type}</td>
-    </tr>`;
-  });
-  html += '</tbody></table></div>';
-
-  html += '<h4 style="margin-top:15px;">🔮 Terminales que vibran con el último sorteo</h4>';
-  html += '<div class="table-container"><table><thead><tr><th>Terminal</th><th>Frec. Matrix</th><th>Frec. Historial</th><th>Relación</th></tr></thead><tbody>';
-  vibTerm.slice(0, 15).forEach(v => {
-    const hf = termFreq[v.term] || 0;
-    html += `<tr>
-      <td style="font-weight:700;color:var(--gold)">${v.term}</td>
-      <td>${v.freq}</td>
-      <td>${hf}</td>
-      <td style="font-size:0.75em;color:var(--text-dim)">${v.type}</td>
-    </tr>`;
-  });
-  html += '</tbody></table></div>';
-
-  // Strongest combinations
-  html += '<div class="rec-box" style="margin-top:15px;"><h4>💪 Combinaciones más fuertes para próximo sorteo</h4>';
-  const combined = [];
-  vibDec.slice(0, 10).forEach(vd => {
-    vibTerm.slice(0, 10).forEach(vt => {
-      const score = (vd.freq + vt.freq) + (decFreq[vd.dec]||0) + (termFreq[vt.term]||0);
-      combined.push({ dec: vd.dec, term: vt.term, score });
-    });
-  });
-  combined.sort((a,b) => b.score - a.score);
-  html += '<div class="rec-nums">';
-  combined.slice(0, 12).forEach(c => {
-    html += `<div class="rec-item">Dec:<span>${c.dec}</span> Term:<span>${c.term}</span> (${c.score}pts)</div>`;
-  });
-  html += '</div></div>';
-
+  const dm = Array.from({length:10},()=>Array(10).fill(0));
+  const tm = Array.from({length:10},()=>Array(10).fill(0));
+  sorteos.forEach(s => { dm[s.d1][s.d2]++; tm[s.d2][s.d3]++; });
+  const decFreq={}, termFreq={};
+  sorteos.forEach(s=>{const d=pad2(getDecena(s));decFreq[d]=(decFreq[d]||0)+1;const t=pad2(getTerminal(s));termFreq[t]=(termFreq[t]||0)+1;});
+  const d1=ls.d1,d2=ls.d2,d3=ls.d3;
+  const vibDec=[], vibTerm=[];
+  for(let c=0;c<=9;c++){if(dm[d1][c]>0)vibDec.push({dec:pad2(d1*10+c),freq:dm[d1][c],tipo:'fila-D1'});}
+  for(let r=0;r<=9;r++){if(r!==d1&&dm[r][d2]>0)vibDec.push({dec:pad2(r*10+d2),freq:dm[r][d2],tipo:'col-D2'});}
+  for(let c=0;c<=9;c++){if(tm[d2][c]>0)vibTerm.push({term:pad2(d2*10+c),freq:tm[d2][c],tipo:'fila-D2'});}
+  for(let r=0;r<=9;r++){if(r!==d2&&tm[r][d3]>0)vibTerm.push({term:pad2(r*10+d3),freq:tm[r][d3],tipo:'col-D3'});}
+  vibDec.sort((a,b)=>b.freq-a.freq); vibTerm.sort((a,b)=>b.freq-a.freq);
+  let html = `<div class="rec-box"><h4>🎰 Último: ${getNumStr(ls)} (${ls.turno==='M'?'Mediodía':'Noche'}) → Próximo: ${next.label}</h4></div>`;
+  html+='<h4>🔮 Decenas que vibran</h4><div class="table-container"><table><thead><tr><th>Decena</th><th>Frec.Matrix</th><th>Frec.Historial</th><th>Tipo</th></tr></thead><tbody>';
+  vibDec.slice(0,15).forEach(v=>{html+=`<tr><td style="font-weight:700;color:var(--gold)">${v.dec}</td><td>${v.freq}</td><td>${decFreq[v.dec]||0}</td><td style="font-size:0.75em;color:var(--text-dim)">${v.tipo}</td></tr>`;});
+  html+='</tbody></table></div>';
+  html+='<h4 style="margin-top:15px;">🔮 Terminales que vibran</h4><div class="table-container"><table><thead><tr><th>Terminal</th><th>Frec.Matrix</th><th>Frec.Historial</th><th>Tipo</th></tr></thead><tbody>';
+  vibTerm.slice(0,15).forEach(v=>{html+=`<tr><td style="font-weight:700;color:var(--gold)">${v.term}</td><td>${v.freq}</td><td>${termFreq[v.term]||0}</td><td style="font-size:0.75em;color:var(--text-dim)">${v.tipo}</td></tr>`;});
+  html+='</tbody></table></div>';
+  const combos=[];
+  vibDec.slice(0,10).forEach(vd=>{vibTerm.slice(0,10).forEach(vt=>{const score=vd.freq+vt.freq+(decFreq[vd.dec]||0)+(termFreq[vt.term]||0);combos.push({dec:vd.dec,term:vt.term,score});});});
+  combos.sort((a,b)=>b.score-a.score);
+  html+='<div class="rec-box" style="margin-top:15px;"><h4>💪 Combinaciones más fuertes</h4><div class="rec-nums">';
+  combos.slice(0,12).forEach(c=>{html+=`<div class="rec-item">Dec:<span>${c.dec}</span> Term:<span>${c.term}</span> (${c.score}pts)</div>`;});
+  html+='</div></div>';
   container.innerHTML = html;
 }
 
-// ===== CONEXIONES =====
 function buscarConexiones() {
   const num = document.getElementById('connNum').value.trim();
   const container = document.getElementById('connResults');
-  if (num.length !== 3 || !/^\d{3}$/.test(num)) {
-    showToast('⚠️ Ingresa un número de 3 dígitos');
-    return;
+  if (!/^\d{3}$/.test(num)) { showToast('⚠️ Ingresa exactamente 3 dígitos'); return; }
+  const next = {MM:{},MN:{},NN:{},NM:{}};
+  for (let i=0;i<sorteos.length-1;i++) {
+    const c=sorteos[i],n=sorteos[i+1];
+    if(getNumStr(c)===num){const key=c.turno+n.turno;const nn=getNumStr(n);if(next[key])next[key][nn]=(next[key][nn]||0)+1;}
   }
-
-  const next = { MM: {}, MN: {}, NN: {}, NM: {} };
-
-  for (let i = 0; i < sorteos.length - 1; i++) {
-    const curr = sorteos[i];
-    const nxt = sorteos[i + 1];
-    if (getNumStr(curr) === num) {
-      const key = curr.turno + nxt.turno;
-      const nNum = getNumStr(nxt);
-      if (next[key]) next[key][nNum] = (next[key][nNum] || 0) + 1;
-    }
-  }
-
-  let html = `<h4 style="margin-top:15px;">🔗 Conexiones de ${num}</h4>`;
-
-  const labels = { MM: 'Med→Med', MN: 'Med→Noc', NN: 'Noc→Noc', NM: 'Noc→Med' };
-  Object.entries(labels).forEach(([key, label]) => {
-    const entries = Object.entries(next[key]).sort((a,b) => b[1] - a[1]);
-    html += `<div class="collapsible-header" onclick="this.nextElementSibling.classList.toggle('open')">
-      <span>${label} (${entries.length} conexiones)</span><span>▼</span>
-    </div>`;
-    html += '<div class="collapsible-body">';
-    if (entries.length) {
-      html += '<div class="rec-nums">';
-      entries.slice(0, 15).forEach(([n, cnt]) => {
-        html += `<div class="rec-item"><span>${n}</span> (${cnt}x)</div>`;
-      });
-      html += '</div>';
-    } else html += '<p style="color:var(--text-dim);font-size:0.8em;">Sin conexiones</p>';
-    html += '</div>';
+  let html=`<h4 style="margin-top:15px;">🔗 Conexiones de ${num}</h4>`;
+  const labels={MM:'☀️Med→☀️Med',MN:'☀️Med→🌙Noc',NN:'🌙Noc→🌙Noc',NM:'🌙Noc→☀️Med'};
+  Object.entries(labels).forEach(([key,label])=>{
+    const entries=Object.entries(next[key]).sort((a,b)=>b[1]-a[1]);
+    html+=`<div class="collapsible-header" onclick="this.nextElementSibling.classList.toggle('open')"><span>${label} (${entries.length})</span><span>▼</span></div>`;
+    html+='<div class="collapsible-body">';
+    if(entries.length){html+='<div class="rec-nums">';entries.slice(0,15).forEach(([n,c])=>{html+=`<div class="rec-item"><span>${n}</span> (${c}x)</div>`;});html+='</div>';}
+    else html+='<p style="color:var(--text-dim);font-size:0.8em;">Sin conexiones registradas</p>';
+    html+='</div>';
   });
+  container.innerHTML=html;
+}
 
-  container.innerHTML = html;
-}// ===== ÚLTIMA SEMANA =====
 function renderSemana() {
   const container = document.getElementById('semanaContent');
   if (!sorteos.length) { container.innerHTML = '<p style="color:var(--text-dim)">No hay datos.</p>'; return; }
-
   const ls = getLastSorteoCurrentMonth();
-  if (!ls) { container.innerHTML = '<p style="color:var(--text-dim)">No hay sorteos este mes.</p>'; return; }
-
-  // Get last 7 days of sorteos
-  const lastDate = new Date(ls.fecha);
-  const weekAgo = new Date(lastDate);
-  weekAgo.setDate(weekAgo.getDate() - 7);
+  if (!ls) { container.innerHTML = '<p style="color:var(--text-dim)">Sin sorteos este mes.</p>'; return; }
+  const lastDate = new Date(ls.fecha + 'T12:00:00');
+  const weekAgo = new Date(lastDate); weekAgo.setDate(weekAgo.getDate()-7);
   const weekStr = weekAgo.toISOString().split('T')[0];
-
-  const weekSorteos = sorteos.filter(s => s.fecha >= weekStr && s.fecha <= ls.fecha);
-
-  const dayNames = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
-
-  let html = `<p style="font-size:0.8em;color:var(--text-dim);margin-bottom:10px;">
-    Período: ${weekStr} al ${ls.fecha} (${weekSorteos.length} sorteos)</p>`;
-
-  // Show sorteos in grid
-  html += '<div class="week-grid">';
-  weekSorteos.forEach(s => {
-    const d = new Date(s.fecha + 'T12:00:00');
-    html += `<div class="week-day-card">
-      <div class="day-name">${dayNames[d.getDay()]} ${s.fecha.substring(5)}</div>
-      <div class="day-nums">${getNumStr(s)}</div>
-      <div class="day-turno">${s.turno==='M'?'Med':'Noc'} | Dec:${pad2(getDecena(s))} Term:${pad2(getTerminal(s))}</div>
-    </div>`;
-  });
-  html += '</div>';
-
-  // Analyze week
-  const decFreq = {}, termFreq = {}, digitFreq = Array(10).fill(0);
-  weekSorteos.forEach(s => {
-    const d = pad2(getDecena(s));
-    const t = pad2(getTerminal(s));
-    decFreq[d] = (decFreq[d] || 0) + 1;
-    termFreq[t] = (termFreq[t] || 0) + 1;
-    digitFreq[s.d1]++; digitFreq[s.d2]++; digitFreq[s.d3]++;
-  });
-
-  const topDec = Object.entries(decFreq).sort((a,b) => b[1] - a[1]).slice(0, 8);
-  const topTerm = Object.entries(termFreq).sort((a,b) => b[1] - a[1]).slice(0, 8);
-
-  html += '<div class="rec-box" style="margin-top:15px;"><h4>📊 Decenas más repetidas esta semana</h4>';
-  html += '<div class="rec-nums">';
-  topDec.forEach(([num, cnt]) => {
-    const isLS = num === pad2(getDecena(ls));
-    html += `<div class="rec-item" style="${isLS?'border:1px solid var(--gold);':''}"><span>${num}</span> (${cnt}x)${isLS?' 📌':''}</div>`;
-  });
-  html += '</div></div>';
-
-  html += '<div class="rec-box"><h4>📊 Terminales más repetidas esta semana</h4>';
-  html += '<div class="rec-nums">';
-  topTerm.forEach(([num, cnt]) => {
-    const isLS = num === pad2(getTerminal(ls));
-    html += `<div class="rec-item" style="${isLS?'border:1px solid var(--gold);':''}"><span>${num}</span> (${cnt}x)${isLS?' 📌':''}</div>`;
-  });
-  html += '</div></div>';
-
-  // Digit frequency this week
-  html += '<h4 style="margin-top:15px;">🔢 Dígitos más calientes de la semana</h4>';
-  const maxDF = Math.max(...digitFreq, 1);
-  html += '<div class="bar-chart">';
-  for (let i = 0; i <= 9; i++) {
-    const pct = digitFreq[i] / maxDF * 100;
-    html += `<div class="bar-row"><div class="bar-label">${i}</div>
-      <div class="bar-fill ${pct>60?'hot':pct>30?'med':'cold'}" style="width:${Math.max(pct,2)}%">${digitFreq[i]}</div></div>`;
-  }
-  html += '</div>';
-
-  // Recommendations based on week + last sorteo
-  const next = getNextTurno();
-  html += `<div class="rec-box" style="margin-top:15px;">
-    <h4>🎯 Recomendación semanal → ${next.label}</h4>
-    <p style="font-size:0.8em;color:var(--text-dim);margin-bottom:8px;">
-      Basado en tendencias de la última semana y último sorteo (${getNumStr(ls)})
-    </p><div class="rec-nums">`;
-
-  // Combine week trends
-  const recDecs = topDec.slice(0, 5).map(([n]) => n);
-  const recTerms = topTerm.slice(0, 5).map(([n]) => n);
-  recDecs.forEach(d => {
-    recTerms.forEach(t => {
-      html += `<div class="rec-item">Dec:<span>${d}</span> Term:<span>${t}</span></div>`;
-    });
-  });
-  html += '</div></div>';
-
-  container.innerHTML = html;
+  const weekSorteos = sorteos.filter(s=>s.fecha>=weekStr&&s.fecha<=ls.fecha);
+  const dayNames=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  let html=`<p style="font-size:0.8em;color:var(--text-dim);margin-bottom:10px;">Del ${weekStr} al ${ls.fecha} — ${weekSorteos.length} sorteos</p>`;
+  html+='<div class="week-grid">';
+  weekSorteos.forEach(s=>{const d=new Date(s.fecha+'T12:00:00');html+=`<div class="week-day-card"><div class="day-name">${dayNames[d.getDay()]} ${s.fecha.substring(5)}</div><div class="day-nums">${getNumStr(s)}</div><div class="day-turno">${s.turno==='M'?'☀️Med':'🌙Noc'} | D:${pad2(getDecena(s))} T:${pad2(getTerminal(s))}</div></div>`;});
+  html+='</div>';
+  const dF={},tF={},dgF=Array(10).fill(0);
+  weekSorteos.forEach(s=>{const d=pad2(getDecena(s));dF[d]=(dF[d]||0)+1;const t=pad2(getTerminal(s));tF[t]=(tF[t]||0)+1;dgF[s.d1]++;dgF[s.d2]++;dgF[s.d3]++;});
+  const topD=Object.entries(dF).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const topT=Object.entries(tF).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const lsDec=pad2(getDecena(ls)),lsTerm=pad2(getTerminal(ls));
+  html+='<div class="rec-box" style="margin-top:15px;"><h4>📊 Decenas de la semana</h4><div class="rec-nums">';
+  topD.forEach(([n,c])=>{const isLS=n===lsDec;html+=`<div class="rec-item" style="${isLS?'border:1px solid var(--gold);':''}"><span>${n}</span> (${c}x)${isLS?' 📌':''}</div>`;});
+  html+='</div></div><div class="rec-box"><h4>📊 Terminales de la semana</h4><div class="rec-nums">';
+  topT.forEach(([n,c])=>{const isLS=n===lsTerm;html+=`<div class="rec-item" style="${isLS?'border:1px solid var(--gold);':''}"><span>${n}</span> (${c}x)${isLS?' 📌':''}</div>`;});
+  html+='</div></div>';
+  const maxDG=Math.max(...dgF,1);
+  html+='<h4 style="margin-top:15px;">🔢 Dígitos calientes esta semana</h4><div class="bar-chart">';
+  for(let i=0;i<=9;i++){const p=dgF[i]/maxDG*100;html+=`<div class="bar-row"><div class="bar-label">${i}</div><div class="bar-fill ${p>60?'hot':p>30?'med':'cold'}" style="width:${Math.max(p,2)}%">${dgF[i]}</div></div>`;}
+  html+='</div>';
+  const next=getNextTurno();
+  html+=`<div class="rec-box" style="margin-top:15px;"><h4>🎯 Recomendación semanal → ${next.label}</h4><div class="rec-nums">`;
+  topD.slice(0,4).forEach(([d])=>{topT.slice(0,4).forEach(([t])=>{html+=`<div class="rec-item">Dec:<span>${d}</span> Term:<span>${t}</span></div>`;});});
+  html+='</div></div>';
+  container.innerHTML=html;
 }
 
-// ===== POR AÑO =====
 function renderAnual() {
   const yearSel = document.getElementById('anualYear').value;
   const container = document.getElementById('anualContent');
   const compareContainer = document.getElementById('anualCompare');
-
-  if (!sorteos.length) {
-    container.innerHTML = compareContainer.innerHTML = '<p style="color:var(--text-dim)">No hay datos.</p>';
-    return;
-  }
-
+  if (!sorteos.length) { container.innerHTML = compareContainer.innerHTML = '<p style="color:var(--text-dim)">No hay datos.</p>'; return; }
   const ls = getLastSorteoCurrentMonth();
-
-  // Individual year analysis
   if (yearSel) {
-    const yearData = sorteos.filter(s => s.fecha.startsWith(yearSel));
-    if (!yearData.length) { container.innerHTML = '<p style="color:var(--text-dim)">No hay datos para este año.</p>'; return; }
-
-    const decFreq = {}, termFreq = {};
-    yearData.forEach(s => {
-      const d = pad2(getDecena(s));
-      const t = pad2(getTerminal(s));
-      decFreq[d] = (decFreq[d] || 0) + 1;
-      termFreq[t] = (termFreq[t] || 0) + 1;
-    });
-
-    let html = `<div class="stats-grid">
-      <div class="stat-item"><div class="value">${yearData.length}</div><div class="label">Sorteos</div></div>
-      <div class="stat-item"><div class="value">${yearData.filter(s=>s.turno==='M').length}</div><div class="label">Mediodía</div></div>
-      <div class="stat-item"><div class="value">${yearData.filter(s=>s.turno==='N').length}</div><div class="label">Noche</div></div>
-    </div>`;
-
-    const topDec = Object.entries(decFreq).sort((a,b) => b[1] - a[1]).slice(0, 15);
-    const topTerm = Object.entries(termFreq).sort((a,b) => b[1] - a[1]).slice(0, 15);
-
-    html += `<h4>📊 Top 15 Decenas de ${yearSel}</h4>`;
-    html += renderDTTable(topDec, ls ? pad2(getDecena(ls)) : null);
-    html += `<h4 style="margin-top:15px;">📊 Top 15 Terminales de ${yearSel}</h4>`;
-    html += renderDTTable(topTerm, ls ? pad2(getTerminal(ls)) : null);
-
-    container.innerHTML = html;
-  } else {
-    container.innerHTML = '<p style="color:var(--text-dim);font-size:0.85em;">Selecciona un año para ver el análisis.</p>';
-  }
-
-  // Compare all years
+    const yd = sorteos.filter(s=>s.fecha.startsWith(yearSel));
+    if (!yd.length) { container.innerHTML = '<p style="color:var(--text-dim)">Sin datos para este año.</p>'; }
+    else {
+      const dF={},tF={};
+      yd.forEach(s=>{const d=pad2(getDecena(s));dF[d]=(dF[d]||0)+1;const t=pad2(getTerminal(s));tF[t]=(tF[t]||0)+1;});
+      const topD=Object.entries(dF).sort((a,b)=>b[1]-a[1]).slice(0,15);
+      const topT=Object.entries(tF).sort((a,b)=>b[1]-a[1]).slice(0,15);
+      const lsDec=ls?pad2(getDecena(ls)):null, lsTerm=ls?pad2(getTerminal(ls)):null;
+      let html=`<div class="stats-grid">
+        <div class="stat-item"><div class="value">${yd.length}</div><div class="label">Total</div></div>
+        <div class="stat-item"><div class="value">${yd.filter(s=>s.turno==='M').length}</div><div class="label">☀️Mediodía</div></div>
+        <div class="stat-item"><div class="value">${yd.filter(s=>s.turno==='N').length}</div><div class="label">🌙Noche</div></div>
+      </div>`;
+      html+=`<h4>📊 Top 15 Decenas ${yearSel}</h4>`+renderBarChart(topD,lsDec);
+      html+=`<h4 style="margin-top:15px;">📊 Top 15 Terminales ${yearSel}</h4>`+renderBarChart(topT,lsTerm);
+      container.innerHTML=html;
+    }
+  } else container.innerHTML='<p style="color:var(--text-dim);font-size:0.85em;">Selecciona un año.</p>';
   renderAnualCompare(compareContainer, ls);
 }
 
 function renderAnualCompare(container, ls) {
-  if (!ls) { container.innerHTML = '<p style="color:var(--text-dim)">Necesitas sorteos para comparar.</p>'; return; }
-
-  const years = [...new Set(sorteos.map(s => s.fecha.substring(0,4)))].sort();
-  if (years.length < 1) { container.innerHTML = '<p style="color:var(--text-dim)">No hay suficientes datos.</p>'; return; }
-
-  const lsDec = pad2(getDecena(ls));
-  const lsTerm = pad2(getTerminal(ls));
-  const next = getNextTurno();
-
-  let html = `<div class="rec-box"><h4>📌 Último sorteo: ${getNumStr(ls)} (Dec:${lsDec} Term:${lsTerm}) → Próximo: ${next.label}</h4></div>`;
-
-  // For each year, find what came after this decena/terminal
-  const yearDecRec = {}, yearTermRec = {};
-
-  years.forEach(year => {
-    const yearData = sorteos.filter(s => s.fecha.startsWith(year));
-    yearDecRec[year] = {};
-    yearTermRec[year] = {};
-
-    for (let i = 0; i < yearData.length - 1; i++) {
-      if (pad2(getDecena(yearData[i])) === lsDec) {
-        const nd = pad2(getDecena(yearData[i+1]));
-        yearDecRec[year][nd] = (yearDecRec[year][nd] || 0) + 1;
-      }
-      if (pad2(getTerminal(yearData[i])) === lsTerm) {
-        const nt = pad2(getTerminal(yearData[i+1]));
-        yearTermRec[year][nt] = (yearTermRec[year][nt] || 0) + 1;
-      }
+  if (!ls) { container.innerHTML = '<p style="color:var(--text-dim)">Sin último sorteo.</p>'; return; }
+  const years=[...new Set(sorteos.map(s=>s.fecha.substring(0,4)))].sort();
+  const lsDec=pad2(getDecena(ls)),lsTerm=pad2(getTerminal(ls));
+  const next=getNextTurno();
+  const aggD={},aggT={};
+  years.forEach(year=>{
+    const yd=sorteos.filter(s=>s.fecha.startsWith(year));
+    for(let i=0;i<yd.length-1;i++){
+      if(pad2(getDecena(yd[i]))===lsDec){const nd=pad2(getDecena(yd[i+1]));aggD[nd]=(aggD[nd]||0)+1;}
+      if(pad2(getTerminal(yd[i]))===lsTerm){const nt=pad2(getTerminal(yd[i+1]));aggT[nt]=(aggT[nt]||0)+1;}
     }
   });
-
-  // Aggregate across years
-  const aggDec = {}, aggTerm = {};
-  years.forEach(year => {
-    Object.entries(yearDecRec[year]).forEach(([k,v]) => { aggDec[k] = (aggDec[k]||0) + v; });
-    Object.entries(yearTermRec[year]).forEach(([k,v]) => { aggTerm[k] = (aggTerm[k]||0) + v; });
-  });
-
-  const bestDecs = Object.entries(aggDec).sort((a,b) => b[1] - a[1]).slice(0, 10);
-  const bestTerms = Object.entries(aggTerm).sort((a,b) => b[1] - a[1]).slice(0, 10);
-
-  html += `<h4>📊 Mejores decenas que siguen a ${lsDec} (todos los años)</h4>`;
-  if (bestDecs.length) {
-    const mx = bestDecs[0][1];
-    html += '<div class="bar-chart">';
-    bestDecs.forEach(([num, cnt]) => {
-      const pct = cnt / mx * 100;
-      html += `<div class="bar-row"><div class="bar-label">${num}</div>
-        <div class="bar-fill hot" style="width:${Math.max(pct,2)}%">${cnt}x</div></div>`;
-    });
-    html += '</div>';
-  } else html += '<p style="color:var(--text-dim);font-size:0.8em;">Sin datos</p>';
-
-  html += `<h4 style="margin-top:15px;">📊 Mejores terminales que siguen a ${lsTerm} (todos los años)</h4>`;
-  if (bestTerms.length) {
-    const mx = bestTerms[0][1];
-    html += '<div class="bar-chart">';
-    bestTerms.forEach(([num, cnt]) => {
-      const pct = cnt / mx * 100;
-      html += `<div class="bar-row"><div class="bar-label">${num}</div>
-        <div class="bar-fill hot" style="width:${Math.max(pct,2)}%">${cnt}x</div></div>`;
-    });
-    html += '</div>';
-  } else html += '<p style="color:var(--text-dim);font-size:0.8em;">Sin datos</p>';
-
-  // Year by year breakdown
-  html += '<h4 style="margin-top:15px;">📅 Desglose por año</h4>';
-  years.forEach(year => {
-    const yd = Object.entries(yearDecRec[year]).sort((a,b) => b[1] - a[1]).slice(0, 5);
-    const yt = Object.entries(yearTermRec[year]).sort((a,b) => b[1] - a[1]).slice(0, 5);
-    if (yd.length || yt.length) {
-      html += `<div class="collapsible-header" onclick="this.nextElementSibling.classList.toggle('open')">
-        <span>${year}</span><span>▼</span></div>`;
-      html += '<div class="collapsible-body">';
-      if (yd.length) {
-        html += `<p style="font-size:0.8em;color:var(--accent3);">Decenas tras ${lsDec}:</p><div class="rec-nums">`;
-        yd.forEach(([n,c]) => { html += `<div class="rec-item"><span>${n}</span> (${c}x)</div>`; });
-        html += '</div>';
-      }
-      if (yt.length) {
-        html += `<p style="font-size:0.8em;color:var(--accent3);margin-top:6px;">Terminales tras ${lsTerm}:</p><div class="rec-nums">`;
-        yt.forEach(([n,c]) => { html += `<div class="rec-item"><span>${n}</span> (${c}x)</div>`; });
-        html += '</div>';
-      }
-      html += '</div>';
+  const bestD=Object.entries(aggD).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  const bestT=Object.entries(aggT).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  let html=`<div class="rec-box"><h4>📌 Último: ${getNumStr(ls)} → Próximo: ${next.label}</h4></div>`;
+  html+=`<h4>📊 Decenas que siguen a ${lsDec} (histórico de años)</h4>`;
+  html += bestD.length ? renderBarChart(bestD, null) : '<p style="color:var(--text-dim);font-size:0.8em;">Sin datos</p>';
+  html+=`<h4 style="margin-top:15px;">📊 Terminales que siguen a ${lsTerm} (histórico de años)</h4>`;
+  html += bestT.length ? renderBarChart(bestT, null) : '<p style="color:var(--text-dim);font-size:0.8em;">Sin datos</p>';
+  html+='<h4 style="margin-top:15px;">📅 Desglose por año</h4>';
+  years.forEach(year=>{
+    const yd=sorteos.filter(s=>s.fecha.startsWith(year));
+    const yD={},yT={};
+    for(let i=0;i<yd.length-1;i++){
+      if(pad2(getDecena(yd[i]))===lsDec){const nd=pad2(getDecena(yd[i+1]));yD[nd]=(yD[nd]||0)+1;}
+      if(pad2(getTerminal(yd[i]))===lsTerm){const nt=pad2(getTerminal(yd[i+1]));yT[nt]=(yT[nt]||0)+1;}
+    }
+    const topYD=Object.entries(yD).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    const topYT=Object.entries(yT).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    if(topYD.length||topYT.length){
+      html+=`<div class="collapsible-header" onclick="this.nextElementSibling.classList.toggle('open')"><span>${year}</span><span>▼</span></div>`;
+      html+='<div class="collapsible-body">';
+      if(topYD.length){html+=`<p style="font-size:0.8em;color:var(--accent3);">Dec tras ${lsDec}:</p><div class="rec-nums">`;topYD.forEach(([n,c])=>{html+=`<div class="rec-item"><span>${n}</span>(${c}x)</div>`;});html+='</div>';}
+      if(topYT.length){html+=`<p style="font-size:0.8em;color:var(--accent3);margin-top:6px;">Term tras ${lsTerm}:</p><div class="rec-nums">`;topYT.forEach(([n,c])=>{html+=`<div class="rec-item"><span>${n}</span>(${c}x)</div>`;});html+='</div>';}
+      html+='</div>';
     }
   });
-
-  container.innerHTML = html;
+  container.innerHTML=html;
 }
 
-// ===== ANÁLISIS ÚLTIMO SORTEO → PRÓXIMO =====
 function renderAnalisis() {
   const container = document.getElementById('analisisContent');
-  if (sorteos.length < 10) {
-    container.innerHTML = '<p style="color:var(--text-dim)">Necesitas al menos 10 sorteos para el análisis.</p>';
-    return;
-  }
-
+  if (sorteos.length < 5) { container.innerHTML = '<p style="color:var(--text-dim)">Necesitas al menos 5 sorteos.</p>'; return; }
   const ls = getLastSorteoCurrentMonth();
-  if (!ls) { container.innerHTML = '<p style="color:var(--text-dim)">No hay sorteos este mes.</p>'; return; }
-
-  const lsDec = pad2(getDecena(ls));
-  const lsTerm = pad2(getTerminal(ls));
-  const lsNum = getNumStr(ls);
-  const next = getNextTurno();
-
-  // 1. Historical transition analysis
-  const decAfter = {}, termAfter = {};
-  const decAfterTurno = {M:{}, N:{}};
-  const termAfterTurno = {M:{}, N:{}};
-
-  for (let i = 0; i < sorteos.length - 1; i++) {
-    const curr = sorteos[i];
-    const nxt = sorteos[i + 1];
-    const cd = pad2(getDecena(curr));
-    const ct = pad2(getTerminal(curr));
-    const nd = pad2(getDecena(nxt));
-    const nt = pad2(getTerminal(nxt));
-
-    if (cd === lsDec) {
-      decAfter[nd] = (decAfter[nd] || 0) + 1;
-      if (!decAfterTurno[nxt.turno][nd]) decAfterTurno[nxt.turno][nd] = 0;
-      decAfterTurno[nxt.turno][nd]++;
-    }
-    if (ct === lsTerm) {
-      termAfter[nt] = (termAfter[nt] || 0) + 1;
-      if (!termAfterTurno[nxt.turno][nt]) termAfterTurno[nxt.turno][nt] = 0;
-      termAfterTurno[nxt.turno][nt]++;
-    }
+  if (!ls) { container.innerHTML = '<p style="color:var(--text-dim)">Sin sorteos este mes.</p>'; return; }
+  const lsDec=pad2(getDecena(ls)),lsTerm=pad2(getTerminal(ls));
+  const next=getNextTurno();
+  const now=new Date();
+  const ym=`${now.getFullYear()}-${pad2(now.getMonth()+1)}`;
+  const monthData=sorteos.filter(s=>s.fecha.startsWith(ym));
+  const decAfter={},termAfter={},decAfterT={M:{},N:{}},termAfterT={M:{},N:{}};
+  for(let i=0;i<sorteos.length-1;i++){
+    const c=sorteos[i],n=sorteos[i+1];
+    const cd=pad2(getDecena(c)),nd=pad2(getDecena(n));
+    const ct=pad2(getTerminal(c)),nt=pad2(getTerminal(n));
+    if(cd===lsDec){decAfter[nd]=(decAfter[nd]||0)+1;decAfterT[n.turno][nd]=(decAfterT[n.turno][nd]||0)+1;}
+    if(ct===lsTerm){termAfter[nt]=(termAfter[nt]||0)+1;termAfterT[n.turno][nt]=(termAfterT[n.turno][nt]||0)+1;}
   }
-
-  // 2. Matrix analysis
-  const decMatrix = Array.from({length:10}, () => Array(10).fill(0));
-  const termMatrix = Array.from({length:10}, () => Array(10).fill(0));
-  sorteos.forEach(s => {
-    decMatrix[s.d1][s.d2]++;
-    termMatrix[s.d2][s.d3]++;
+  const dm=Array.from({length:10},()=>Array(10).fill(0));
+  const tm=Array.from({length:10},()=>Array(10).fill(0));
+  sorteos.forEach(s=>{dm[s.d1][s.d2]++;tm[s.d2][s.d3]++;});
+  const mDF={},mTF={};
+  monthData.forEach(s=>{const d=pad2(getDecena(s));mDF[d]=(mDF[d]||0)+1;const t=pad2(getTerminal(s));mTF[t]=(mTF[t]||0)+1;});
+  const decScores={},termScores={};
+  Object.entries(decAfter).forEach(([k,v])=>{decScores[k]=(decScores[k]||0)+v*3;});
+  Object.entries(termAfter).forEach(([k,v])=>{termScores[k]=(termScores[k]||0)+v*3;});
+  Object.entries(decAfterT[next.turno]||{}).forEach(([k,v])=>{decScores[k]=(decScores[k]||0)+v*2;});
+  Object.entries(termAfterT[next.turno]||{}).forEach(([k,v])=>{termScores[k]=(termScores[k]||0)+v*2;});
+  for(let c=0;c<=9;c++){const dk=pad2(ls.d1*10+c);decScores[dk]=(decScores[dk]||0)+dm[ls.d1][c];const tk=pad2(ls.d2*10+c);termScores[tk]=(termScores[tk]||0)+tm[ls.d2][c];}
+  Object.entries(mDF).forEach(([k,v])=>{decScores[k]=(decScores[k]||0)+v*1.5;});
+  Object.entries(mTF).forEach(([k,v])=>{termScores[k]=(termScores[k]||0)+v*1.5;});
+  const bestDecs=Object.entries(decScores).sort((a,b)=>b[1]-a[1]).slice(0,15);
+  const bestTerms=Object.entries(termScores).sort((a,b)=>b[1]-a[1]).slice(0,15);
+  const mxDS=bestDecs.length?bestDecs[0][1]:1;
+  const mxTS=bestTerms.length?bestTerms[0][1]:1;
+  let html=`<div class="rec-box"><h4>🎰 Último: ${getNumStr(ls)} (${ls.turno==='M'?'☀️Mediodía':'🌙Noche'}) → Próximo: ${next.label}</h4><p style="font-size:0.75em;color:var(--text-dim);">Dec:${lsDec} | Term:${lsTerm} | ${ls.fecha}</p></div>`;
+  html+=`<h4>🎯 Mejores Decenas para ${next.label}</h4><div style="margin:10px 0;">`;
+  bestDecs.forEach(([num,score])=>{const pct=Math.round(score/mxDS*100);const cls=pct>70?'prob-high':pct>40?'prob-med':'prob-low';html+=`<div style="display:flex;align-items:center;gap:8px;margin:6px 0;"><span style="width:30px;font-weight:700;color:var(--gold);">${num}</span><div class="prob-meter" style="flex:1"><div class="prob-meter-fill ${cls}" style="width:${pct}%"></div></div><span style="width:40px;font-size:0.75em;color:var(--text-dim);">${pct}%</span></div>`;});
+  html+='</div>';
+  html+=`<h4 style="margin-top:15px;">🎯 Mejores Terminales para ${next.label}</h4><div style="margin:10px 0;">`;
+  bestTerms.forEach(([num,score])=>{const pct=Math.round(score/mxTS*100);const cls=pct>70?'prob-high':pct>40?'prob-med':'prob-low';html+=`<div style="display:flex;align-items:center;gap:8px;margin:6px 0;"><span style="width:30px;font-weight:700;color:var(--gold);">${num}</span><div class="prob-meter" style="flex:1"><div class="prob-meter-fill ${cls}" style="width:${pct}%"></div></div><span style="width:40px;font-size:0.75em;color:var(--text-dim);">${pct}%</span></div>`;});
+  html+='</div>';
+  const combos=[];
+  bestDecs.slice(0,8).forEach(([d,ds])=>{bestTerms.slice(0,8).forEach(([t,ts])=>{combos.push({dec:d,term:t,score:ds+ts});});});
+  combos.sort((a,b)=>b.score-a.score);
+  html+='<div class="rec-box" style="margin-top:15px;"><h4>🏆 Top Combinaciones Dec+Term</h4><div class="rec-nums">';
+  combos.slice(0,15).forEach((c,i)=>{const em=i<3?['🥇','🥈','🥉'][i]:'';html+=`<div class="rec-item">${em} Dec:<span>${c.dec}</span> Term:<span>${c.term}</span></div>`;});
+  html+='</div></div>';
+  html+='<h4 style="margin-top:15px;">📊 Desglose por Turno</h4>';
+  ['M','N'].forEach(turno=>{
+    const tL=turno==='M'?'☀️Mediodía':'🌙Noche';
+    const isNext=turno===next.turno;
+    const tD=Object.entries(decAfterT[turno]||{}).sort((a,b)=>b[1]-a[1]).slice(0,8);
+    const tT=Object.entries(termAfterT[turno]||{}).sort((a,b)=>b[1]-a[1]).slice(0,8);
+    html+=`<div class="collapsible-header" onclick="this.nextElementSibling.classList.toggle('open')"><span>${isNext?'⭐ ':''}${tL}${isNext?' (PRÓXIMO)':''}</span><span>▼</span></div>`;
+    html+=`<div class="collapsible-body ${isNext?'open':''}">`;
+    if(tD.length){html+=`<p style="color:var(--accent3);font-size:0.85em;">Dec tras ${lsDec}:</p><div class="rec-nums">`;tD.forEach(([n,c])=>{html+=`<div class="rec-item"><span>${n}</span>(${c}x)</div>`;});html+='</div>';}
+    if(tT.length){html+=`<p style="color:var(--accent3);font-size:0.85em;margin-top:6px;">Term tras ${lsTerm}:</p><div class="rec-nums">`;tT.forEach(([n,c])=>{html+=`<div class="rec-item"><span>${n}</span>(${c}x)</div>`;});html+='</div>';}
+    if(!tD.length&&!tT.length) html+='<p style="color:var(--text-dim);font-size:0.8em;">Sin datos suficientes</p>';
+    html+='</div>';
   });
-
-  // 3. Current month trends
-  const now = new Date();
-  const ym = `${now.getFullYear()}-${pad2(now.getMonth()+1)}`;
-  const monthData = sorteos.filter(s => s.fecha.startsWith(ym));
-  const monthDecFreq = {}, monthTermFreq = {};
-  monthData.forEach(s => {
-    const d = pad2(getDecena(s));
-    const t = pad2(getTerminal(s));
-    monthDecFreq[d] = (monthDecFreq[d] || 0) + 1;
-    monthTermFreq[t] = (monthTermFreq[t] || 0) + 1;
-  });
-
-  // 4. Scoring system
-  const decScores = {}, termScores = {};
-
-  // Historical transitions (weight: 3)
-  Object.entries(decAfter).forEach(([k,v]) => { decScores[k] = (decScores[k]||0) + v * 3; });
-  Object.entries(termAfter).forEach(([k,v]) => { termScores[k] = (termScores[k]||0) + v * 3; });
-
-  // Turno-specific transitions (weight: 2)
-  Object.entries(decAfterTurno[next.turno] || {}).forEach(([k,v]) => { decScores[k] = (decScores[k]||0) + v * 2; });
-  Object.entries(termAfterTurno[next.turno] || {}).forEach(([k,v]) => { termScores[k] = (termScores[k]||0) + v * 2; });
-
-  // Matrix vibrations (weight: 1)
-  for (let c = 0; c <= 9; c++) {
-    const dk = pad2(ls.d1*10+c);
-    decScores[dk] = (decScores[dk]||0) + decMatrix[ls.d1][c];
-    const tk = pad2(ls.d2*10+c);
-    termScores[tk] = (termScores[tk]||0) + termMatrix[ls.d2][c];
-  }
-
-  // Month trends (weight: 1.5)
-  Object.entries(monthDecFreq).forEach(([k,v]) => { decScores[k] = (decScores[k]||0) + v * 1.5; });
-  Object.entries(monthTermFreq).forEach(([k,v]) => { termScores[k] = (termScores[k]||0) + v * 1.5; });
-
-  const bestDecs = Object.entries(decScores).sort((a,b) => b[1] - a[1]).slice(0, 15);
-  const bestTerms = Object.entries(termScores).sort((a,b) => b[1] - a[1]).slice(0, 15);
-
-  const maxDecScore = bestDecs.length ? bestDecs[0][1] : 1;
-  const maxTermScore = bestTerms.length ? bestTerms[0][1] : 1;
-
-  let html = `<div class="rec-box">
-    <h4>🎰 Último: ${lsNum} (${ls.turno==='M'?'Med':'Noc'}) → Próximo: ${next.label}</h4>
-    <p style="font-size:0.75em;color:var(--text-dim);">Dec: ${lsDec} | Term: ${lsTerm} | Fecha: ${ls.fecha}</p>
-  </div>`;
-
-  // Best decenas
-  html += `<h4>🎯 Mejores Decenas para ${next.label}</h4>`;
-  html += '<div style="margin:10px 0;">';
-  bestDecs.forEach(([num, score]) => {
-    const pct = Math.round(score / maxDecScore * 100);
-    const probClass = pct > 70 ? 'prob-high' : pct > 40 ? 'prob-med' : 'prob-low';
-    html += `<div style="display:flex;align-items:center;gap:8px;margin:6px 0;">
-      <span style="width:30px;font-weight:700;color:var(--gold);">${num}</span>
-      <div class="prob-meter" style="flex:1"><div class="prob-meter-fill ${probClass}" style="width:${pct}%"></div></div>
-      <span style="width:40px;font-size:0.75em;color:var(--text-dim);">${pct}%</span>
-    </div>`;
-  });
-  html += '</div>';
-
-  // Best terminales
-  html += `<h4 style="margin-top:15px;">🎯 Mejores Terminales para ${next.label}</h4>`;
-  html += '<div style="margin:10px 0;">';
-  bestTerms.forEach(([num, score]) => {
-    const pct = Math.round(score / maxTermScore * 100);
-    const probClass = pct > 70 ? 'prob-high' : pct > 40 ? 'prob-med' : 'prob-low';
-    html += `<div style="display:flex;align-items:center;gap:8px;margin:6px 0;">
-      <span style="width:30px;font-weight:700;color:var(--gold);">${num}</span>
-      <div class="prob-meter" style="flex:1"><div class="prob-meter-fill ${probClass}" style="width:${pct}%"></div></div>
-      <span style="width:40px;font-size:0.75em;color:var(--text-dim);">${pct}%</span>
-    </div>`;
-  });
-  html += '</div>';
-
-  // Top combinations
-  html += '<div class="rec-box" style="margin-top:15px;"><h4>🏆 Combinaciones con Mayor Probabilidad</h4>';
-  html += `<p style="font-size:0.75em;color:var(--text-dim);margin-bottom:8px;">
-    Cruce de mejores decenas × mejores terminales, ponderado por historial, matrix y mes actual.</p>`;
-  const combos = [];
-  bestDecs.slice(0, 8).forEach(([d, ds]) => {
-    bestTerms.slice(0, 8).forEach(([t, ts]) => {
-      combos.push({ dec: d, term: t, score: ds + ts });
-    });
-  });
-  combos.sort((a,b) => b.score - a.score);
-  html += '<div class="rec-nums">';
-  combos.slice(0, 15).forEach((c, i) => {
-    const emoji = i < 3 ? '🥇🥈🥉'[i] : '';
-    html += `<div class="rec-item">${emoji} Dec:<span>${c.dec}</span> Term:<span>${c.term}</span></div>`;
-  });
-  html += '</div></div>';
-
-  // Analysis for both turnos
-  html += '<h4 style="margin-top:15px;">📊 Desglose por Turno</h4>';
-  ['M', 'N'].forEach(turno => {
-    const tLabel = turno === 'M' ? 'Mediodía' : 'Noche';
-    const tDecs = Object.entries(decAfterTurno[turno] || {}).sort((a,b) => b[1] - a[1]).slice(0, 8);
-    const tTerms = Object.entries(termAfterTurno[turno] || {}).sort((a,b) => b[1] - a[1]).slice(0, 8);
-
-    html += `<div class="collapsible-header" onclick="this.nextElementSibling.classList.toggle('open')">
-      <span>${turno === next.turno ? '⭐ ' : ''}${tLabel} ${turno === next.turno ? '(PRÓXIMO)' : ''}</span><span>▼</span>
-    </div>`;
-    html += `<div class="collapsible-body ${turno === next.turno ? 'open' : ''}">`;
-
-    if (tDecs.length) {
-      html += `<p style="color:var(--accent3);font-size:0.85em;">Decenas tras ${lsDec}:</p><div class="rec-nums">`;
-      tDecs.forEach(([n,c]) => { html += `<div class="rec-item"><span>${n}</span> (${c}x)</div>`; });
-      html += '</div>';
-    }
-    if (tTerms.length) {
-      html += `<p style="color:var(--accent3);font-size:0.85em;margin-top:6px;">Terminales tras ${lsTerm}:</p><div class="rec-nums">`;
-      tTerms.forEach(([n,c]) => { html += `<div class="rec-item"><span>${n}</span> (${c}x)</div>`; });
-      html += '</div>';
-    }
-    if (!tDecs.length && !tTerms.length) {
-      html += '<p style="color:var(--text-dim);font-size:0.8em;">Sin datos suficientes</p>';
-    }
-    html += '</div>';
-  });
-
-  container.innerHTML = html;
+  container.innerHTML=html;
 }
 
-// ===== INICIO - ÚLTIMOS 2 MESES =====
 function renderInicio() {
   const container = document.getElementById('inicio-resumen');
   if (!sorteos.length) {
-    container.innerHTML = '<div class="card"><h3>📊 Resumen</h3><p style="color:var(--text-dim)">Importa o agrega sorteos para comenzar.</p></div>';
+    container.innerHTML='<div class="card"><h3>📊 Resumen</h3><p style="color:var(--text-dim)">Importa o agrega sorteos para comenzar el análisis.</p></div>';
     return;
   }
-
-  const ls = getLastSorteoCurrentMonth();
-  const next = getNextTurno();
-
-  // Get last 2 months
-  const now = new Date();
-  const twoMonthsAgo = new Date(now);
-  twoMonthsAgo.setMonth(twoMonthsAgo.getMonth() - 2);
-  const tmaStr = twoMonthsAgo.toISOString().split('T')[0];
-  const last2m = sorteos.filter(s => s.fecha >= tmaStr);
-
-  let html = '<div class="card"><h3>📊 Resumen - Últimos 2 Meses</h3>';
-
-  if (ls) {
-    html += `<div class="last-sorteo-banner">
+  const ls=getLastSorteoCurrentMonth();
+  const next=getNextTurno();
+  const now=new Date();
+  const twoAgo=new Date(now); twoAgo.setMonth(twoAgo.getMonth()-2);
+  const twoStr=twoAgo.toISOString().split('T')[0];
+  const last2m=sorteos.filter(s=>s.fecha>=twoStr);
+  let html='<div class="card"><h3>📊 Últimos 2 Meses</h3>';
+  if(ls){
+    html+=`<div class="last-sorteo-banner">
       <div><div class="ls-label">Último sorteo del mes</div><div class="ls-num">${getNumStr(ls)}</div></div>
-      <div style="text-align:right">
-        <div class="ls-info">${ls.fecha} | ${ls.turno==='M'?'Mediodía':'Noche'}</div>
-        <div class="ls-info" style="color:var(--gold);">Próximo: ${next.label}</div>
-      </div>
+      <div style="text-align:right"><div class="ls-info">${ls.fecha} | ${ls.turno==='M'?'☀️Mediodía':'🌙Noche'}</div>
+      <div class="ls-info" style="color:var(--gold);">Próximo: ${next.label}</div>
+      <div class="ls-info">Dec:${pad2(getDecena(ls))} Term:${pad2(getTerminal(ls))}</div></div>
     </div>`;
   }
-
-  html += `<div class="stats-grid">
-    <div class="stat-item"><div class="value">${sorteos.length}</div><div class="label">Total Sorteos</div></div>
-    <div class="stat-item"><div class="value">${last2m.length}</div><div class="label">Últimos 2 meses</div></div>
-    <div class="stat-item"><div class="value">${last2m.filter(s=>s.turno==='M').length}</div><div class="label">Mediodía</div></div>
-    <div class="stat-item"><div class="value">${last2m.filter(s=>s.turno==='N').length}</div><div class="label">Noche</div></div>
+  html+=`<div class="stats-grid">
+    <div class="stat-item"><div class="value">${sorteos.length}</div><div class="label">Total</div></div>
+    <div class="stat-item"><div class="value">${last2m.length}</div><div class="label">2 meses</div></div>
+    <div class="stat-item"><div class="value">${last2m.filter(s=>s.turno==='M').length}</div><div class="label">☀️Med</div></div>
+    <div class="stat-item"><div class="value">${last2m.filter(s=>s.turno==='N').length}</div><div class="label">🌙Noc</div></div>
   </div>`;
-
-  if (last2m.length > 0) {
-    const decFreq = {}, termFreq = {};
-    last2m.forEach(s => {
-      const d = pad2(getDecena(s));
-      const t = pad2(getTerminal(s));
-      decFreq[d] = (decFreq[d] || 0) + 1;
-      termFreq[t] = (termFreq[t] || 0) + 1;
-    });
-
-    const topDec = Object.entries(decFreq).sort((a,b) => b[1] - a[1]).slice(0, 10);
-    const topTerm = Object.entries(termFreq).sort((a,b) => b[1] - a[1]).slice(0, 10);
-
-    html += '<div class="rec-box"><h4>⭐ Decenas Top (últimos 2 meses)</h4><div class="rec-nums">';
-    topDec.forEach(([num, cnt]) => {
-      const isLS = ls && num === pad2(getDecena(ls));
-      html += `<div class="rec-item" style="${isLS?'border:1px solid var(--gold);':''}"><span>${num}</span> (${cnt}x)${isLS?' 📌':''}</div>`;
-    });
-    html += '</div></div>';
-
-    html += '<div class="rec-box"><h4>⭐ Terminales Top (últimos 2 meses)</h4><div class="rec-nums">';
-    topTerm.forEach(([num, cnt]) => {
-      const isLS = ls && num === pad2(getTerminal(ls));
-      html += `<div class="rec-item" style="${isLS?'border:1px solid var(--gold);':''}"><span>${num}</span> (${cnt}x)${isLS?' 📌':''}</div>`;
-    });
-    html += '</div></div>';
-
-    // Quick recommendations combining 2 months + last sorteo
-    if (ls) {
-      const lsDec = pad2(getDecena(ls));
-      const lsTerm = pad2(getTerminal(ls));
-
-      // Find what follows in 2-month data
-      const decAfter2m = {}, termAfter2m = {};
-      for (let i = 0; i < last2m.length - 1; i++) {
-        if (pad2(getDecena(last2m[i])) === lsDec) {
-          const nd = pad2(getDecena(last2m[i+1]));
-          decAfter2m[nd] = (decAfter2m[nd]||0) + 1;
-        }
-        if (pad2(getTerminal(last2m[i])) === lsTerm) {
-          const nt = pad2(getTerminal(last2m[i+1]));
-          termAfter2m[nt] = (termAfter2m[nt]||0) + 1;
-        }
+  if(last2m.length>0){
+    const dF={},tF={};
+    last2m.forEach(s=>{const d=pad2(getDecena(s));dF[d]=(dF[d]||0)+1;const t=pad2(getTerminal(s));tF[t]=(tF[t]||0)+1;});
+    const topD=Object.entries(dF).sort((a,b)=>b[1]-a[1]).slice(0,10);
+    const topT=Object.entries(tF).sort((a,b)=>b[1]-a[1]).slice(0,10);
+    html+='<div class="rec-box"><h4>⭐ Decenas Top (2 meses)</h4><div class="rec-nums">';
+    topD.forEach(([n,c])=>{const isLS=ls&&n===pad2(getDecena(ls));html+=`<div class="rec-item" style="${isLS?'border:1px solid var(--gold);':''}"><span>${n}</span>(${c}x)${isLS?' 📌':''}</div>`;});
+    html+='</div></div><div class="rec-box"><h4>⭐ Terminales Top (2 meses)</h4><div class="rec-nums">';
+    topT.forEach(([n,c])=>{const isLS=ls&&n===pad2(getTerminal(ls));html+=`<div class="rec-item" style="${isLS?'border:1px solid var(--gold);':''}"><span>${n}</span>(${c}x)${isLS?' 📌':''}</div>`;});
+    html+='</div></div>';
+    if(ls){
+      const lsDec=pad2(getDecena(ls)),lsTerm=pad2(getTerminal(ls));
+      const dA={},tA={};
+      for(let i=0;i<last2m.length-1;i++){
+        if(pad2(getDecena(last2m[i]))===lsDec){const nd=pad2(getDecena(last2m[i+1]));dA[nd]=(dA[nd]||0)+1;}
+        if(pad2(getTerminal(last2m[i]))===lsTerm){const nt=pad2(getTerminal(last2m[i+1]));tA[nt]=(tA[nt]||0)+1;}
       }
-
-      const recDec2m = Object.entries(decAfter2m).sort((a,b) => b[1] - a[1]).slice(0, 5);
-      const recTerm2m = Object.entries(termAfter2m).sort((a,b) => b[1] - a[1]).slice(0, 5);
-
-      if (recDec2m.length || recTerm2m.length) {
-        html += `<div class="rec-box"><h4>🎯 Recomendación rápida → ${next.label}</h4>`;
-        if (recDec2m.length) {
-          html += `<p style="font-size:0.8em;color:var(--accent3);">Decenas tras ${lsDec}:</p><div class="rec-nums">`;
-          recDec2m.forEach(([n,c]) => { html += `<div class="rec-item"><span>${n}</span> (${c}x)</div>`; });
-          html += '</div>';
-        }
-        if (recTerm2m.length) {
-          html += `<p style="font-size:0.8em;color:var(--accent3);margin-top:6px;">Terminales tras ${lsTerm}:</p><div class="rec-nums">`;
-          recTerm2m.forEach(([n,c]) => { html += `<div class="rec-item"><span>${n}</span> (${c}x)</div>`; });
-          html += '</div>';
-        }
-        html += '</div>';
+      const rD=Object.entries(dA).sort((a,b)=>b[1]-a[1]).slice(0,5);
+      const rT=Object.entries(tA).sort((a,b)=>b[1]-a[1]).slice(0,5);
+      if(rD.length||rT.length){
+        html+=`<div class="rec-box"><h4>🎯 Recomendación rápida → ${next.label}</h4>`;
+        if(rD.length){html+=`<p style="font-size:0.8em;color:var(--accent3);">Dec tras ${lsDec}:</p><div class="rec-nums">`;rD.forEach(([n,c])=>{html+=`<div class="rec-item"><span>${n}</span>(${c}x)</div>`;});html+='</div>';}
+        if(rT.length){html+=`<p style="font-size:0.8em;color:var(--accent3);margin-top:6px;">Term tras ${lsTerm}:</p><div class="rec-nums">`;rT.forEach(([n,c])=>{html+=`<div class="rec-item"><span>${n}</span>(${c}x)</div>`;});html+='</div>';}
+        html+='</div>';
       }
     }
   }
-
-  html += '</div>';
-  container.innerHTML = html;
+  html+='</div>';
+  container.innerHTML=html;
 }
 
-// ===== SERVICE WORKER =====
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js').catch(err => console.log('SW error:', err));
+  navigator.serviceWorker.register('sw.js').catch(err => console.log('SW:', err));
 }
 </script>
-
-<!-- SheetJS for Excel support (optional, loaded from CDN) -->
 <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js" defer></script>
-
 </body>
 </html>
