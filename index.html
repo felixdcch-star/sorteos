@@ -1936,61 +1936,46 @@ function renderNucleo(R){
     const out=document.getElementById('nucOut');
     if(!out||!R)return;
 
-    // Función para renderizar una tabla (decenas o terminales)
-    function renderTabla(tipo,order,matrix,hala,pos,puntos){
+    function renderTabla(tipo,order,hala,puntos){
         const isDec=tipo==='dec';
         const prefix=isDec?'':'T';
         const suffix=isDec?'0s':'';
 
-        // Header con las decenas/terminales en el orden de la Telaraña
-        let matrixHtml='<table class="nuc-matrix"><thead><tr><th>Pos</th>';
+        // Encabezado: Pos + las 10 decenas/terminales en orden Telaraña
+        let matrixHtml='<table class="nuc-matrix"><thead><tr>';
+        matrixHtml+='<th style="min-width:40px">Pos</th>';
         order.forEach(v=>{
             matrixHtml+=`<th class="header-dec">${prefix}${v}${suffix}</th>`;
         });
         matrixHtml+='</tr></thead><tbody>';
 
-        // Fila 0 = P1 (sola)
-        matrixHtml+=`<tr><td class="pcol p1">P1</td>`;
-        order.forEach(v=>{
-            const halado=hala[v];
-            matrixHtml+=`<td class="hala">${prefix}${halado}${suffix}</td>`;
-        });
-        matrixHtml+='</tr>';
-
-        // Filas 1-3 = P2
-        for(let f=1;f<=3;f++){
-            matrixHtml+='<tr>';
-            if(f===2)matrixHtml+=`<td class="pcol p2" rowspan="3" style="vertical-align:middle">P2</td>`;
-            else if(f===1||f===3)matrixHtml+='';
-            if(f===1)matrixHtml=matrixHtml.replace('<tr>',`<tr><td class="pcol p2" rowspan="3" style="vertical-align:middle">P2</td>`);
+        // Función que genera una fila de datos
+        function filaDatos(){
+            let html='';
             order.forEach(v=>{
                 const halado=hala[v];
-                matrixHtml+=`<td class="hala">${prefix}${halado}${suffix}</td>`;
+                html+=`<td class="hala">${prefix}${halado}${suffix}</td>`;
             });
-            matrixHtml+='</tr>';
+            return html;
         }
 
-        // Filas 4-6 = P3
-        for(let f=4;f<=6;f++){
-            matrixHtml+='<tr>';
-            if(f===4)matrixHtml=matrixHtml.replace('<tr>',`<tr><td class="pcol p3" rowspan="3" style="vertical-align:middle">P3</td>`);
-            order.forEach(v=>{
-                const halado=hala[v];
-                matrixHtml+=`<td class="hala">${prefix}${halado}${suffix}</td>`;
-            });
-            matrixHtml+='</tr>';
-        }
+        // ═══ P1 = Fila 0 (una sola) ═══
+        matrixHtml+=`<tr><td class="pcol p1">P1</td>${filaDatos()}</tr>`;
 
-        // Filas 7-9 = P4
-        for(let f=7;f<=9;f++){
-            matrixHtml+='<tr>';
-            if(f===7)matrixHtml=matrixHtml.replace('<tr>',`<tr><td class="pcol p4" rowspan="3" style="vertical-align:middle">P4</td>`);
-            order.forEach(v=>{
-                const halado=hala[v];
-                matrixHtml+=`<td class="hala">${prefix}${halado}${suffix}</td>`;
-            });
-            matrixHtml+='</tr>';
-        }
+        // ═══ P2 = Filas 1, 2, 3 ═══
+        matrixHtml+=`<tr><td class="pcol p2" rowspan="3" style="vertical-align:middle">P2</td>${filaDatos()}</tr>`;
+        matrixHtml+=`<tr>${filaDatos()}</tr>`;
+        matrixHtml+=`<tr>${filaDatos()}</tr>`;
+
+        // ═══ P3 = Filas 4, 5, 6 ═══
+        matrixHtml+=`<tr><td class="pcol p3" rowspan="3" style="vertical-align:middle">P3</td>${filaDatos()}</tr>`;
+        matrixHtml+=`<tr>${filaDatos()}</tr>`;
+        matrixHtml+=`<tr>${filaDatos()}</tr>`;
+
+        // ═══ P4 = Filas 7, 8, 9 ═══
+        matrixHtml+=`<tr><td class="pcol p4" rowspan="3" style="vertical-align:middle">P4</td>${filaDatos()}</tr>`;
+        matrixHtml+=`<tr>${filaDatos()}</tr>`;
+        matrixHtml+=`<tr>${filaDatos()}</tr>`;
 
         matrixHtml+='</tbody></table>';
 
@@ -2033,8 +2018,8 @@ function renderNucleo(R){
         </div>`;
     }
 
-    const decTabla=renderTabla('dec',R.decOrder,R.decMatrix,R.decHala,R.decPos,R.decPuntos);
-    const termTabla=renderTabla('term',R.termOrder,R.termMatrix,R.termHala,R.termPos,R.termPuntos);
+    const decTabla=renderTabla('dec',R.decOrder,R.decHala,R.decPuntos);
+    const termTabla=renderTabla('term',R.termOrder,R.termHala,R.termPuntos);
 
     const infoMes=`
     <div class="nuc-info" style="text-align:center">
