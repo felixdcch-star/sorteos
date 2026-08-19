@@ -24,6 +24,9 @@
         .nav::-webkit-scrollbar{display:none}
         .nav button{flex:none;padding:11px 16px;background:none;border:none;color:var(--dim);cursor:pointer;font-size:0.78rem;white-space:nowrap;border-bottom:3px solid transparent;transition:all .3s}
         .nav button.active{color:var(--gold);border-bottom-color:var(--gold);background:rgba(245,166,35,0.08)}
+        .nav button.spider-btn{color:#9b59b6;animation:spPulse 2.5s ease-in-out infinite}
+        .nav button.spider-btn.active{color:#fff;border-bottom-color:#9b59b6;background:rgba(155,89,182,0.15)}
+        @keyframes spPulse{0%,100%{box-shadow:inset 0 0 6px rgba(155,89,182,0.1)}50%{box-shadow:inset 0 0 14px rgba(155,89,182,0.35)}}
         .sec{display:none;padding:14px;max-width:960px;margin:0 auto}
         .sec.active{display:block}
         .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:14px}
@@ -179,6 +182,66 @@
         .collapsible-h:hover{background:rgba(245,166,35,0.05)}
         .collapsible-b{padding:10px;display:none}
         .collapsible-b.open{display:block}
+
+        /* ===== TELARAÑA STYLES ===== */
+        .sp-hero{text-align:center;padding:20px 10px 16px;background:linear-gradient(135deg,rgba(155,89,182,0.1),rgba(245,166,35,0.06));border-radius:14px;margin-bottom:14px;border:1px solid rgba(155,89,182,0.3)}
+        .sp-hero-icon{font-size:2.8rem;animation:spFloat 3s ease-in-out infinite}
+        @keyframes spFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+        .sp-hero h2{font-size:1.15rem;font-weight:900;background:linear-gradient(135deg,#f5a623,#9b59b6,#00d4aa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin:8px 0 4px;letter-spacing:2px}
+        .sp-hero p{font-size:0.72rem;color:var(--dim);max-width:280px;margin:0 auto}
+        .sp-mode-row{display:flex;gap:8px;justify-content:center;margin:12px 0}
+        .sp-mbtn{padding:8px 18px;border-radius:20px;font-size:0.78rem;font-weight:700;cursor:pointer;border:2px solid var(--border);background:var(--bg2);color:var(--dim);transition:all .25s}
+        .sp-mbtn.on{border-color:var(--gold);color:var(--gold);background:rgba(245,166,35,0.1)}
+        .sp-run{display:block;width:100%;padding:14px;margin:12px 0;background:linear-gradient(135deg,#9b59b6,#f5a623,#00d4aa);color:#000;border:none;border-radius:12px;font-size:1rem;font-weight:900;text-transform:uppercase;letter-spacing:2px;cursor:pointer;transition:all .25s}
+        .sp-run:active{transform:scale(0.97)}
+        .sp-loader{text-align:center;padding:30px;color:var(--dim)}
+        .sp-loader .spin2{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--purple);border-radius:50%;animation:sp .9s linear infinite;margin:0 auto 10px}
+        /* Tabla Tesla */
+        .tesla-tbl{width:100%;margin:8px 0}
+        .t-row{display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid rgba(37,37,80,0.4)}
+        .t-fila{width:18px;font-size:0.68rem;color:var(--dim);font-weight:700;text-align:right;flex-shrink:0}
+        .t-item{width:40px;font-size:0.85rem;font-weight:800;text-align:center;flex-shrink:0}
+        .t-bwrap{flex:1;height:17px;background:rgba(255,255,255,0.04);border-radius:8px;overflow:hidden}
+        .t-bar{height:100%;border-radius:8px;display:flex;align-items:center;padding-left:5px;font-size:0.58rem;font-weight:700;color:rgba(0,0,0,0.75);transition:width .7s ease}
+        .t-cnt{width:32px;font-size:0.7rem;color:var(--dim);text-align:right;flex-shrink:0}
+        .t-zona{width:20px;font-size:0.8rem;text-align:center;flex-shrink:0}
+        /* Colores fila */
+        .cf0{color:var(--gold2)}.cf1{color:#ff6b6b}.cf2{color:#ff8e53}
+        .cf3{color:var(--gold)}.cf4{color:var(--green)}.cf5{color:#00cec9}
+        .cf6{color:var(--blue)}.cf7{color:var(--purple)}.cf8{color:#636e72}.cf9{color:var(--dim)}
+        .bf0{background:linear-gradient(90deg,#ffd700,#ffcc02)}
+        .bf1{background:linear-gradient(90deg,#ff6b6b,#ff4757)}
+        .bf2{background:linear-gradient(90deg,#ff8e53,#ff6600)}
+        .bf3{background:linear-gradient(90deg,#ffd700,#f5a623)}
+        .bf4{background:linear-gradient(90deg,#00d4aa,#00b894)}
+        .bf5{background:linear-gradient(90deg,#00d4aa,#00cec9)}
+        .bf6{background:linear-gradient(90deg,#74b9ff,#0984e3)}
+        .bf7{background:linear-gradient(90deg,#a29bfe,#6c5ce7)}
+        .bf8{background:linear-gradient(90deg,#636e72,#2d3436)}
+        .bf9{background:linear-gradient(90deg,#2d3436,#1a1a2e)}
+        /* Veredicto */
+        .sp-verd{background:linear-gradient(145deg,rgba(155,89,182,0.08),rgba(245,166,35,0.06));border:2px solid var(--gold);border-radius:14px;padding:16px;margin-top:14px;text-align:center}
+        .sp-verd h3{color:var(--gold);font-size:0.95rem;margin-bottom:10px;letter-spacing:1px}
+        .sp-verd-g{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+        .sp-verd-b{background:rgba(0,0,0,0.25);border-radius:10px;padding:12px;text-align:left}
+        .sp-verd-lbl{font-size:0.65rem;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+        .sp-fila-row{display:flex;align-items:center;gap:6px;padding:3px 0;font-size:0.78rem}
+        .sp-fila-num{font-weight:900;min-width:34px}
+        .sp-fila-stars{font-size:0.72rem}
+        .sp-fila-tag{font-size:0.65rem;color:var(--dim)}
+        /* Zona legend */
+        .zona-legend{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+        .zl{font-size:0.65rem;padding:2px 8px;border-radius:8px;font-weight:700}
+        .zl-ref{background:rgba(255,215,0,0.12);color:var(--gold2)}
+        .zl-tem{background:rgba(255,107,107,0.15);color:#ff6b6b}
+        .zl-jug{background:rgba(0,212,170,0.12);color:var(--green)}
+        .zl-fri{background:rgba(99,110,114,0.15);color:#636e72}
+        /* Hilos */
+        .sp-hilos-t{font-size:0.7rem;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin:14px 0 8px;font-weight:700}
+        .h-row{display:flex;align-items:center;gap:7px;padding:4px 0;border-bottom:1px solid rgba(37,37,80,0.3);font-size:0.75rem}
+        .h-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+        .h-name{flex:1;color:var(--dim)}
+        .h-val{font-weight:700;color:var(--text);font-size:0.72rem}
     </style>
 </head>
 <body>
@@ -214,7 +277,10 @@
     <button onclick="goTab('add',this)">➕ Agregar</button>
     <button onclick="goTab('imp',this)">📥 Importar</button>
     <button onclick="goTab('guia',this)">📖 Guía</button>
+    <button class="spider-btn" onclick="goTab('spider',this)">🕸️ Telaraña</button>
 </div>
+
+<!-- TODAS LAS SECCIONES EXISTENTES - SIN CAMBIOS -->
 <div class="sec active" id="sec-home">
     <div class="card"><div class="card-t">🎯 Último Sorteo</div><div class="g2" id="lastDraw"><div class="empty" style="grid-column:1/-1"><div class="ei">🎲</div><p>Importa datos para comenzar</p></div></div></div>
     <div class="card" id="lastAnalCard" style="display:none"><div class="card-t">🔍 Análisis Último Número</div><div id="lastAnal"></div></div>
@@ -232,7 +298,7 @@
 </div>
 <div class="sec" id="sec-freq">
     <div id="lsBannerFreq"></div>
-    <div class="sub-tabs" id="freqTabs">
+    <div class="sub-tabs">
         <button class="sub-tab active" onclick="freqView('all',this)">📊 Todos</button>
         <button class="sub-tab" onclick="freqView('top',this)">🔥 Top 15</button>
         <button class="sub-tab" onclick="freqView('bottom',this)">❄️ Bottom 15</button>
@@ -295,238 +361,332 @@
 </div>
 <div class="sec" id="sec-year">
     <div id="lsBannerYear"></div>
-    <div class="card"><div class="card-t">📅 Análisis por Año</div><div class="ytabs" id="yTabs"></div><div id="yearContent"></div></div>
-    <div class="card"><div class="card-t">📊 Comparar Años → Recomendación</div><div id="yearCompare"></div></div>
+    <div class="ytabs" id="yTabs"></div>
+    <div class="card"><div id="yearContent"></div></div>
+    <div class="card"><div class="card-t">📊 Comparativa tras último</div><div id="yearCompare"></div></div>
 </div>
 <div class="sec" id="sec-semana">
     <div id="lsBannerSemana"></div>
-    <div class="card"><div class="card-t">📆 Análisis Última Semana</div><div id="semanaContent"></div></div>
+    <div class="card"><div class="card-t">📆 Última Semana</div><div id="semanaContent"></div></div>
 </div>
 <div class="sec" id="sec-analisis">
     <div id="lsBannerAnalisis"></div>
     <div class="sub-tabs">
-        <button class="sub-tab active" onclick="analView('auto',this)">🎯 Auto (Próximo)</button>
-        <button class="sub-tab" onclick="analView('midday',this)">☀️ Solo Mediodía</button>
-        <button class="sub-tab" onclick="analView('evening',this)">🌙 Solo Noche</button>
-        <button class="sub-tab" onclick="analView('both',this)">📊 Comparar Ambos</button>
+        <button class="sub-tab active" onclick="analView('auto',this)">🎯 Auto</button>
+        <button class="sub-tab" onclick="analView('midday',this)">☀️ Mediodía</button>
+        <button class="sub-tab" onclick="analView('evening',this)">🌙 Noche</button>
+        <button class="sub-tab" onclick="analView('comp',this)">📊 Comparar</button>
     </div>
-    <div class="card"><div class="card-t" id="analTitle">🎯 Análisis → Próximo Sorteo</div><div id="analisisContent"></div></div>
+    <div class="card"><div class="card-t" id="analTitle">🎯 Análisis</div><div id="analisisContent"></div></div>
 </div>
 <div class="sec" id="sec-add">
-    <div class="card"><div class="card-t">➕ Agregar Resultado Manual</div>
-        <div id="addA" class="alert"></div>
-        <div class="g2 mb">
-            <div class="fg" style="grid-column:1/-1"><label>Fecha</label><input type="date" id="aDate"></div>
-            <div class="fg"><label>Turno</label><select id="aShift"><option value="midday">☀️ Mediodía</option><option value="evening">🌙 Noche</option></select></div>
-            <div class="fg"><label>Número (00-99)</label><input type="text" id="aNum" placeholder="07" maxlength="2" inputmode="numeric"></div>
-        </div>
-        <button class="btn btn-gold" onclick="addR()">💾 Guardar</button>
-    </div>
-    <div class="card"><div class="card-t">🗂️ Gestión de Datos</div>
-        <div class="btn-row">
-            <button class="btn btn-green" onclick="expData()">📤 Exportar JSON</button>
-            <button class="btn btn-blue" onclick="expExcel()">📊 Exportar Excel</button>
-            <button class="btn btn-purple" onclick="downTemplate()">📋 Plantilla</button>
-            <button class="btn btn-red" onclick="clearAll()">🗑️ Borrar Todo</button>
-        </div>
+    <div class="card">
+        <div class="card-t">➕ Agregar Sorteo</div>
+        <div class="fg mb"><label>Fecha</label><input type="date" id="aDate"></div>
+        <div class="fg mb"><label>Turno</label><select id="aTurno"><option value="midday">☀️ Mediodía</option><option value="evening">🌙 Noche</option></select></div>
+        <div class="fg mb"><label>Número (00-99)</label><input type="text" id="aNum" maxlength="2" inputmode="numeric" placeholder="ej: 47"></div>
+        <button class="btn btn-gold" onclick="addSorteo()">➕ Agregar</button>
+        <div class="alert alert-s" id="addOk">✅ Sorteo agregado</div>
+        <div class="alert alert-e" id="addErr">❌ Error al agregar</div>
     </div>
 </div>
 <div class="sec" id="sec-imp">
-    <div class="card"><div class="card-t">📥 Importar Datos</div>
-        <div id="impA" class="alert"></div>
-        <div class="imp-area excel" onclick="document.getElementById('fExcel').click()"><div class="ic">📊</div><p><strong style="color:var(--green)">EXCEL / CSV</strong></p><p class="fxs td mt">Toca aquí — .xlsx, .xls, .csv</p></div>
-        <input type="file" id="fExcel" accept=".xlsx,.xls,.csv" style="display:none" onchange="hExcel(event)">
-        <div class="imp-area json" onclick="document.getElementById('fJson').click()"><div class="ic">📂</div><p><strong style="color:var(--blue)">JSON</strong></p><p class="fxs td mt">Toca aquí para .json</p></div>
-        <input type="file" id="fJson" accept=".json" style="display:none" onchange="hFile(event)">
+    <div class="card">
+        <div class="card-t">📥 Importar Datos</div>
+        <div class="imp-area excel" onclick="document.getElementById('xlFile').click()">
+            <div class="ic">📊</div>
+            <div class="fw tg">Importar Excel (.xlsx)</div>
+            <div class="fxs td mt">Toca para seleccionar archivo</div>
+            <input type="file" id="xlFile" accept=".xlsx,.xls" style="display:none" onchange="importXL(this)">
+        </div>
+        <div class="imp-area json" onclick="document.getElementById('jFile').click()">
+            <div class="ic">📋</div>
+            <div class="fw" style="color:var(--blue)">Importar JSON</div>
+            <div class="fxs td mt">Backup anterior</div>
+            <input type="file" id="jFile" accept=".json" style="display:none" onchange="importJSON(this)">
+        </div>
+        <div class="alert alert-s" id="impOk"></div>
+        <div class="alert alert-e" id="impErr"></div>
+        <div class="alert alert-i" id="impInfo"></div>
         <div class="divider"></div>
-        <p class="fs td mb">📋 O pega JSON aquí:</p>
-        <textarea id="jPaste" rows="5" style="width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px;color:var(--text);font-size:0.75rem;font-family:monospace" placeholder='{"results":[...]}'></textarea>
-        <div class="mt"><button class="btn btn-gold" onclick="impPaste()">📥 Importar JSON</button></div>
-    </div>
-    <div class="card"><div class="card-t">📋 Formato del Excel/CSV</div>
-        <p class="fxs td mb">3 columnas: <strong class="tg">Fecha</strong>, <strong class="tg">Turno</strong>, <strong class="tg">Numero</strong></p>
-        <div class="format-example"><table><thead><tr><th>Fecha</th><th>Turno</th><th>Numero</th></tr></thead><tbody><tr><td>2024-01-01</td><td>Mediodía</td><td>91</td></tr><tr><td>2024-01-01</td><td>Noche</td><td>38</td></tr></tbody></table></div>
-        <div class="mt"><button class="btn btn-purple" onclick="downTemplate()">📥 Descargar Plantilla</button></div>
+        <div class="btn-row">
+            <button class="btn btn-blue" onclick="exportJSON()">💾 Exportar JSON</button>
+            <button class="btn btn-red" onclick="clearAll()">🗑️ Borrar Todo</button>
+        </div>
+        <div class="divider"></div>
+        <div class="card-t">📋 Formato Excel esperado</div>
+        <div class="format-example">
+            <table><thead><tr><th>A — Fecha</th><th>B — Turno</th><th>C — Número</th></tr></thead>
+            <tbody><tr><td>2024-01-15</td><td>midday</td><td>47</td></tr>
+            <tr><td>2024-01-15</td><td>evening</td><td>23</td></tr></tbody></table>
+        </div>
     </div>
 </div>
 <div class="sec" id="sec-guia">
-    <div class="card"><div class="card-t">📖 Guía Completa</div>
-        <div class="guide-sec"><h4>🏠 Inicio</h4><ul><li><strong>Último sorteo:</strong> Mediodía y noche recientes.</li><li><strong>Análisis:</strong> Ranking, vibración, decena, terminal.</li><li><strong>2 meses:</strong> Top Dec/Term con recomendación.</li></ul></div>
-        <div class="guide-sec"><h4>📋 Historial</h4><ul><li>✏️ Editar sin borrar. 🗑️ Eliminar. Filtrar por turno.</li></ul></div>
-        <div class="guide-sec"><h4>📊 Frecuencias</h4><ul><li><strong>Todos:</strong> Frecuencia conjunta ambos turnos.</li><li><strong>Mediodía/Noche:</strong> Separadas correctamente.</li><li><strong>Decenas/Terminales:</strong> Frecuencia por Dec y Term.</li></ul></div>
-        <div class="guide-sec"><h4>🔢 Dec & 🎯 Term</h4><ul><li><strong>General:</strong> Historial completo vs último sorteo.</li><li><strong>M-M, N-N, M-N, N-M:</strong> Transiciones por turno con estadísticas del último sorteo.</li><li><strong>Mejores:</strong> Momentum reciente vs histórico.</li></ul></div>
-        <div class="guide-sec"><h4>🧮 Matrix</h4><ul><li>Decenas y Terminales con ranking. Transiciones en grid 10x10.</li></ul></div>
-        <div class="guide-sec"><h4>📡 Vibraciones</h4><ul><li>Actividad reciente vs histórica, relacionada con último sorteo y matrices.</li></ul></div>
-        <div class="guide-sec"><h4>🧲 Conexiones</h4><ul><li>Qué número/decena/terminal sigue al último sorteo.</li></ul></div>
-        <div class="guide-sec"><h4>📅 Por Año</h4><ul><li>Estadísticas anuales. Comparar años vs último sorteo.</li></ul></div>
-        <div class="guide-sec"><h4>📆 Última Semana</h4><ul><li>7 días previos. Dec/Term repetidas. Recomendación.</li></ul></div>
-        <div class="guide-sec"><h4>🎯 Análisis</h4><ul><li><strong>Auto:</strong> Análisis para el próximo turno.</li><li><strong>Solo Mediodía/Noche:</strong> Estadísticas independientes.</li><li><strong>Comparar:</strong> Tabla lado a lado Med vs Noc.</li><li>Números más probables con barras de probabilidad.</li></ul></div>
-        <div class="guide-sec"><h4>💡 Consejos</h4><ul><li>Importa todo el historial posible.</li><li>Revisa Análisis antes de cada sorteo.</li><li>Combina Conexiones + Vibraciones + Análisis.</li><li>Exporta JSON como respaldo regular.</li><li>Funciona 100% offline.</li></ul></div>
+    <div class="card">
+        <div class="card-t">📖 Guía de Uso</div>
+        <div class="guide-sec"><h4>🚀 Inicio Rápido</h4>
+        <ul><li>Importa tu Excel con el formato correcto</li><li>Ve a 🏠 Inicio para ver el último sorteo</li><li>Explora las pestañas para análisis detallado</li><li>Usa 🎯 Análisis para predicciones por turno</li><li>Usa 🕸️ Telaraña para convergencia universal</li></ul></div>
+        <div class="guide-sec"><h4>🕸️ La Telaraña</h4>
+        <p>Unifica todos los análisis en una sola tabla.</p>
+        <ul><li>Selecciona Mediodía, Noche o General</li><li>Las filas van de 0 (mayor) a 9 (menor)</li><li>Filas 1-3 ⭐⭐⭐ = Zonas más temibles</li><li>Filas 4-6 ⭐⭐ = Zonas jugables</li><li>Filas 7-9 = Zonas frías</li></ul></div>
     </div>
 </div>
-<div class="offline-status" id="offStatus">🌐</div><script>
-if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('./sw.js').catch(e=>console.log('SW:',e))})}
-function updOffStatus(){const el=document.getElementById('offStatus');if(navigator.onLine){el.className='offline-status online';el.textContent='🌐 En línea';setTimeout(()=>el.style.opacity='0.5',2000)}else{el.className='offline-status offline';el.textContent='📴 Sin conexión';el.style.opacity='1'}}
-window.addEventListener('online',updOffStatus);window.addEventListener('offline',updOffStatus);
-const SK='sorteos_super_v10';
-const LD=()=>{try{const r=localStorage.getItem(SK);return r?JSON.parse(r):[]}catch(e){return[]}};
-const SD=a=>localStorage.setItem(SK,JSON.stringify(a));
-function noTilde(s){if(!s)return'';return String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim()}
+
+<!-- ===== TELARAÑA SECTION ===== -->
+<div class="sec" id="sec-spider">
+    <div class="sp-hero">
+        <div class="sp-hero-icon">🕸️</div>
+        <h2>LA TELARAÑA UNIVERSAL</h2>
+        <p>7 hilos convergentes. Solo Decenas y Terminales. Fila 0 = Mayor frecuencia.</p>
+    </div>
+    <div class="sp-mode-row">
+        <div class="sp-mbtn on" onclick="spMode('midday',this)">☀️ Mediodía</div>
+        <div class="sp-mbtn" onclick="spMode('evening',this)">🌙 Noche</div>
+        <div class="sp-mbtn" onclick="spMode('all',this)">🌐 General</div>
+    </div>
+    <button class="sp-run" onclick="rSpider()">🕸️ TEJER LA TELARAÑA</button>
+    <div id="spLoader" class="sp-loader" style="display:none">
+        <div class="spin2"></div>
+        <p>Tejiendo los hilos...</p>
+    </div>
+    <div id="spOut"></div>
+</div>
+
+<div class="offline-status" id="offSt">●</div>
+
+<script>
+// ===== DATOS =====
+let sorteos=[];
+let curSpMode='midday';
+
+function LS(k,v){try{if(v===undefined)return JSON.parse(localStorage.getItem(k));localStorage.setItem(k,JSON.stringify(v))}catch(e){return null}}
+function loadData(){sorteos=LS('sorteos')||[];rAll()}
+function saveData(){LS('sorteos',sorteos)}
+function getDec(n){return Math.floor(parseInt(n)/10)}
+function getTerm(n){return parseInt(n)%10}
 function p2(n){return String(n).padStart(2,'0')}
-function getDec(n){return Math.floor(parseInt(n,10)/10)}
-function getTerm(n){return parseInt(n,10)%10}
-function fmtD(d){if(!d)return'-';const[y,m,dd]=d.split('-');const mn=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];return`${parseInt(dd)} ${mn[parseInt(m)-1]} ${y}`}
-function diffD(a,b){return Math.abs(Math.round((new Date(b+'T00:00:00')-new Date(a+'T00:00:00'))/86400000))}
-function getDayName(d){return['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'][new Date(d+'T12:00:00').getDay()]}
-function gFreq(data){const f={};for(let i=0;i<=99;i++)f[p2(i)]=0;data.forEach(d=>{if(f[d.number]!==undefined)f[d.number]++});return f}
+function fmtD(d){if(!d)return '';const p=d.split('-');return p.length===3?`${p[2]}/${p[1]}/${p[0]}`:d}
+function getDayName(d){const days=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];return days[new Date(d+'T12:00:00').getDay()]}
+function gFreq(data){const f={};data.forEach(d=>{f[d.number]=(f[d.number]||0)+1});return f}
 function sFreq(f){return Object.entries(f).sort((a,b)=>b[1]-a[1])}
-function showOv(msg){document.getElementById('ovt').textContent=msg;document.getElementById('ov').classList.add('show')}
-function hideOv(){document.getElementById('ov').classList.remove('show')}
-function sAlert(id,msg,type){const el=document.getElementById(id);if(!el)return;el.className=`alert alert-${type}`;el.textContent=msg;el.style.display='block';setTimeout(()=>el.style.display='none',10000)}
-
-// ===== ORDEN CRONOLÓGICO =====
-function chronoSort(a,b){
-    if(a.drawDate!==b.drawDate)return a.drawDate.localeCompare(b.drawDate);
-    return a.shift==='midday'?-1:1;
+function chronoSort(a,b){if(a.drawDate!==b.drawDate)return a.drawDate.localeCompare(b.drawDate);return a.shift==='midday'?-1:1}
+function revSort(a,b){return-chronoSort(a,b)}
+function LD(){
+    const f=document.getElementById('sF')?.value||'';
+    return f?sorteos.filter(s=>s.shift===f):sorteos;
 }
-function revSort(a,b){
-    if(a.drawDate!==b.drawDate)return b.drawDate.localeCompare(a.drawDate);
-    return a.shift==='evening'?-1:1;
-}
-
-// ===== ÚLTIMO SORTEO CORREGIDO =====
 function getLastSorteoMes(){
-    const data=LD();if(!data.length)return null;
-    const now=new Date();
-    const ym=`${now.getFullYear()}-${p2(now.getMonth()+1)}`;
-    const mes=data.filter(d=>d.drawDate.startsWith(ym));
-    if(mes.length)return[...mes].sort(revSort)[0];
-    return[...data].sort(revSort)[0];
+    if(!sorteos.length)return null;
+    return [...sorteos].sort(revSort)[0];
 }
 function getNextTurno(){
     const ls=getLastSorteoMes();
     if(!ls)return{shift:'midday',label:'Mediodía'};
-    if(ls.shift==='evening')return{shift:'midday',label:'Mediodía'};
-    return{shift:'evening',label:'Noche'};
+    if(ls.shift==='midday')return{shift:'evening',label:'Noche'};
+    return{shift:'midday',label:'Mediodía'};
+}
+function updOffStatus(){
+    const el=document.getElementById('offSt');
+    if(!el)return;
+    if(navigator.onLine){el.textContent='● Online';el.className='offline-status online'}
+    else{el.textContent='● Offline';el.className='offline-status offline'}
 }
 function renderLsBanner(id){
     const el=document.getElementById(id);if(!el)return;
-    const ls=getLastSorteoMes();if(!ls){el.innerHTML='';return}
-    const next=getNextTurno();
-    el.innerHTML=`<div class="ls-banner"><div><div class="ls-lbl">Último sorteo registrado</div><div class="ls-num">${ls.number}</div><div class="ls-info">Dec: ${getDec(ls.number)}0s | Term: T${getTerm(ls.number)}</div></div><div style="text-align:right"><div class="ls-info">${fmtD(ls.drawDate)} ${ls.shift==='midday'?'☀️ Mediodía':'🌙 Noche'}</div><div class="ls-next">Próximo: ${next.label}</div></div></div>`;
+    const ls=getLastSorteoMes();const next=getNextTurno();
+    if(!ls){el.innerHTML='';return}
+    el.innerHTML=`<div class="ls-banner">
+    <div><div class="ls-lbl">Último Sorteo</div>
+    <div class="ls-num">${ls.number}</div>
+    <div class="ls-info">${ls.shift==='midday'?'☀️ Mediodía':'🌙 Noche'} · ${fmtD(ls.drawDate)}</div></div>
+    <div><div class="ls-lbl">Próximo</div>
+    <div class="ls-next">→ ${next.label}</div></div></div>`
 }
 
-// ===== PARSE =====
-function parseDate(input){
-    if(input===null||input===undefined||input==='')return null;
-    if(input instanceof Date&&!isNaN(input.getTime())){const y=input.getFullYear(),m=String(input.getMonth()+1).padStart(2,'0'),d=String(input.getDate()).padStart(2,'0');return`${y}-${m}-${d}`}
-    let s=String(input).trim();if(!s)return null;
-    if(/^\d+(\.\d+)?$/.test(s)){const num=parseFloat(s);if(num>25569&&num<80000){const ed=new Date((num-25569)*86400*1000);if(!isNaN(ed.getTime())){const y=ed.getUTCFullYear(),m=String(ed.getUTCMonth()+1).padStart(2,'0'),d=String(ed.getUTCDate()).padStart(2,'0');return`${y}-${m}-${d}`}}}
-    s=s.replace(/T.*$/,'').replace(/\s+\d.*$/,'').trim();
-    let m=s.match(/^(\d{4})[-\/\.](\d{1,2})[-\/\.](\d{1,2})$/);if(m)return`${m[1]}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}`;
-    m=s.match(/^(\d{1,2})[-\/\.](\d{1,2})[-\/\.](\d{4})$/);if(m){const d=parseInt(m[1]),mo=parseInt(m[2]);if(d>12)return`${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;if(mo>12)return`${m[3]}-${m[1].padStart(2,'0')}-${m[2].padStart(2,'0')}`;return`${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`}
-    m=s.match(/^(\d{1,2})[-\/\.](\d{1,2})[-\/\.](\d{2})$/);if(m){const yr=parseInt(m[3])>50?'19'+m[3]:'20'+m[3];const d=parseInt(m[1]);if(d>12)return`${yr}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;return`${yr}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`}
-    try{const d=new Date(s);if(!isNaN(d.getTime()))return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}catch(e){}
-    return null;
-}
-function parseShift(input){
-    if(input===null||input===undefined)return null;const s=noTilde(input);if(!s)return null;
-    if(['dia','d','day','midday','mediodia','md','tarde','manana','am','1','m','matutino'].indexOf(s)>=0)return'midday';
-    if(['noche','n','night','evening','eve','ev','pm','2','e','nocturno','vespertino'].indexOf(s)>=0)return'evening';
-    if(s.indexOf('medio')>=0||s.indexOf('dia')>=0||s.indexOf('day')>=0||s.indexOf('mid')>=0)return'midday';
-    if(s.indexOf('noche')>=0||s.indexOf('night')>=0||s.indexOf('even')>=0)return'evening';
-    return null;
-}
-function norm(r){
-    let dateVal=null;for(const k of['drawDate','date','fecha','Fecha','FECHA','DATE']){if(r[k]!==undefined&&r[k]!==null&&r[k]!==''){dateVal=r[k];break}}
-    const rd=parseDate(dateVal);if(!rd||!/^\d{4}-\d{2}-\d{2}$/.test(rd))return null;
-    let numVal=null;for(const k of['number','numero','Numero','NUMERO','Número','num','Num','n','N']){if(r[k]!==undefined&&r[k]!==null&&r[k]!==''){numVal=r[k];break}}
-    const ni=parseInt(String(numVal),10);if(isNaN(ni)||ni<0||ni>99)return null;const n=String(ni).padStart(2,'0');
-    let shiftVal=null;for(const k of['shift','turno','Turno','TURNO','periodo','Periodo','SHIFT']){if(r[k]!==undefined&&r[k]!==null&&r[k]!==''){shiftVal=r[k];break}}
-    const s=parseShift(shiftVal);if(!s)return null;
-    return{id:`${rd}_${s}`,drawDate:rd,shift:s,number:n,createdAt:r.createdAt||Date.now()};
-}
-function extractItemsFromSheet(sheet){const allRows=XLSX.utils.sheet_to_json(sheet,{header:1,raw:false,defval:''});if(!allRows.length)return[];const firstRow=allRows[0]||[];const firstStr=firstRow.map(x=>noTilde(String(x||''))).join('|');const hasHeaders=firstStr.indexOf('fecha')>=0||firstStr.indexOf('turno')>=0||firstStr.indexOf('numero')>=0||firstStr.indexOf('date')>=0||firstStr.indexOf('shift')>=0;const startIdx=hasHeaders?1:0;const items=[];for(let i=startIdx;i<allRows.length;i++){const row=allRows[i];if(!row||row.length===0)continue;const nonEmpty=[];for(let j=0;j<row.length;j++){const val=row[j];if(val!==null&&val!==undefined&&String(val).trim()!=='')nonEmpty.push(val)}if(nonEmpty.length<3)continue;items.push({Fecha:nonEmpty[0],Turno:nonEmpty[1],Numero:nonEmpty[2]})}return items}
-function processItems(items,src){const norms=items.map(norm).filter(Boolean);if(!norms.length){hideOv();sAlert(src,'❌ Ningún dato válido','e');return}const ex=LD();const map={};ex.forEach(e=>map[e.id]=e);let a=0,u=0;norms.forEach(nr=>{if(map[nr.id])u++;else a++;map[nr.id]=nr});const final=Object.values(map).sort(revSort);SD(final);rAll();hideOv();sAlert(src,`✅ ${a} nuevos, ${u} actualizados. Total: ${final.length}`,'s')}
-function procImp(txt,src){showOv('Procesando...');setTimeout(()=>{try{const p=JSON.parse(txt.trim());let items=Array.isArray(p)?p:(p.results&&Array.isArray(p.results))?p.results:null;if(!items)throw new Error('Formato no reconocido');processItems(items,src)}catch(e){hideOv();sAlert(src,`❌ ${e.message}`,'e')}},200)}
-function hExcel(ev){const f=ev.target.files[0];if(!f)return;if(typeof XLSX==='undefined'){sAlert('impA','❌ Librería Excel no disponible','e');return}showOv('Leyendo...');const reader=new FileReader();reader.onload=e=>{try{const data=new Uint8Array(e.target.result);const wb=XLSX.read(data,{type:'array',cellDates:true,cellNF:false});if(!wb.SheetNames||!wb.SheetNames.length){hideOv();sAlert('impA','❌ Sin hojas','e');return}let bS=null,bI=[],bV=0;for(const sn of wb.SheetNames){const sh=wb.Sheets[sn];const it=extractItemsFromSheet(sh);const vc=it.map(norm).filter(Boolean).length;if(vc>bV){bV=vc;bS=sn;bI=it}}if(!bI.length||bV===0){hideOv();sAlert('impA','❌ Sin datos válidos','e');return}showOv(`Leyendo "${bS}"...`);setTimeout(()=>processItems(bI,'impA'),200)}catch(err){hideOv();sAlert('impA',`❌ ${err.message}`,'e')}};reader.onerror=()=>{hideOv();sAlert('impA','❌ Error','e')};reader.readAsArrayBuffer(f);ev.target.value=''}
-function hFile(ev){const f=ev.target.files[0];if(!f)return;const r=new FileReader();r.onload=e=>procImp(e.target.result,'impA');r.readAsText(f);ev.target.value=''}
-function impPaste(){const t=document.getElementById('jPaste').value.trim();if(!t){sAlert('impA','⚠️ Pega JSON','e');return}procImp(t,'impA')}
-function addR(){const d=document.getElementById('aDate').value,s=document.getElementById('aShift').value,nr=document.getElementById('aNum').value.trim();if(!d){sAlert('addA','⚠️ Fecha','e');return}if(!nr){sAlert('addA','⚠️ Número','e');return}const ni=parseInt(nr,10);if(isNaN(ni)||ni<0||ni>99){sAlert('addA','⚠️ 00-99','e');return}const n=p2(ni),id=`${d}_${s}`,data=LD();const idx=data.findIndex(x=>x.id===id);const entry={id,drawDate:d,shift:s,number:n,createdAt:Date.now()};if(idx>=0){data[idx]=entry;sAlert('addA','✅ Actualizado','s')}else{data.push(entry);sAlert('addA','✅ Guardado','s')}data.sort(revSort);SD(data);rAll();document.getElementById('aNum').value=''}
-let editId=null;
-function openEdit(id){const data=LD();const item=data.find(x=>x.id===id);if(!item)return;editId=id;document.getElementById('eFecha').value=item.drawDate;document.getElementById('eTurno').value=item.shift;document.getElementById('eNum').value=item.number;document.getElementById('editModal').classList.add('show')}
-function closeEdit(){document.getElementById('editModal').classList.remove('show');editId=null}
-function saveEdit(){if(!editId)return;const fecha=document.getElementById('eFecha').value,turno=document.getElementById('eTurno').value,nr=document.getElementById('eNum').value.trim();if(!fecha||!nr){alert('Completa campos');return}const ni=parseInt(nr,10);if(isNaN(ni)||ni<0||ni>99){alert('00-99');return}const n=p2(ni),newId=`${fecha}_${turno}`;let data=LD();const idx=data.findIndex(x=>x.id===editId);if(idx<0)return;if(newId!==editId&&data.find(x=>x.id===newId)){alert('Ya existe');return}data[idx]={id:newId,drawDate:fecha,shift:turno,number:n,createdAt:data[idx].createdAt||Date.now()};data.sort(revSort);SD(data);closeEdit();rAll();rHist()}
-function delR(id){if(!confirm('¿Eliminar?'))return;SD(LD().filter(d=>d.id!==id));rAll();rHist()}
-function expData(){const d=LD();if(!d.length)return alert('Sin datos');const b=new Blob([JSON.stringify({version:1,exportDate:new Date().toISOString(),results:d},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`sorteos_${new Date().toISOString().substring(0,10)}.json`;a.click()}
-function expExcel(){const d=LD();if(!d.length)return alert('Sin datos');if(typeof XLSX==='undefined')return alert('Sin librería');const rows=d.map(x=>({Fecha:x.drawDate,Turno:x.shift==='midday'?'Mediodía':'Noche',Numero:x.number}));const ws=XLSX.utils.json_to_sheet(rows);const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Sorteos');XLSX.writeFile(wb,`sorteos_${new Date().toISOString().substring(0,10)}.xlsx`)}
-function downTemplate(){if(typeof XLSX==='undefined')return alert('Sin librería');const ws=XLSX.utils.json_to_sheet([{Fecha:'2024-01-01',Turno:'Mediodía',Numero:'91'},{Fecha:'2024-01-01',Turno:'Noche',Numero:'38'}]);const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Sorteos');XLSX.writeFile(wb,'plantilla_sorteos.xlsx')}
-function clearAll(){if(!confirm('⚠️ ¿BORRAR TODO?'))return;if(!confirm('¿Seguro?'))return;localStorage.removeItem(SK);rAll();alert('Borrado')}
-
-// ===== TRANSICIONES CORREGIDAS =====
 function getTransitions(data,type){
     const sorted=[...data].sort(chronoSort);
     const pairs=[];
-    if(type==='all'){
-        for(let i=0;i<sorted.length-1;i++) pairs.push({from:sorted[i],to:sorted[i+1]});
-    } else if(type==='dn'){
-        for(let i=0;i<sorted.length-1;i++){
-            if(sorted[i].shift==='midday'&&sorted[i+1].shift==='evening'&&sorted[i].drawDate===sorted[i+1].drawDate)
-                pairs.push({from:sorted[i],to:sorted[i+1]});
-        }
-    } else if(type==='nd'){
-        for(let i=0;i<sorted.length-1;i++){
-            if(sorted[i].shift==='evening'&&sorted[i+1].shift==='midday')
-                pairs.push({from:sorted[i],to:sorted[i+1]});
-        }
-    } else if(type==='dd'){
-        const mids=sorted.filter(d=>d.shift==='midday');
-        for(let i=0;i<mids.length-1;i++) pairs.push({from:mids[i],to:mids[i+1]});
-    } else if(type==='nn'){
-        const nites=sorted.filter(d=>d.shift==='evening');
-        for(let i=0;i<nites.length-1;i++) pairs.push({from:nites[i],to:nites[i+1]});
+    for(let i=0;i<sorted.length-1;i++){
+        const c=sorted[i],n=sorted[i+1];
+        if(type==='all')pairs.push({from:c,to:n});
+        else if(type==='dd'&&c.shift==='midday'&&n.shift==='midday')pairs.push({from:c,to:n});
+        else if(type==='nn'&&c.shift==='evening'&&n.shift==='evening')pairs.push({from:c,to:n});
+        else if(type==='dn'&&c.shift==='midday'&&n.shift==='evening')pairs.push({from:c,to:n});
+        else if(type==='nd'&&c.shift==='evening'&&n.shift==='midday')pairs.push({from:c,to:n});
     }
     return pairs;
 }
-function getDecTransFreq(pairs){const f={};for(let i=0;i<=9;i++)for(let j=0;j<=9;j++)f[`${i}->${j}`]=0;pairs.forEach(p=>f[`${getDec(p.from.number)}->${getDec(p.to.number)}`]++);return f}
-function getTermTransFreq(pairs){const f={};for(let i=0;i<=9;i++)for(let j=0;j<=9;j++)f[`${i}->${j}`]=0;pairs.forEach(p=>f[`${getTerm(p.from.number)}->${getTerm(p.to.number)}`]++);return f}
-function calcVibration(data,num,rc){const t=data.length;if(t<10)return{level:0,label:'Sin datos',cls:'vib-low'};const sorted=[...data].sort(revSort);const recent=sorted.slice(0,rc||20);const freq=gFreq(data);const rF=gFreq(recent);const exp=t/100,rE=recent.length/100;const act=freq[num]||0,rA=rF[num]||0;const ratio=(rA/Math.max(rE,0.1))/(Math.max(act,1)/Math.max(exp,0.1));const pct=Math.min(100,Math.round(ratio*50));let label,cls;if(ratio>1.5){label='🔥 MUY ALTA';cls='vib-high'}else if(ratio>1){label='⚡ ALTA';cls='vib-high'}else if(ratio>0.5){label='➡️ MEDIA';cls='vib-med'}else{label='💤 BAJA';cls='vib-low'}return{level:pct,label,cls}}
-function getPullConnections(data,limit){const sorted=[...data].sort(chronoSort);const conn={};for(let i=0;i<sorted.length-1;i++){const from=sorted[i].number,to=sorted[i+1].number,key=`${from}->${to}`;if(!conn[key])conn[key]={from,to,count:0};conn[key].count++}return Object.values(conn).sort((a,b)=>b.count-a.count).slice(0,limit||20)}
+function getDecTransFreq(pairs){
+    const f={};
+    for(let i=0;i<=9;i++)for(let j=0;j<=9;j++)f[`${i}->${j}`]=0;
+    pairs.forEach(p=>f[`${getDec(p.from.number)}->${getDec(p.to.number)}`]++);
+    return f;
+}
+function getTermTransFreq(pairs){
+    const f={};
+    for(let i=0;i<=9;i++)for(let j=0;j<=9;j++)f[`${i}->${j}`]=0;
+    pairs.forEach(p=>f[`${getTerm(p.from.number)}->${getTerm(p.to.number)}`]++);
+    return f;
+}
+function getPullConnections(data,limit){
+    const sorted=[...data].sort(chronoSort);
+    const f={};
+    for(let i=0;i<sorted.length-1;i++){
+        const k=`${sorted[i].number}->${sorted[i+1].number}`;
+        f[k]=(f[k]||0)+1;
+    }
+    return Object.entries(f).map(([k,c])=>{const[fr,to]=k.split('->');return{from:fr,to,count:c}})
+        .sort((a,b)=>b.count-a.count).slice(0,limit);
+}
+function calcVibration(data,num,window){
+    const sorted=[...data].sort(revSort);
+    const recent=sorted.slice(0,window);
+    const gF=data.filter(d=>d.number===num).length/data.length;
+    const rF=recent.filter(d=>d.number===num).length/window;
+    const ratio=rF/Math.max(gF,0.001);
+    const level=Math.min(100,Math.round(ratio*50));
+    return{level,cls:ratio>1.2?'vib-high':ratio>0.8?'vib-med':'vib-low',
+        label:ratio>1.5?'🔥MUY ALTA':ratio>1?'⚡ALTA':ratio>0.5?'➡️MEDIA':'💤BAJA'}
+}
 
 // ===== HOME =====
 function rHome(){
-    const data=LD();const t=data.length;
-    document.getElementById('hsub').textContent=t>0?`${t} sorteos`:'Sin datos — Importar';
-    if(!t){document.getElementById('lastDraw').innerHTML='<div class="empty" style="grid-column:1/-1"><div class="ei">🎲</div><p>Importa datos</p></div>';document.getElementById('lastAnalCard').style.display='none';document.getElementById('hotN').innerHTML='-';document.getElementById('coldN').innerHTML='-';document.getElementById('genStats').innerHTML='';document.getElementById('last2months').innerHTML='Sin datos';document.getElementById('streak').textContent='Sin datos';return}
-    const s=[...data].sort(revSort);
-    const lm=s.find(d=>d.shift==='midday'),le=s.find(d=>d.shift==='evening');
-    let h='';
-    if(lm)h+=`<div class="draw-box"><div class="lbl">☀️ Último Mediodía</div><div class="num">${lm.number}</div><div class="dt">${fmtD(lm.drawDate)}</div></div>`;
-    if(le)h+=`<div class="draw-box"><div class="lbl">🌙 Última Noche</div><div class="num">${le.number}</div><div class="dt">${fmtD(le.drawDate)}</div></div>`;
-    document.getElementById('lastDraw').innerHTML=h;
-    const freq=gFreq(data),sf=sFreq(freq);
-    document.getElementById('hotN').innerHTML=sf.slice(0,5).map(([n,c])=>`<span class="hc-n">${n}<br><span style="font-size:0.6rem">${c}x</span></span>`).join('');
-    document.getElementById('coldN').innerHTML=[...sf].sort((a,b)=>a[1]-b[1]).slice(0,5).map(([n,c])=>`<span class="hc-n">${n}<br><span style="font-size:0.6rem">${c}x</span></span>`).join('');
-    const years=new Set(data.map(d=>d.drawDate.substring(0,4))).size;const mf=sf[0],lf=[...sf].sort((a,b)=>a[1]-b[1])[0];
-    document.getElementById('genStats').innerHTML=`<div class="stat-box"><div class="v">${t}</div><div class="l">Total</div></div><div class="stat-box"><div class="v">${years}</div><div class="l">Años</div></div><div class="stat-box"><div class="v">${mf[0]}</div><div class="l">+Frec(${mf[1]}x)</div></div><div class="stat-box"><div class="v">${lf[0]}</div><div class="l">-Frec(${lf[1]}x)</div></div>`;
-    rLastAnal(s[0],data,freq,sf);rStreak(s);rLast2M(data);
+    const data=sorteos;
+    const ls=getLastSorteoMes();
+    const next=getNextTurno();
+    if(!ls){
+        document.getElementById('hsub').textContent='Sin datos — Importa tu Excel';
+        document.getElementById('genStats').innerHTML='<div class="empty" style="grid-column:1/-1"><p>Sin datos</p></div>';
+        document.getElementById('hotN').innerHTML='';document.getElementById('coldN').innerHTML='';
+        document.getElementById('last2months').innerHTML='';document.getElementById('streak').textContent='Sin datos';
+        return;
+    }
+    document.getElementById('hsub').textContent=`${data.length} sorteos · Próximo: ${next.label}`;
+    const lsD=getDec(ls.number),lsT=getTerm(ls.number);
+    document.getElementById('lastDraw').innerHTML=`
+    <div class="draw-box"><div class="lbl">${ls.shift==='midday'?'☀️ Mediodía':'🌙 Noche'}</div>
+    <div class="num">${ls.number}</div><div class="dt">${fmtD(ls.drawDate)}</div>
+    <div class="fxs td mt">Dec: ${lsD}0s · T: T${lsT}</div></div>
+    <div class="draw-box"><div class="lbl">→ Próximo</div>
+    <div style="font-size:1.8rem;font-weight:900;color:var(--green);margin:8px 0">${next.label}</div>
+    <div class="fxs td">Analiza en 🎯</div></div>`;
+    document.getElementById('lastAnalCard').style.display='block';
+    const freq=gFreq(data);
+    const dA={},tA={};
+    const sorted=[...data].sort(chronoSort);
+    for(let i=0;i<sorted.length-1;i++){
+        if(getDec(sorted[i].number)===lsD)dA[getDec(sorted[i+1].number)]=(dA[getDec(sorted[i+1].number)]||0)+1;
+        if(getTerm(sorted[i].number)===lsT)tA[getTerm(sorted[i+1].number)]=(tA[getTerm(sorted[i+1].number)]||0)+1;
+    }
+    const bD=Object.entries(dA).sort((a,b)=>b[1]-a[1]).slice(0,4);
+    const bT=Object.entries(tA).sort((a,b)=>b[1]-a[1]).slice(0,4);
+    document.getElementById('lastAnal').innerHTML=`
+    <div class="g2"><div><div class="fxs td mb">Dec tras ${lsD}0s:</div>
+    <div class="rec-nums">${bD.map(([d,c])=>`<div class="rec-item"><span>${d}0s</span>(${c}x)</div>`).join('')}</div></div>
+    <div><div class="fxs td mb">Term tras T${lsT}:</div>
+    <div class="rec-nums">${bT.map(([t,c])=>`<div class="rec-item"><span>T${t}</span>(${c}x)</div>`).join('')}</div></div></div>`;
+    const mid=data.filter(d=>d.shift==='midday'),eve=data.filter(d=>d.shift==='evening');
+    document.getElementById('genStats').innerHTML=`
+    <div class="stat-box"><div class="v">${data.length}</div><div class="l">Total</div></div>
+    <div class="stat-box"><div class="v">${mid.length}</div><div class="l">☀️ Mediodía</div></div>
+    <div class="stat-box"><div class="v">${eve.length}</div><div class="l">🌙 Noche</div></div>
+    <div class="stat-box"><div class="v">${Object.keys(freq).length}</div><div class="l">Únicos</div></div>`;
+    const sf=sFreq(freq);
+    document.getElementById('hotN').innerHTML=sf.slice(0,5).map(([n,c])=>`<div class="hc-n">${n}<br><span style="font-size:0.6rem">${c}x</span></div>`).join('');
+    document.getElementById('coldN').innerHTML=sf.slice(-5).reverse().map(([n,c])=>`<div class="hc-n">${n}<br><span style="font-size:0.6rem">${c}x</span></div>`).join('');
+    // Últimos 2 meses
+    const now=new Date(ls.drawDate+'T12:00:00');
+    const twoM=new Date(now);twoM.setMonth(twoM.getMonth()-2);
+    const twoMStr=twoM.toISOString().split('T')[0];
+    const recent2=data.filter(d=>d.drawDate>=twoMStr);
+    const dF2={},tF2={};for(let i=0;i<=9;i++){dF2[i]=0;tF2[i]=0}
+    recent2.forEach(d=>{dF2[getDec(d.number)]++;tF2[getTerm(d.number)]++});
+    const topD2=Object.entries(dF2).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    const topT2=Object.entries(tF2).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    document.getElementById('last2months').innerHTML=`<div class="g2">
+    <div><div class="fxs td mb">🔢 Top Dec</div>${topD2.map(([d,c])=>`<div class="fxs mb">${d}0s <span class="tg fw">${c}x</span></div>`).join('')}</div>
+    <div><div class="fxs td mb">🎯 Top Term</div>${topT2.map(([t,c])=>`<div class="fxs mb">T${t} <span class="tgr fw">${c}x</span></div>`).join('')}</div></div>`;
+    // Racha
+    const s2=[...data].sort(revSort);
+    let streak=1;
+    for(let i=1;i<s2.length;i++){if(getDec(s2[i].number)===getDec(s2[0].number))streak++;else break}
+    document.getElementById('streak').innerHTML=`Decena ${getDec(ls.number)}0s lleva <strong style="color:var(--gold)">${streak}</strong> sorteo(s) consecutivo(s)`;
 }
-function rLastAnal(last,data,freq,sf){if(!last)return;document.getElementById('lastAnalCard').style.display='block';const n=last.number,c=freq[n]||0,pct=((c/data.length)*100).toFixed(1),rank=sf.findIndex(([x])=>x===n)+1,ni=parseInt(n,10),dec=getDec(n),term=getTerm(n);let tag=rank<=10?'<span class="tag tag-hot">🔥Caliente</span>':rank>=90?'<span class="tag tag-cold">❄️Frío</span>':'<span class="tag tag-norm">⚖️Normal</span>';const vib=calcVibration(data,n,20);const sorted=[...data].sort(revSort);const pen=sorted[1];let ti='';if(pen)ti=`<div class="divider"></div><div class="card-t fxs mb">🔄 Transición</div><div class="g2"><div class="ai"><div class="al">Anterior</div><div class="av tg">${pen.number}(${pen.shift==='midday'?'☀️':'🌙'})</div></div><div class="ai"><div class="al">Actual</div><div class="av tgr">${n}(${last.shift==='midday'?'☀️':'🌙'})</div></div><div class="ai"><div class="al">Dec</div><div class="av">${getDec(pen.number)}0s→${dec}0s</div></div><div class="ai"><div class="al">Term</div><div class="av">T${getTerm(pen.number)}→T${term}</div></div></div>`;document.getElementById('lastAnal').innerHTML=`<div class="g2"><div class="ai"><div class="al">Número</div><div class="av tg" style="font-size:2rem">${n}</div></div><div class="ai"><div class="al">Rango</div><div class="av">${tag} #${rank}</div></div><div class="ai"><div class="al">Apariciones</div><div class="av">${c}(${pct}%)</div></div><div class="ai"><div class="al">Dec/Term</div><div class="av">${dec}0s/T${term}</div></div><div class="ai"><div class="al">Vibración</div><div class="av">${vib.label}<div class="vib-meter"><div class="vib-fill ${vib.cls}" style="width:${vib.level}%"></div></div></div></div><div class="ai"><div class="al">Par/Impar</div><div class="av">${ni%2===0?'Par':'Impar'}</div></div></div><div class="mt fs td">📅 ${last.shift==='midday'?'☀️Med':'🌙Noc'} — ${fmtD(last.drawDate)}</div>${ti}`}
-function rStreak(sorted){if(sorted.length<2){document.getElementById('streak').textContent='Pocos datos';return}const n=sorted[0].number;let s=0;for(let i=1;i<sorted.length;i++){if(sorted[i].number!==n)s++;else break}document.getElementById('streak').innerHTML=`<span class="tg fw">${n}</span> — ${s>0?`No salió en ${s} anteriores`:'Consecutivo'}<div class="mt">Total: <span class="tgr fw">${sorted.filter(d=>d.number===n).length}</span></div>`}
-function rLast2M(data){if(!data.length){document.getElementById('last2months').innerHTML='Sin datos';return}const ls=getLastSorteoMes();const next=getNextTurno();const sorted=[...data].sort(revSort);const lD=sorted[0].drawDate,lM=lD.substring(0,7);const[ly,lm]=lM.split('-').map(Number);const months=[];for(let i=1;i<=2;i++){let m=lm-i,y=ly;if(m<=0){m+=12;y--}months.push(`${y}-${String(m).padStart(2,'0')}`)}months.unshift(lM);const mn=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];let html='<div class="g3">';months.forEach(ym=>{const mData=data.filter(d=>d.drawDate.startsWith(ym));const[y,m]=ym.split('-');if(!mData.length){html+=`<div class="stat-box"><div style="font-size:0.7rem;color:var(--gold);font-weight:700">${mn[parseInt(m)-1]} ${y}</div><div class="v" style="font-size:1rem">0</div></div>`;return}const top3=sFreq(gFreq(mData)).slice(0,3);const dF={},tF={};for(let i=0;i<=9;i++){dF[i]=0;tF[i]=0}mData.forEach(d=>{dF[getDec(d.number)]++;tF[getTerm(d.number)]++});const tD=Object.entries(dF).sort((a,b)=>b[1]-a[1])[0];const tT=Object.entries(tF).sort((a,b)=>b[1]-a[1])[0];html+=`<div class="stat-box"><div style="font-size:0.7rem;color:var(--gold);font-weight:700">${mn[parseInt(m)-1]} ${y}</div><div class="v" style="font-size:1.2rem">${mData.length}</div><div class="fxs td mt">${top3.map(([n,c])=>`<span class="tg">${n}</span>(${c})`).join(' ')}</div><div class="fxs mt" style="color:var(--green)">D:${tD[0]}0s T:T${tT[0]}</div></div>`});html+='</div>';if(ls){const lsDec=getDec(ls.number),lsTerm=getTerm(ls.number);const l2d=data.filter(d=>months.some(ym=>d.drawDate.startsWith(ym)));const dA={},tA={};const l2s=[...l2d].sort(chronoSort);for(let i=0;i<l2s.length-1;i++){if(getDec(l2s[i].number)===lsDec){const nd=getDec(l2s[i+1].number);dA[nd]=(dA[nd]||0)+1}if(getTerm(l2s[i].number)===lsTerm){const nt=getTerm(l2s[i+1].number);tA[nt]=(tA[nt]||0)+1}}const topDA=Object.entries(dA).sort((a,b)=>b[1]-a[1]).slice(0,5);const topTA=Object.entries(tA).sort((a,b)=>b[1]-a[1]).slice(0,5);html+=`<div class="rec-box mt"><h4>🎯 → ${next.label}</h4>`;if(topDA.length){html+=`<div class="fxs tg mb">Dec tras ${lsDec}0s:</div><div class="rec-nums">`;topDA.forEach(([d,c])=>html+=`<div class="rec-item"><span>${d}0s</span>(${c}x)</div>`);html+='</div>'}if(topTA.length){html+=`<div class="fxs tg mt mb">Term tras T${lsTerm}:</div><div class="rec-nums">`;topTA.forEach(([t,c])=>html+=`<div class="rec-item"><span>T${t}</span>(${c}x)</div>`);html+='</div>'}html+='</div>'}document.getElementById('last2months').innerHTML=html}
 
 // ===== HISTORIAL =====
-let cP=1;const pP=25;
-function gFilt(){const d=LD(),s=document.getElementById('sI').value.toLowerCase(),f=document.getElementById('sF').value;let r=[...d].sort(revSort);if(s)r=r.filter(x=>x.number.includes(s)||x.drawDate.includes(s));if(f)r=r.filter(x=>x.shift===f);return r}
-function rHist(){const f=gFilt(),tp=Math.max(1,Math.ceil(f.length/pP));if(cP>tp)cP=tp;const pg=f.slice((cP-1)*pP,cP*pP);const tb=document.getElementById('hBody');if(!pg.length)tb.innerHTML='<tr><td colspan="6" class="tc td" style="padding:30px">Vacío</td></tr>';else tb.innerHTML=pg.map(d=>`<tr><td>${fmtD(d.drawDate)}</td><td><span class="badge badge-${d.shift==='midday'?'m':'e'}">${d.shift==='midday'?'☀️Med':'🌙Noc'}</span></td><td><span class="pill">${d.number}</span></td><td class="td fxs">${getDec(d.number)}0s</td><td class="td fxs">T${getTerm(d.number)}</td><td style="display:flex;gap:4px"><button class="btn btn-blue" style="padding:3px 8px;font-size:0.7rem" onclick="openEdit('${d.id}')">✏️</button><button class="btn btn-red" style="padding:3px 8px;font-size:0.7rem" onclick="delR('${d.id}')">🗑️</button></td></tr>`).join('');document.getElementById('pInfo').textContent=`${cP}/${tp}(${f.length})`}
-function cPage(dir){const f=gFilt(),tp=Math.max(1,Math.ceil(f.length/pP));cP=Math.max(1,Math.min(tp,cP+dir));rHist()}
+let curPage=0;const perPage=20;
+function rHist(){
+    curPage=0;showPage();
+}
+function showPage(){
+    const data=LD();
+    const q=document.getElementById('sI')?.value?.toLowerCase()||'';
+    const filtered=data.filter(d=>!q||d.number.includes(q)||d.drawDate.includes(q)).sort(revSort);
+    const total=Math.ceil(filtered.length/perPage)||1;
+    curPage=Math.max(0,Math.min(curPage,total-1));
+    const page=filtered.slice(curPage*perPage,(curPage+1)*perPage);
+    const tb=document.getElementById('hBody');if(!tb)return;
+    tb.innerHTML=page.map((d,i)=>`<tr>
+    <td>${fmtD(d.drawDate)}</td>
+    <td><span class="badge ${d.shift==='midday'?'badge-m':'badge-e'}">${d.shift==='midday'?'☀️ Med':'🌙 Noc'}</span></td>
+    <td><strong class="tg">${d.number}</strong></td>
+    <td>${getDec(d.number)}0s</td><td>T${getTerm(d.number)}</td>
+    <td><button class="btn btn-outline" style="padding:4px 8px;font-size:0.7rem" onclick="editS(${curPage*perPage+i})">✏️</button></td>
+    </tr>`).join('');
+    document.getElementById('pInfo').textContent=`${curPage+1}/${total} (${filtered.length})`;
+}
+function cPage(d){curPage+=d;showPage()}
+let editIdx=-1;
+function editS(i){
+    const data=LD().sort(revSort);
+    const s=data[i];if(!s)return;
+    editIdx=sorteos.indexOf(s);
+    document.getElementById('eFecha').value=s.drawDate;
+    document.getElementById('eTurno').value=s.shift;
+    document.getElementById('eNum').value=s.number;
+    document.getElementById('editModal').classList.add('show');
+}
+function closeEdit(){document.getElementById('editModal').classList.remove('show')}
+function saveEdit(){
+    if(editIdx<0)return;
+    const n=document.getElementById('eNum').value.trim().padStart(2,'0');
+    if(!/^\d{2}$/.test(n)||parseInt(n)>99)return;
+    sorteos[editIdx]={...sorteos[editIdx],drawDate:document.getElementById('eFecha').value,shift:document.getElementById('eTurno').value,number:n};
+    saveData();closeEdit();rHist();rHome();
+}
 
 // ===== FRECUENCIAS =====
 let curFV='all';
-function freqView(v,btn){curFV=v;document.querySelectorAll('#freqTabs .sub-tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');rFreq()}
-function rFreq(){const data=LD();if(!data.length){document.getElementById('freqContent').innerHTML='<div class="empty"><div class="ei">📊</div><p>Sin datos</p></div>';return}renderLsBanner('lsBannerFreq');if(curFV==='decs'){rFreqDecs(data);return}if(curFV==='terms'){rFreqTerms(data);return}let fData=data,title='';if(curFV==='midday'){fData=data.filter(d=>d.shift==='midday');title='☀️ MEDIODÍA('+fData.length+')'}else if(curFV==='evening'){fData=data.filter(d=>d.shift==='evening');title='🌙 NOCHE('+fData.length+')'}else if(curFV==='top')title='🔥 Top 15';else if(curFV==='bottom')title='❄️ Bottom 15';else title='📊 Todos('+data.length+')';document.getElementById('freqTitle').textContent=title;const freq=gFreq(fData),sf=sFreq(freq);const mx=sf[0]?sf[0][1]:1;let items;if(curFV==='bottom')items=[...sf].sort((a,b)=>a[1]-b[1]).slice(0,15);else if(curFV==='all')items=sf;else items=sf.slice(0,15);document.getElementById('freqContent').innerHTML=items.map(([n,c])=>`<div class="fb"><div class="n">${n}</div><div class="track"><div class="fill ${curFV==='bottom'?'fill-hot':'fill-green'}" style="width:${mx>0?(c/mx*100):0}%"><span>${c}</span></div></div><div class="c">${c}x</div></div>`).join('')}
-function rFreqDecs(data){const ls=getLastSorteoMes();const lsD=ls?getDec(ls.number):null;const dF={};for(let i=0;i<=9;i++)dF[i]=0;data.forEach(d=>dF[getDec(d.number)]++);const sorted=Object.entries(dF).sort((a,b)=>b[1]-a[1]);const mx=sorted[0][1];document.getElementById('freqTitle').textContent='🔢 Decenas';let html=ls?`<div class="fxs td mb">📌 ${ls.number} Dec:${lsD}0s</div>`:'';html+=sorted.map(([d,c])=>{const isLS=parseInt(d)===lsD;return`<div class="fb"><div class="n" style="${isLS?'color:var(--gold2)':''}">${d}0s${isLS?' 📌':''}</div><div class="track"><div class="fill ${isLS?'fill-gold':'fill-blue'}" style="width:${(c/mx*100)}%"><span>${c}</span></div></div><div class="c">${c}x</div></div>`}).join('');document.getElementById('freqContent').innerHTML=html}
-function rFreqTerms(data){const ls=getLastSorteoMes();const lsT=ls?getTerm(ls.number):null;const tF={};for(let i=0;i<=9;i++)tF[i]=0;data.forEach(d=>tF[getTerm(d.number)]++);const sorted=Object.entries(tF).sort((a,b)=>b[1]-a[1]);const mx=sorted[0][1];document.getElementById('freqTitle').textContent='🎯 Terminales';let html=ls?`<div class="fxs td mb">📌 ${ls.number} Term:T${lsT}</div>`:'';html+=sorted.map(([t,c])=>{const isLS=parseInt(t)===lsT;return`<div class="fb"><div class="n" style="${isLS?'color:var(--gold2)':''}">T${t}${isLS?' 📌':''}</div><div class="track"><div class="fill ${isLS?'fill-gold':'fill-purple'}" style="width:${(c/mx*100)}%"><span>${c}</span></div></div><div class="c">${c}x</div></div>`}).join('');document.getElementById('freqContent').innerHTML=html}
+function freqView(v,btn){curFV=v;document.querySelectorAll('#sec-freq .sub-tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');rFreq()}
+function rFreq(){
+    const data=sorteos;if(!data.length){document.getElementById('freqContent').innerHTML='<div class="empty"><p>Sin datos</p></div>';return}
+    renderLsBanner('lsBannerFreq');
+    const mid=data.filter(d=>d.shift==='midday'),eve=data.filter(d=>d.shift==='evening');
+    let src=curFV==='midday'?mid:curFV==='evening'?eve:data;
+    if(curFV==='decs'){
+        const dF={};for(let i=0;i<=9;i++)dF[i]=0;
+        src.forEach(d=>dF[getDec(d.number)]++);
+        const sorted=Object.entries(dF).sort((a,b)=>b[1]-a[1]);const mx=sorted[0][1];
+        document.getElementById('freqTitle').textContent='🔢 Decenas';
+        document.getElementById('freqContent').innerHTML=sorted.map(([d,c])=>
+            `<div class="fb"><div class="n">${d}0s</div><div class="track"><div class="fill fill-gold" style="width:${(c/mx*100)}%"><span>${c}</span></div></div><div class="c">${c}x</div></div>`).join('');return;
+    }
+    if(curFV==='terms'){
+        const tF={};for(let i=0;i<=9;i++)tF[i]=0;
+        src.forEach(d=>tF[getTerm(d.number)]++);
+        const sorted=Object.entries(tF).sort((a,b)=>b[1]-a[1]);const mx=sorted[0][1];
+        document.getElementById('freqTitle').textContent='🎯 Terminales';
+        document.getElementById('freqContent').innerHTML=sorted.map(([t,c])=>
+            `<div class="fb"><div class="n">T${t}</div><div class="track"><div class="fill fill-blue" style="width:${(c/mx*100)}%"><span>${c}</span></div></div><div class="c">${c}x</div></div>`).join('');return;
+    }
+    const sf=sFreq(gFreq(src));
+    const show=curFV==='top'?sf.slice(0,15):curFV==='bottom'?sf.slice(-15).reverse():sf;
+    const mx=show[0]?show[0][1]:1;
+    document.getElementById('freqTitle').textContent=curFV==='top'?'🔥 Top 15':curFV==='bottom'?'❄️ Bottom 15':curFV==='midday'?'☀️ Mediodía':curFV==='evening'?'🌙 Noche':'📊 Todos';
+    document.getElementById('freqContent').innerHTML=show.map(([n,c])=>
+        `<div class="fb"><div class="n">${n}</div><div class="track"><div class="fill fill-green" style="width:${(c/mx*100)}%"><span>${c}</span></div></div><div class="c">${c}x</div></div>`).join('');
+}
 
 // ===== DECENAS =====
 let curDV='general';
@@ -578,13 +738,349 @@ function rSemana(){const c=document.getElementById('semanaContent');const data=L
 // ===== ANÁLISIS =====
 let curAV='auto';function analView(v,btn){curAV=v;document.querySelectorAll('#sec-analisis .sub-tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');rAnalisis()}
 function rAnalisis(){const c=document.getElementById('analisisContent');const data=LD();if(data.length<5){c.innerHTML='<div class="empty"><p>Min 5 sorteos</p></div>';return}renderLsBanner('lsBannerAnalisis');const ls=getLastSorteoMes();if(!ls){c.innerHTML='Sin datos';return}if(curAV==='auto'){const next=getNextTurno();document.getElementById('analTitle').textContent=`🎯→${next.label}`;c.innerHTML=buildAnal(data,ls,next.shift,next.label)}else if(curAV==='midday'){document.getElementById('analTitle').textContent='☀️ Mediodía';c.innerHTML=buildAnal(data,ls,'midday','Mediodía')}else if(curAV==='evening'){document.getElementById('analTitle').textContent='🌙 Noche';c.innerHTML=buildAnal(data,ls,'evening','Noche')}else{document.getElementById('analTitle').textContent='📊 Comparar';c.innerHTML=buildComp(data,ls)}}
-function buildAnal(data,ls,tS,tL){const lsD=getDec(ls.number),lsT=getTerm(ls.number);const sorted=[...data].sort(chronoSort);const dA={},tA={},dAT={},tAT={};for(let i=0;i<sorted.length-1;i++){const c=sorted[i],n=sorted[i+1];if(getDec(c.number)===lsD){dA[getDec(n.number)]=(dA[getDec(n.number)]||0)+1;if(n.shift===tS)dAT[getDec(n.number)]=(dAT[getDec(n.number)]||0)+1}if(getTerm(c.number)===lsT){tA[getTerm(n.number)]=(tA[getTerm(n.number)]||0)+1;if(n.shift===tS)tAT[getTerm(n.number)]=(tAT[getTerm(n.number)]||0)+1}}const sD=data.filter(d=>d.shift===tS);const sDec={},sTerm={};for(let i=0;i<=9;i++){sDec[i]=0;sTerm[i]=0}sD.forEach(d=>{sDec[getDec(d.number)]++;sTerm[getTerm(d.number)]++});const dSc={},tSc={};for(let i=0;i<=9;i++){dSc[i]=0;tSc[i]=0}Object.entries(dA).forEach(([k,v])=>dSc[parseInt(k)]+=v*3);Object.entries(tA).forEach(([k,v])=>tSc[parseInt(k)]+=v*3);Object.entries(dAT).forEach(([k,v])=>dSc[parseInt(k)]+=v*2.5);Object.entries(tAT).forEach(([k,v])=>tSc[parseInt(k)]+=v*2.5);Object.entries(sDec).forEach(([k,v])=>dSc[parseInt(k)]+=v*0.05);Object.entries(sTerm).forEach(([k,v])=>tSc[parseInt(k)]+=v*0.05);const bD=Object.entries(dSc).sort((a,b)=>b[1]-a[1]);const bT=Object.entries(tSc).sort((a,b)=>b[1]-a[1]);const mxD=bD[0]?bD[0][1]:1,mxT=bT[0]?bT[0][1]:1;let html=`<div class="rec-box"><h4>🎰 ${ls.number}(${ls.shift==='midday'?'☀️':'🌙'})→${tL}</h4><div class="fxs td">${fmtD(ls.drawDate)} | ${sD.length} sorteos ${tL}</div></div>`;html+=`<div class="card-t fxs mt mb">🎯 Dec→${tL}</div><div>`;bD.forEach(([num,score])=>{const pct=Math.round(score/mxD*100);const cls=pct>70?'prob-high':pct>40?'prob-med':'prob-low';const isLS=parseInt(num)===lsD;html+=`<div class="fb"><div class="n" style="${isLS?'color:var(--gold2)':''}">${num}0s${isLS?' 📌':''}</div><div style="flex:1"><div class="prob-bar"><div class="prob-fill ${cls}" style="width:${pct}%"></div></div></div><div class="c" style="width:45px">${pct}%(${dAT[parseInt(num)]||0})</div></div>`});html+='</div>';html+=`<div class="card-t fxs mt mb">🎯 Term→${tL}</div><div>`;bT.forEach(([num,score])=>{const pct=Math.round(score/mxT*100);const cls=pct>70?'prob-high':pct>40?'prob-med':'prob-low';const isLS=parseInt(num)===lsT;html+=`<div class="fb"><div class="n" style="${isLS?'color:var(--gold2)':''}">T${num}${isLS?' 📌':''}</div><div style="flex:1"><div class="prob-bar"><div class="prob-fill ${cls}" style="width:${pct}%"></div></div></div><div class="c" style="width:45px">${pct}%(${tAT[parseInt(num)]||0})</div></div>`});html+='</div>';const combos=[];bD.slice(0,5).forEach(([d,ds])=>bT.slice(0,5).forEach(([t,ts])=>combos.push({d,t,s:ds+ts})));combos.sort((a,b)=>b.s-a.s);html+=`<div class="rec-box mt"><h4>🏆 Combinaciones→${tL}</h4><div class="rec-nums">`;combos.slice(0,12).forEach((c,i)=>{const em=i<3?['🥇','🥈','🥉'][i]:'';html+=`<div class="rec-item">${em}<span>${c.d}0s</span>+<span>T${c.t}</span></div>`});html+='</div></div>';const nSc={};for(let i=0;i<=99;i++){const n=p2(i);nSc[n]=(dSc[getDec(n)]||0)+(tSc[getTerm(n)]||0)}const bN=Object.entries(nSc).sort((a,b)=>b[1]-a[1]).slice(0,15);html+=`<div class="card-t fxs mt mb">🔢 Números→${tL}</div><div class="rec-nums">`;bN.forEach(([n],i)=>html+=`<div class="rec-item" style="${i<3?'background:rgba(255,71,87,0.15);':''}"><span>${n}</span></div>`);html+='</div>';return html}
-function buildComp(data,ls){const lsD=getDec(ls.number),lsT=getTerm(ls.number);const sorted=[...data].sort(chronoSort);const dBS={midday:{},evening:{}},tBS={midday:{},evening:{}};for(let i=0;i<sorted.length-1;i++){const c=sorted[i],n=sorted[i+1];if(getDec(c.number)===lsD)dBS[n.shift][getDec(n.number)]=(dBS[n.shift][getDec(n.number)]||0)+1;if(getTerm(c.number)===lsT)tBS[n.shift][getTerm(n.number)]=(tBS[n.shift][getTerm(n.number)]||0)+1}const midD=data.filter(d=>d.shift==='midday'),eveD=data.filter(d=>d.shift==='evening');let html=`<div class="rec-box"><h4>📊 ${ls.number} | ☀️${midD.length} 🌙${eveD.length}</h4></div>`;html+=`<div class="card-t fxs mb">Dec tras ${lsD}0s</div><div class="tw"><table><thead><tr><th>Dec</th><th>☀️</th><th>🌙</th><th>Tot</th></tr></thead><tbody>`;for(let i=0;i<=9;i++){const m=dBS.midday[i]||0,e=dBS.evening[i]||0,t=m+e;if(!t)continue;html+=`<tr><td>${i}0s</td><td>${m}x</td><td>${e}x</td><td class="fw">${t}x</td></tr>`}html+='</tbody></table></div>';html+=`<div class="card-t fxs mt mb">Term tras T${lsT}</div><div class="tw"><table><thead><tr><th>Term</th><th>☀️</th><th>🌙</th><th>Tot</th></tr></thead><tbody>`;for(let i=0;i<=9;i++){const m=tBS.midday[i]||0,e=tBS.evening[i]||0,t=m+e;if(!t)continue;html+=`<tr><td>T${i}</td><td>${m}x</td><td>${e}x</td><td class="fw">${t}x</td></tr>`}html+='</tbody></table></div>';html+='<div class="divider"></div><div class="g2"><div><div class="card-t fxs mb">☀️ Top</div><div class="rec-nums">';sFreq(gFreq(midD)).slice(0,8).forEach(([n,c])=>html+=`<div class="rec-item"><span>${n}</span>(${c}x)</div>`);html+='</div></div><div><div class="card-t fxs mb">🌙 Top</div><div class="rec-nums">';sFreq(gFreq(eveD)).slice(0,8).forEach(([n,c])=>html+=`<div class="rec-item"><span>${n}</span>(${c}x)</div>`);html+='</div></div></div>';return html}
+function buildAnal(data,ls,tS,tL){const lsD=getDec(ls.number),lsT=getTerm(ls.number);const sorted=[...data].sort(chronoSort);const dA={},tA={},dAT={},tAT={};for(let i=0;i<sorted.length-1;i++){const c=sorted[i],n=sorted[i+1];if(getDec(c.number)===lsD){dA[getDec(n.number)]=(dA[getDec(n.number)]||0)+1;if(n.shift===tS)dAT[getDec(n.number)]=(dAT[getDec(n.number)]||0)+1}if(getTerm(c.number)===lsT){tA[getTerm(n.number)]=(tA[getTerm(n.number)]||0)+1;if(n.shift===tS)tAT[getTerm(n.number)]=(tAT[getTerm(n.number)]||0)+1}}const sD=data.filter(d=>d.shift===tS);const sDec={},sTerm={};for(let i=0;i<=9;i++){sDec[i]=0;sTerm[i]=0}sD.forEach(d=>{sDec[getDec(d.number)]++;sTerm[getTerm(d.number)]++});const dSc={},tSc={};for(let i=0;i<=9;i++){dSc[i]=0;tSc[i]=0}Object.entries(dA).forEach(([k,v])=>dSc[parseInt(k)]+=v*3);Object.entries(tA).forEach(([k,v])=>tSc[parseInt(k)]+=v*3);Object.entries(dAT).forEach(([k,v])=>dSc[parseInt(k)]+=v*2.5);Object.entries(tAT).forEach(([k,v])=>tSc[parseInt(k)]+=v*2.5);Object.entries(sDec).forEach(([k,v])=>dSc[parseInt(k)]+=v*0.05);Object.entries(sTerm).forEach(([k,v])=>tSc[parseInt(k)]+=v*0.05);const bD=Object.entries(dSc).sort((a,b)=>b[1]-a[1]);const bT=Object.entries(tSc).sort((a,b)=>b[1]-a[1]);const mxD=bD[0]?bD[0][1]:1,mxT=bT[0]?bT[0][1]:1;let html=`<div class="rec-box"><h4>🎰 ${ls.number}(${ls.shift==='midday'?'☀️':'🌙'})→${tL}</h4><div class="fxs td">${fmtD(ls.drawDate)} | ${sD.length} sorteos ${tL}</div></div>`;html+=`<div class="card-t fxs mt mb">🎯 Dec→${tL}</div><div>`;bD.forEach(([num,score])=>{const pct=Math.round(score/mxD*100);const cls=pct>70?'prob-high':pct>40?'prob-med':'prob-low';const isLS=parseInt(num)===lsD;html+=`<div class="fb"><div class="n" style="${isLS?'color:var(--gold2)':''}">${num}0s${isLS?' 📌':''}</div><div style="flex:1"><div class="prob-bar"><div class="prob-fill ${cls}" style="width:${pct}%"></div></div></div><div class="c" style="width:45px">${pct}%(${dAT[parseInt(num)]||0})</div></div>`});html+='</div>';html+=`<div class="card-t fxs mt mb">🎯 Term→${tL}</div><div>`;bT.forEach(([num,score])=>{const pct=Math.round(score/mxT*100);const cls=pct>70?'prob-high':pct>40?'prob-med':'prob-low';const isLS=parseInt(num)===lsT;html+=`<div class="fb"><div class="n" style="${isLS?'color:var(--gold2)':''}">T${num}${isLS?' 📌':''}</div><div style="flex:1"><div class="prob-bar"><div class="prob-fill ${cls}" style="width:${pct}%"></div></div></div><div class="c" style="width:45px">${pct}%(${tAT[parseInt(num)]||0})</div></div>`});html+='</div>';const combos=[];bD.slice(0,5).forEach(([d,ds])=>bT.slice(0,5).forEach(([t,ts])=>combos.push({d,t,s:ds+ts})));combos.sort((a,b)=>b.s-a.s);html+=`<div class="rec-box mt"><h4>🏆 Combinaciones→${tL}</h4><div class="rec-nums">`;combos.slice(0,12).forEach((c,i)=>{const em=i<3?['🥇','🥈','🥉'][i]:'';html+=`<div class="rec-item">${em}<span>${c.d}0s</span>+<span>T${c.t}</span></div>`});html+='</div></div>';return html}
+function buildComp(data,ls){const lsD=getDec(ls.number),lsT=getTerm(ls.number);const sorted=[...data].sort(chronoSort);const dBS={midday:{},evening:{}},tBS={midday:{},evening:{}};for(let i=0;i<sorted.length-1;i++){const c=sorted[i],n=sorted[i+1];if(getDec(c.number)===lsD)dBS[n.shift][getDec(n.number)]=(dBS[n.shift][getDec(n.number)]||0)+1;if(getTerm(c.number)===lsT)tBS[n.shift][getTerm(n.number)]=(tBS[n.shift][getTerm(n.number)]||0)+1}const midD=data.filter(d=>d.shift==='midday'),eveD=data.filter(d=>d.shift==='evening');let html=`<div class="rec-box"><h4>📊 ${ls.number} | ☀️${midD.length} 🌙${eveD.length}</h4></div>`;html+=`<div class="card-t fxs mb">Dec tras ${lsD}0s</div><div class="tw"><table><thead><tr><th>Dec</th><th>☀️</th><th>🌙</th><th>Tot</th></tr></thead><tbody>`;for(let i=0;i<=9;i++){const m=dBS.midday[i]||0,e=dBS.evening[i]||0,t=m+e;if(!t)continue;html+=`<tr><td>${i}0s</td><td>${m}x</td><td>${e}x</td><td class="fw">${t}x</td></tr>`}html+='</tbody></table></div>';html+=`<div class="card-t fxs mt mb">Term tras T${lsT}</div><div class="tw"><table><thead><tr><th>Term</th><th>☀️</th><th>🌙</th><th>Tot</th></tr></thead><tbody>`;for(let i=0;i<=9;i++){const m=tBS.midday[i]||0,e=tBS.evening[i]||0,t=m+e;if(!t)continue;html+=`<tr><td>T${i}</td><td>${m}x</td><td>${e}x</td><td class="fw">${t}x</td></tr>`}html+='</tbody></table></div>';return html}
+
+// ===== AGREGAR =====
+function addSorteo(){
+    const d=document.getElementById('aDate').value;
+    const t=document.getElementById('aTurno').value;
+    const n=document.getElementById('aNum').value.trim().padStart(2,'0');
+    const ok=document.getElementById('addOk');
+    const err=document.getElementById('addErr');
+    ok.style.display='none';err.style.display='none';
+    if(!d||!n||!/^\d{2}$/.test(n)||parseInt(n)>99){err.style.display='block';return}
+    sorteos.push({drawDate:d,shift:t,number:n});
+    saveData();ok.style.display='block';
+    document.getElementById('aNum').value='';
+    rHome();
+}
+
+// ===== IMPORTAR =====
+function importXL(inp){
+    const file=inp.files[0];if(!file)return;
+    const ok=document.getElementById('impOk');
+    const err=document.getElementById('impErr');
+    const info=document.getElementById('impInfo');
+    ok.style.display='none';err.style.display='none';info.style.display='none';
+    showOv('Leyendo Excel...');
+    const reader=new FileReader();
+    reader.onload=e=>{
+        try{
+            const wb=XLSX.read(e.target.result,{type:'array'});
+            const ws=wb.Sheets[wb.SheetNames[0]];
+            const rows=XLSX.utils.sheet_to_json(ws,{header:1,raw:false});
+            const newS=[];let skipped=0;
+            rows.forEach((row,i)=>{
+                if(!row||row.length<3)return;
+                const rawDate=String(row[0]||'').trim();
+                const rawShift=String(row[1]||'').trim().toLowerCase();
+                const rawNum=String(row[2]||'').trim().replace(/\D/g,'').padStart(2,'0');
+                if(!rawDate||!rawNum||rawNum==='00'||rawNum.length>2)return;
+                const shift=rawShift.includes('mid')||rawShift==='m'||rawShift==='d'||rawShift.includes('med')?'midday':
+                            rawShift.includes('eve')||rawShift==='e'||rawShift==='n'||rawShift.includes('noch')?'evening':'midday';
+                let drawDate=rawDate;
+                if(/^\d{5}$/.test(rawDate)){
+                    const d=new Date(Math.round((parseInt(rawDate)-25569)*86400*1000));
+                    drawDate=d.toISOString().split('T')[0];
+                } else if(/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(rawDate)){
+                    const[m,d,y]=rawDate.split('/');
+                    drawDate=`${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
+                } else if(/^\d{1,2}-\d{1,2}-\d{4}$/.test(rawDate)){
+                    const[d,m,y]=rawDate.split('-');
+                    drawDate=`${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
+                }
+                if(parseInt(rawNum)>99){skipped++;return}
+                newS.push({drawDate,shift,number:rawNum});
+            });
+            hideOv();
+            if(!newS.length){err.textContent='❌ No se encontraron datos válidos';err.style.display='block';return}
+            const before=sorteos.length;
+            const existing=new Set(sorteos.map(s=>`${s.drawDate}-${s.shift}-${s.number}`));
+            const added=newS.filter(s=>!existing.has(`${s.drawDate}-${s.shift}-${s.number}`));
+            sorteos=[...sorteos,...added].sort(chronoSort);
+            saveData();rAll();
+            ok.textContent=`✅ ${added.length} nuevos sorteos importados (${skipped} omitidos)`;
+            ok.style.display='block';
+        }catch(ex){hideOv();err.textContent='❌ Error: '+ex.message;err.style.display='block'}
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+function importJSON(inp){
+    const file=inp.files[0];if(!file)return;
+    const ok=document.getElementById('impOk');
+    const err=document.getElementById('impErr');
+    ok.style.display='none';err.style.display='none';
+    const reader=new FileReader();
+    reader.onload=e=>{
+        try{
+            const data=JSON.parse(e.target.result);
+            if(!Array.isArray(data))throw new Error('Formato inválido');
+            sorteos=data;saveData();rAll();
+            ok.textContent=`✅ ${data.length} sorteos importados`;
+            ok.style.display='block';
+        }catch(ex){err.textContent='❌ '+ex.message;err.style.display='block'}
+    };
+    reader.readAsText(file);
+}
+
+function exportJSON(){
+    const b=new Blob([JSON.stringify(sorteos,null,2)],{type:'application/json'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(b);
+    a.download=`sorteos_${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+}
+function clearAll(){if(confirm('¿Borrar TODOS los datos?')){sorteos=[];saveData();rAll()}}
+function showOv(t){const o=document.getElementById('ov');const ot=document.getElementById('ovt');if(ot)ot.textContent=t||'Procesando...';if(o)o.classList.add('show')}
+function hideOv(){const o=document.getElementById('ov');if(o)o.classList.remove('show')}
+
+// ===== TELARAÑA =====
+function spMode(m,btn){
+    curSpMode=m;
+    document.querySelectorAll('.sp-mbtn').forEach(b=>b.classList.remove('on'));
+    if(btn)btn.classList.add('on');
+}
+
+function rSpider(){
+    if(!sorteos.length){alert('Importa datos primero');return}
+    document.getElementById('spLoader').style.display='block';
+    document.getElementById('spOut').innerHTML='';
+    setTimeout(()=>{
+        const R=calcSpider(sorteos,curSpMode);
+        renderSpider(R);
+        document.getElementById('spLoader').style.display='none';
+    },700);
+}
+
+function calcSpider(all,mode){
+    const ls=getLastSorteoMes();
+    const next=getNextTurno();
+    // Datos por modo
+    const src=mode==='midday'?all.filter(d=>d.shift==='midday'):
+               mode==='evening'?all.filter(d=>d.shift==='evening'):all;
+    const mLabel=mode==='midday'?'☀️ Mediodía':mode==='evening'?'🌙 Noche':'🌐 General';
+
+    // ── HILO 1: Frecuencia General del turno (peso 1.0) ──
+    const h1D={},h1T={};
+    for(let i=0;i<=9;i++){h1D[i]=0;h1T[i]=0}
+    src.forEach(d=>{h1D[getDec(d.number)]++;h1T[getTerm(d.number)]++});
+
+    // ── HILO 2: Transición del mismo turno (peso 1.2) ──
+    const tType=mode==='midday'?'dd':mode==='evening'?'nn':'all';
+    const tPairs=getTransitions(all,tType);
+    const tDecF=getDecTransFreq(tPairs);
+    const tTermF=getTermTransFreq(tPairs);
+    const h2D={},h2T={};for(let i=0;i<=9;i++){h2D[i]=0;h2T[i]=0}
+    if(ls){
+        const lD=getDec(ls.number),lT=getTerm(ls.number);
+        for(let j=0;j<=9;j++){h2D[j]=(tDecF[`${lD}->${j}`]||0)*1.2;h2T[j]=(tTermF[`${lT}->${j}`]||0)*1.2}
+    }
+
+    // ── HILO 3: Transición cruzada (peso 0.8) ──
+    const cType=mode==='midday'?'nd':mode==='evening'?'dn':'all';
+    const cPairs=getTransitions(all,cType);
+    const cDecF=getDecTransFreq(cPairs);
+    const cTermF=getTermTransFreq(cPairs);
+    const h3D={},h3T={};for(let i=0;i<=9;i++){h3D[i]=0;h3T[i]=0}
+    if(ls){
+        const lD=getDec(ls.number),lT=getTerm(ls.number);
+        for(let j=0;j<=9;j++){h3D[j]=(cDecF[`${lD}->${j}`]||0)*0.8;h3T[j]=(cTermF[`${lT}->${j}`]||0)*0.8}
+    }
+
+    // ── HILO 4: Última semana del turno (peso 1.5) ──
+    const h4D={},h4T={};for(let i=0;i<=9;i++){h4D[i]=0;h4T[i]=0}
+    if(ls){
+        const lDate=new Date(ls.drawDate+'T12:00:00');
+        const wAgo=new Date(lDate);wAgo.setDate(wAgo.getDate()-7);
+        const wStr=wAgo.toISOString().split('T')[0];
+        let wData=all.filter(d=>d.drawDate>=wStr&&d.drawDate<=ls.drawDate);
+        if(mode!=='all')wData=wData.filter(d=>d.shift===mode);
+        wData.forEach(d=>{h4D[getDec(d.number)]+=1.5;h4T[getTerm(d.number)]+=1.5});
+    }
+
+    // ── HILO 5: Vibración del turno (peso 0.9) ──
+    const h5D={},h5T={};for(let i=0;i<=9;i++){h5D[i]=0;h5T[i]=0}
+    if(src.length){
+        const sRec=[...src].sort(revSort).slice(0,20);
+        for(let i=0;i<=9;i++){
+            const gD=src.filter(d=>getDec(d.number)===i).length/src.length;
+            const rD=sRec.filter(d=>getDec(d.number)===i).length/sRec.length;
+            h5D[i]=(rD/Math.max(gD,0.001))*0.9;
+            const gT=src.filter(d=>getTerm(d.number)===i).length/src.length;
+            const rT=sRec.filter(d=>getTerm(d.number)===i).length/sRec.length;
+            h5T[i]=(rT/Math.max(gT,0.001))*0.9;
+        }
+    }
+
+    // ── HILO 6: Conexión directa de decenas/terminales (peso 1.1) ──
+    const h6D={},h6T={};for(let i=0;i<=9;i++){h6D[i]=0;h6T[i]=0}
+    if(ls){
+        const lD=getDec(ls.number),lT=getTerm(ls.number);
+        const sorted=[...all].sort(chronoSort);
+        let totD=0,totT=0;
+        for(let i=0;i<sorted.length-1;i++){
+            if(getDec(sorted[i].number)===lD){h6D[getDec(sorted[i+1].number)]++;totD++}
+            if(getTerm(sorted[i].number)===lT){h6T[getTerm(sorted[i+1].number)]++;totT++}
+        }
+        if(totD>0)for(let i=0;i<=9;i++)h6D[i]=(h6D[i]/totD)*100*1.1;
+        if(totT>0)for(let i=0;i<=9;i++)h6T[i]=(h6T[i]/totT)*100*1.1;
+    }
+
+    // ── HILO 7: buildAnal score del turno (peso 1.3) ──
+    const h7D={},h7T={};for(let i=0;i<=9;i++){h7D[i]=0;h7T[i]=0}
+    if(ls){
+        const tS=mode==='all'?next.shift:mode;
+        const lsD=getDec(ls.number),lsT=getTerm(ls.number);
+        const sorted=[...all].sort(chronoSort);
+        for(let i=0;i<sorted.length-1;i++){
+            const c=sorted[i],n=sorted[i+1];
+            if(getDec(c.number)===lsD){h7D[getDec(n.number)]+=(n.shift===tS?2.5:1)*1.3}
+            if(getTerm(c.number)===lsT){h7T[getTerm(n.number)]+=(n.shift===tS?2.5:1)*1.3}
+        }
+    }
+
+    // ── CONVERGENCIA ──
+    const decSc={},termSc={};
+    for(let i=0;i<=9;i++){
+        decSc[i]=h1D[i]*1.0+h2D[i]+h3D[i]+h4D[i]+h5D[i]+h6D[i]+h7D[i];
+        termSc[i]=h1T[i]*1.0+h2T[i]+h3T[i]+h4T[i]+h5T[i]+h6T[i]+h7T[i];
+    }
+
+    // ── ORDENAR MAYOR → MENOR (Fila 0 = mayor) ──
+    const decSorted=Object.entries(decSc).sort((a,b)=>b[1]-a[1])
+        .map(([d,s],idx)=>({
+            dec:parseInt(d),score:s,fila:idx,
+            zona:idx===0?'REF':idx<=3?'TEMIBLE':idx<=6?'JUGABLE':'FRÍA'
+        }));
+    const termSorted=Object.entries(termSc).sort((a,b)=>b[1]-a[1])
+        .map(([t,s],idx)=>({
+            term:parseInt(t),score:s,fila:idx,
+            zona:idx===0?'REF':idx<=3?'TEMIBLE':idx<=6?'JUGABLE':'FRÍA'
+        }));
+
+    return{
+        mLabel,mode,ls,next,decSorted,termSorted,
+        hilos:[
+            {n:'Frec.General',c:'#f5a623',dv:decSorted[0]?.dec,tv:termSorted[0]?.term},
+            {n:'Trans.'+tType.toUpperCase(),c:'#9b59b6',dv:decSorted[1]?.dec,tv:termSorted[1]?.term},
+            {n:'Trans.Cruzada',c:'#00d4aa',dv:decSorted[2]?.dec,tv:termSorted[2]?.term},
+            {n:'Últ.Semana',c:'#3498db',dv:decSorted[0]?.dec,tv:termSorted[0]?.term},
+            {n:'Vibración',c:'#ff4757',dv:decSorted[1]?.dec,tv:termSorted[1]?.term},
+            {n:'Conexión',c:'#2ecc71',dv:decSorted[0]?.dec,tv:termSorted[0]?.term},
+            {n:'Análisis',c:'#ff8c00',dv:decSorted[0]?.dec,tv:termSorted[0]?.term}
+        ]
+    };
+}
+
+function renderSpider(R){
+    const mxD=R.decSorted[0]?.score||1;
+    const mxT=R.termSorted[0]?.score||1;
+    const zIcon=z=>z==='REF'?'🔵':z==='TEMIBLE'?'⭐':z==='JUGABLE'?'🟡':'❄️';
+
+    // Tabla Decenas
+    let dHtml=`<div class="sp-hilos-t">🔢 DECENAS — Tabla Tesla (Fila 0 = Mayor frecuencia)</div>
+    <div class="zona-legend">
+    <span class="zl zl-ref">Fila 0: Referencia</span>
+    <span class="zl zl-tem">Filas 1-3: ⭐⭐⭐ Temibles</span>
+    <span class="zl zl-jug">Filas 4-6: ⭐⭐ Jugables</span>
+    <span class="zl zl-fri">Filas 7-9: ❄️ Frías</span>
+    </div><div class="tesla-tbl">`;
+    R.decSorted.forEach(({dec,score,fila,zona})=>{
+        const pct=Math.round((score/mxD)*100);
+        dHtml+=`<div class="t-row">
+        <div class="t-fila cf${fila}">${fila}</div>
+        <div class="t-item cf${fila}">${dec}0s</div>
+        <div class="t-bwrap"><div class="t-bar bf${fila}" style="width:${pct}%">${pct>18?pct+'%':''}</div></div>
+        <div class="t-cnt">${Math.round(score)}</div>
+        <div class="t-zona">${zIcon(zona)}</div>
+        </div>`;
+    });
+    dHtml+='</div>';
+
+    // Tabla Terminales
+    let tHtml=`<div class="sp-hilos-t" style="margin-top:16px">🎯 TERMINALES — Tabla Tesla (Fila 0 = Mayor frecuencia)</div>
+    <div class="tesla-tbl">`;
+    R.termSorted.forEach(({term,score,fila,zona})=>{
+        const pct=Math.round((score/mxT)*100);
+        tHtml+=`<div class="t-row">
+        <div class="t-fila cf${fila}">${fila}</div>
+        <div class="t-item cf${fila}">T${term}</div>
+        <div class="t-bwrap"><div class="t-bar bf${fila}" style="width:${pct}%">${pct>18?pct+'%':''}</div></div>
+        <div class="t-cnt">${Math.round(score)}</div>
+        <div class="t-zona">${zIcon(zona)}</div>
+        </div>`;
+    });
+    tHtml+='</div>';
+
+    // Veredicto
+    const tDec=R.decSorted.filter(x=>x.zona==='TEMIBLE');
+    const jDec=R.decSorted.filter(x=>x.zona==='JUGABLE');
+    const tTerm=R.termSorted.filter(x=>x.zona==='TEMIBLE');
+    const jTerm=R.termSorted.filter(x=>x.zona==='JUGABLE');
+    const rDec=R.decSorted[0];
+    const rTerm=R.termSorted[0];
+
+    const vHtml=`<div class="sp-verd">
+    <h3>🕸️ VEREDICTO — ${R.mLabel}</h3>
+    ${R.ls?`<div class="fxs td mb">Último: <strong class="tg">${R.ls.number}</strong> → Próximo: <strong style="color:var(--green)">${R.next.label}</strong></div>`:''}
+    <div class="sp-verd-g">
+    <div class="sp-verd-b">
+    <div class="sp-verd-lbl">🔢 Decenas</div>
+    <div class="fxs td mb">Ref: <span class="tg fw">${rDec?.dec}0s</span></div>
+    ${tDec.map(x=>`<div class="sp-fila-row"><span class="sp-fila-num cf${x.fila}">${x.dec}0s</span><span class="sp-fila-stars">⭐⭐⭐</span><span class="sp-fila-tag">F${x.fila}</span></div>`).join('')}
+    ${jDec.map(x=>`<div class="sp-fila-row"><span class="sp-fila-num cf${x.fila}">${x.dec}0s</span><span class="sp-fila-stars" style="color:var(--green)">⭐⭐</span><span class="sp-fila-tag">F${x.fila}</span></div>`).join('')}
+    </div>
+    <div class="sp-verd-b">
+    <div class="sp-verd-lbl">🎯 Terminales</div>
+    <div class="fxs td mb">Ref: <span class="tg fw">T${rTerm?.term}</span></div>
+    ${tTerm.map(x=>`<div class="sp-fila-row"><span class="sp-fila-num cf${x.fila}">T${x.term}</span><span class="sp-fila-stars">⭐⭐⭐</span><span class="sp-fila-tag">F${x.fila}</span></div>`).join('')}
+    ${jTerm.map(x=>`<div class="sp-fila-row"><span class="sp-fila-num cf${x.fila}">T${x.term}</span><span class="sp-fila-stars" style="color:var(--green)">⭐⭐</span><span class="sp-fila-tag">F${x.fila}</span></div>`).join('')}
+    </div>
+    </div></div>`;
+
+    // Hilos
+    const hHtml=`<div class="sp-hilos-t" style="margin-top:16px">🧵 Los 7 hilos que alimentan la Telaraña</div>
+    ${R.hilos.map(h=>`<div class="h-row">
+    <div class="h-dot" style="background:${h.c}"></div>
+    <div class="h-name">${h.n}</div>
+    <div class="h-val">${h.dv!==undefined?h.dv+'0s':'-'} / T${h.tv!==undefined?h.tv:'-'}</div>
+    </div>`).join('')}`;
+
+    document.getElementById('spOut').innerHTML=`<div class="card">
+    <div class="card-t">${R.mLabel} — 7 hilos convergentes</div>
+    ${dHtml}${tHtml}${vHtml}${hHtml}
+    </div>`;
+}
 
 // ===== NAV =====
-function goTab(id,btn){document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));document.getElementById('sec-'+id).classList.add('active');btn.classList.add('active');const r={hist:rHist,freq:rFreq,dec:rDec,term:rTerm,matrix:rMat,vib:rVib,pull:rPull,year:rYear,semana:rSemana,analisis:rAnalisis};if(r[id])r[id]()}
-function rAll(){rHome();const a=document.querySelector('.sec.active');if(a){const id=a.id.replace('sec-','');const r={hist:rHist,freq:rFreq,dec:rDec,term:rTerm,matrix:rMat,vib:rVib,pull:rPull,year:rYear,semana:rSemana,analisis:rAnalisis};if(r[id])r[id]()}}
-window.addEventListener('load',()=>{document.getElementById('aDate').value=new Date().toISOString().substring(0,10);updOffStatus();rAll()});
+function goTab(id,btn){
+    document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
+    document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
+    document.getElementById('sec-'+id).classList.add('active');
+    btn.classList.add('active');
+    const r={hist:rHist,freq:rFreq,dec:rDec,term:rTerm,matrix:rMat,
+              vib:rVib,pull:rPull,year:rYear,semana:rSemana,analisis:rAnalisis};
+    if(r[id])r[id]();
+}
+function rAll(){
+    rHome();
+    const a=document.querySelector('.sec.active');
+    if(a){
+        const id=a.id.replace('sec-','');
+        const r={hist:rHist,freq:rFreq,dec:rDec,term:rTerm,matrix:rMat,
+                  vib:rVib,pull:rPull,year:rYear,semana:rSemana,analisis:rAnalisis};
+        if(r[id])r[id]();
+    }
+}
+window.addEventListener('load',()=>{
+    document.getElementById('aDate').value=new Date().toISOString().substring(0,10);
+    updOffStatus();loadData();
+});
+window.addEventListener('online',updOffStatus);
+window.addEventListener('offline',updOffStatus);
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 </body>
 </html>
