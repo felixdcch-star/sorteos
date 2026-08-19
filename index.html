@@ -2132,5 +2132,177 @@ renderNucleo = function(R){
     out.innerHTML=infoMes+decTabla+termTabla;
 };
 </script>
+    <script>
+/* FIX NÚCLEO V4 — Definitivo */
+calcNucleo = function(all,mode,mes){
+    const mesData=all.filter(d=>d.drawDate.startsWith(mes));
+    const midMesData=mesData.filter(d=>d.shift==='midday');
+    const eveMesData=mesData.filter(d=>d.shift==='evening');
+    const turnoMesData=mode==='midday'?midMesData:
+                       mode==='evening'?eveMesData:mesData;
+
+    const mLabel=mode==='midday'?'☀️ Mediodía':
+                 mode==='evening'?'🌙 Noche':'🌐 General';
+
+    // Ejecutar la Telaraña
+    const spider=calcSpider(all,mode);
+
+    // Extraer el orden — probar ambos nombres posibles
+    const decOrder=spider.decSorted.map(x=>{
+        if(x.dec!==undefined)return x.dec;
+        if(x.val!==undefined)return x.val;
+        return 0;
+    });
+    const termOrder=spider.termSorted.map(x=>{
+        if(x.term!==undefined)return x.term;
+        if(x.val!==undefined)return x.val;
+        return 0;
+    });
+
+    // Conexiones históricas por turno
+    const dataForConn=mode==='midday'?all.filter(d=>d.shift==='midday'):
+                       mode==='evening'?all.filter(d=>d.shift==='evening'):all;
+    const sortedData=[...dataForConn].sort(chronoSort);
+
+    const decHala={};
+    for(let d=0;d<=9;d++){
+        const conn={};
+        for(let i=0;i<sortedData.length-1;i++){
+            if(getDec(sortedData[i].number)===d){
+                const nextD=getDec(sortedData[i+1].number);
+                conn[nextD]=(conn[nextD]||0)+1;
+            }
+        }
+        const sortedConn=Object.entries(conn).sort((a,b)=>b[1]-a[1]);
+        decHala[d]=sortedConn.length>0?parseInt(sortedConn[0][0]):d;
+    }
+
+    const termHala={};
+    for(let t=0;t<=9;t++){
+        const conn={};
+        for(let i=0;i<sortedData.length-1;i++){
+            if(getTerm(sortedData[i].number)===t){
+                const nextT=getTerm(sortedData[i+1].number);
+                conn[nextT]=(conn[nextT]||0)+1;
+            }
+        }
+        const sortedConn=Object.entries(conn).sort((a,b)=>b[1]-a[1]);
+        termHala[t]=sortedConn.length>0?parseInt(sortedConn[0][0]):t;
+    }
+
+    // Posición
+    const decPos={};
+    decOrder.forEach((d,idx)=>{
+        decPos[d]=idx===0?'P1':idx<=3?'P2':idx<=6?'P3':'P4';
+    });
+    const termPos={};
+    termOrder.forEach((t,idx)=>{
+        termPos[t]=idx===0?'P1':idx<=3?'P2':idx<=6?'P3':'P4';
+    });
+
+    // Puntos
+    const decPuntos={P1:0,P2:0,P3:0,P4:0};
+    const termPuntos={P1:0,P2:0,P3:0,P4:0};
+    turnoMesData.forEach(d=>{
+        const dec=getDec(d.number);
+        const term=getTerm(d.number);
+        if(decPos[dec])decPuntos[decPos[dec]]++;
+        if(termPos[term])termPuntos[termPos[term]]++;
+    });
+
+    return{
+        mode,mLabel,mes,
+        mesData:turnoMesData,
+        mesTotal:turnoMesData.length,
+        decOrder,termOrder,
+        decHala,termHala,
+        decPos,termPos,
+        decPuntos,termPuntos
+    };
+};
+
+renderNucleo = function(R){
+    const out=document.getElementById('nucOut');
+    if(!out||!R)return;
+
+    function renderTabla(tipo,order,hala,puntos){
+        const isDec=tipo==='dec';
+        const prefix=isDec?'':'T';
+        const suffix=isDec?'0s':'';
+
+        let matrixHtml='<table class="nuc-matrix"><thead><tr>';
+        matrixHtml+='<th style="min-width:40px">Pos</th>';
+        order.forEach(v=>{
+            matrixHtml+=`<th class="header-dec">${prefix}${v}${suffix}</th>`;
+        });
+        matrixHtml+='</tr></thead><tbody>';
+
+        function filaDatos(){
+            let html='';
+            order.forEach(v=>{
+                const halado=hala[v]!==undefined?hala[v]:v;
+                html+=`<td class="hala">${prefix}${halado}${suffix}</td>`;
+            });
+            return html;
+        }
+
+        matrixHtml+=`<tr><td class="pcol p1">P1</td>${filaDatos()}</tr>`;
+        matrixHtml+=`<tr><td class="pcol p2" rowspan="3" style="vertical-align:middle">P2</td>${filaDatos()}</tr>`;
+        matrixHtml+=`<tr>${filaDatos()}</tr>`;
+        matrixHtml+=`<tr>${filaDatos()}</tr>`;
+        matrixHtml+=`<tr><td class="pcol p3" rowspan="3" style="vertical-align:middle">P3</td>${filaDatos()}</tr>`;
+        matrixHtml+=`<tr>${filaDatos()}</tr>`;
+        matrixHtml+=`<tr>${filaDatos()}</tr>`;
+        matrixHtml+=`<tr><td class="pcol p4" rowspan="3" style="vertical-align:middle">P4</td>${filaDatos()}</tr>`;
+        matrixHtml+=`<tr>${filaDatos()}</tr>`;
+        matrixHtml+=`<tr>${filaDatos()}</tr>`;
+        matrixHtml+='</tbody></table>';
+
+        const sem=getSemaforo(puntos);
+        const clsFor=(p)=>{
+            if(sem.type==='amarillo')return'rtie';
+            if(sem.winners.includes(p))return'rmax';
+            if(sem.losers&&sem.losers.includes(p))return'rmin';
+            return'';
+        };
+
+        const resultsHtml=`
+        <table class="nuc-results">
+        <thead><tr><th>Pos</th><th>Pts</th></tr></thead>
+        <tbody>
+        <tr><td class="pos-label">P1</td><td class="${clsFor('P1')}">${puntos.P1}</td></tr>
+        <tr><td class="pos-label">P2</td><td class="${clsFor('P2')}">${puntos.P2}</td></tr>
+        <tr><td class="pos-label">P3</td><td class="${clsFor('P3')}">${puntos.P3}</td></tr>
+        <tr><td class="pos-label">P4</td><td class="${clsFor('P4')}">${puntos.P4}</td></tr>
+        </tbody></table>`;
+
+        const semHtml=`
+        <div class="nuc-semaforo ${sem.type==='verde'?'verde':'amarillo'}">
+        <div class="nuc-semaforo-t">${sem.decision}</div>
+        <div class="nuc-semaforo-d">${sem.text}</div>
+        </div>`;
+
+        return`
+        <div class="nuc-block">
+        <div class="nuc-block-t ${tipo}">${isDec?'🔢 DECENAS':'🎯 TERMINALES'} — ${R.mLabel}</div>
+        <div class="nuc-wrap">
+        <div class="nuc-matrix-wrap">${matrixHtml}</div>
+        <div class="nuc-results-wrap">${resultsHtml}</div>
+        </div>
+        ${semHtml}
+        </div>`;
+    }
+
+    const decTabla=renderTabla('dec',R.decOrder,R.decHala,R.decPuntos);
+    const termTabla=renderTabla('term',R.termOrder,R.termHala,R.termPuntos);
+
+    const infoMes=`
+    <div class="nuc-info" style="text-align:center">
+    <strong>${mesNombre(R.mes)}</strong> · ${R.mLabel} · <strong>${R.mesTotal} sorteos</strong> registrados este mes
+    </div>`;
+
+    out.innerHTML=infoMes+decTabla+termTabla;
+};
+</script>
 </body>
 </html>
