@@ -1082,5 +1082,478 @@ window.addEventListener('online',updOffStatus);
 window.addEventListener('offline',updOffStatus);
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
+    <script>
+/* =========================
+   PARCHE TELARAÑA V2
+   NO BORRA NADA
+   SOLO REEMPLAZA FUNCIONES
+========================= */
+
+// modo actual
+try{ curSpMode='midday'; }catch(e){}
+
+// helpers únicos del parche
+function spNorm(obj){
+    const mx=Math.max(...Object.values(obj),1);
+    const out={};
+    for(let i=0;i<=9;i++) out[i]=((obj[i]||0)/mx)*100;
+    return out;
+}
+function spTop(obj){
+    return Object.entries(obj).sort((a,b)=>b[1]-a[1])[0]||['0',0];
+}
+function spReasonText(label,val){
+    if(val>=85) return `${label}: muy fuerte`;
+    if(val>=65) return `${label}: fuerte`;
+    if(val>=45) return `${label}: favorable`;
+    return '';
+}
+function spBuildReasonList(detail,isTerm){
+    const lbl=isTerm?'T':'';
+    const reasons=[];
+    const r1=spReasonText('Frecuencia',detail.frec);
+    const r2=spReasonText('Transición mismo turno',detail.trans);
+    const r3=spReasonText('Cruce con turno anterior',detail.cruce);
+    const r4=spReasonText('Vibración',detail.vib);
+    const r5=spReasonText('Conexión',detail.conn);
+    const r6=spReasonText('Última semana',detail.sem);
+    const r7=spReasonText('Análisis histórico',detail.anal);
+    [r1,r2,r3,r4,r5,r6,r7].forEach(x=>{if(x)reasons.push(x)});
+    if(!reasons.length) reasons.push('Convergencia moderada de varios factores');
+    return reasons.slice(0,5);
+}
+function spSortRows(scoreObj,type){
+    return Object.entries(scoreObj).sort((a,b)=>b[1]-a[1]).map(([k,v],idx)=>({
+        val:parseInt(k),
+        score:v,
+        fila:idx,
+        zona:idx===0?'REF':idx<=3?'TEMIBLE':idx<=6?'JUGABLE':'FRÍA',
+        type
+    }));
+}
+
+// reescribir navegación para incluir spider
+goTab = function(id,btn){
+    document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
+    document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
+    const sec=document.getElementById('sec-'+id);
+    if(sec)sec.classList.add('active');
+    if(btn)btn.classList.add('active');
+    const r={
+        hist:rHist,
+        freq:rFreq,
+        dec:rDec,
+        term:rTerm,
+        matrix:rMat,
+        vib:rVib,
+        pull:rPull,
+        year:rYear,
+        semana:rSemana,
+        analisis:rAnalisis,
+        spider:rSpider
+    };
+    if(r[id])r[id]();
+};
+
+rAll = function(){
+    rHome();
+    const a=document.querySelector('.sec.active');
+    if(a){
+        const id=a.id.replace('sec-','');
+        const r={
+            hist:rHist,
+            freq:rFreq,
+            dec:rDec,
+            term:rTerm,
+            matrix:rMat,
+            vib:rVib,
+            pull:rPull,
+            year:rYear,
+            semana:rSemana,
+            analisis:rAnalisis,
+            spider:rSpider
+        };
+        if(r[id])r[id]();
+    }
+};
+
+// botón de modo
+spMode = function(m,btn){
+    curSpMode=m;
+    document.querySelectorAll('.sp-mbtn').forEach(b=>b.classList.remove('on'));
+    if(btn)btn.classList.add('on');
+    rSpider();
+};
+
+// motor principal
+rSpider = function(){
+    const out=document.getElementById('spOut');
+    const loader=document.getElementById('spLoader');
+    if(!out||!loader)return;
+    if(!sorteos||!sorteos.length){
+        out.innerHTML='<div class="card"><div class="empty"><div class="ei">🕸️</div><p>Importa datos primero</p></div></div>';
+        return;
+    }
+    loader.style.display='block';
+    out.innerHTML='';
+    setTimeout(()=>{
+        const result=calcSpider(sorteos,curSpMode);
+        renderSpider(result);
+        loader.style.display='none';
+    },400);
+};
+
+calcSpider = function(all,mode){
+    const allSorted=[...all].sort(chronoSort);
+
+    const midData=all.filter(d=>d.shift==='midday');
+    const eveData=all.filter(d=>d.shift==='evening');
+
+    const turnoData=mode==='midday'?midData:mode==='evening'?eveData:all;
+    const mLabel=mode==='midday'?'☀️ Mediodía':mode==='evening'?'🌙 Noche':'🌐 General';
+
+    const lastGlobal=[...all].sort(revSort)[0]||null;
+    const lastMid=[...midData].sort(revSort)[0]||null;
+    const lastEve=[...eveData].sort(revSort)[0]||null;
+
+    // último del turno que voy a jugar
+    const lastTurno=mode==='midday'?lastMid:mode==='evening'?lastEve:lastGlobal;
+
+    // sorteo que influye en el turno que voy a jugar
+    const influencer=mode==='midday'?lastEve:mode==='evening'?lastMid:lastGlobal;
+
+    /* ===================================================
+       PEÓN 1: FRECUENCIA DEL TURNO A JUGAR
+    =================================================== */
+    const p1D={},p1T={};
+    for(let i=0;i<=9;i++){p1D[i]=0;p1T[i]=0}
+    turnoData.forEach(d=>{
+        p1D[getDec(d.number)]++;
+        p1T[getTerm(d.number)]++;
+    });
+
+    /* ===================================================
+       PEÓN 2: TRANSICIÓN DEL MISMO TURNO
+       Mediodía usa M-M, Noche usa N-N
+    =================================================== */
+    const sameType=mode==='midday'?'dd':mode==='evening'?'nn':'all';
+    const samePairs=getTransitions(all,sameType);
+    const sameDec=getDecTransFreq(samePairs);
+    const sameTerm=getTermTransFreq(samePairs);
+    const p2D={},p2T={}; for(let i=0;i<=9;i++){p2D[i]=0;p2T[i]=0}
+    if(lastTurno){
+        const d0=getDec(lastTurno.number), t0=getTerm(lastTurno.number);
+        for(let i=0;i<=9;i++){
+            p2D[i]=sameDec[`${d0}->${i}`]||0;
+            p2T[i]=sameTerm[`${t0}->${i}`]||0;
+        }
+    }
+
+    /* ===================================================
+       PEÓN 3: CRUCE DEL TURNO ANTERIOR
+       Mediodía usa N-M
+       Noche usa M-N
+    =================================================== */
+    const crossType=mode==='midday'?'nd':mode==='evening'?'dn':'all';
+    const crossPairs=getTransitions(all,crossType);
+    const crossDec=getDecTransFreq(crossPairs);
+    const crossTerm=getTermTransFreq(crossPairs);
+    const p3D={},p3T={}; for(let i=0;i<=9;i++){p3D[i]=0;p3T[i]=0}
+    if(influencer){
+        const d0=getDec(influencer.number), t0=getTerm(influencer.number);
+        for(let i=0;i<=9;i++){
+            p3D[i]=crossDec[`${d0}->${i}`]||0;
+            p3T[i]=crossTerm[`${t0}->${i}`]||0;
+        }
+    }
+
+    /* ===================================================
+       PEÓN 4: VIBRACIÓN DEL TURNO
+    =================================================== */
+    const p4D={},p4T={}; for(let i=0;i<=9;i++){p4D[i]=0;p4T[i]=0}
+    if(turnoData.length>5){
+        const recent=[...turnoData].sort(revSort).slice(0,Math.min(20,turnoData.length));
+        for(let i=0;i<=9;i++){
+            const gD=turnoData.filter(d=>getDec(d.number)===i).length/Math.max(turnoData.length,1);
+            const rD=recent.filter(d=>getDec(d.number)===i).length/Math.max(recent.length,1);
+            p4D[i]=(rD/Math.max(gD,0.001))*50;
+
+            const gT=turnoData.filter(d=>getTerm(d.number)===i).length/Math.max(turnoData.length,1);
+            const rT=recent.filter(d=>getTerm(d.number)===i).length/Math.max(recent.length,1);
+            p4T[i]=(rT/Math.max(gT,0.001))*50;
+        }
+    }
+
+    /* ===================================================
+       PEÓN 5: CONEXIONES
+       Qué sale después del sorteo que influye,
+       pero apuntando al turno que voy a jugar
+    =================================================== */
+    const p5D={},p5T={}; for(let i=0;i<=9;i++){p5D[i]=0;p5T[i]=0}
+    if(influencer){
+        const d0=getDec(influencer.number), t0=getTerm(influencer.number);
+        let totD=0,totT=0;
+        for(let i=0;i<allSorted.length-1;i++){
+            const c=allSorted[i],n=allSorted[i+1];
+            if(mode!=='all' && n.shift!==mode) continue;
+            if(getDec(c.number)===d0){p5D[getDec(n.number)]++;totD++}
+            if(getTerm(c.number)===t0){p5T[getTerm(n.number)]++;totT++}
+        }
+        if(totD>0)for(let i=0;i<=9;i++)p5D[i]=(p5D[i]/totD)*100;
+        if(totT>0)for(let i=0;i<=9;i++)p5T[i]=(p5T[i]/totT)*100;
+    }
+
+    /* ===================================================
+       PEÓN 6: ÚLTIMA SEMANA
+    =================================================== */
+    const p6D={},p6T={}; for(let i=0;i<=9;i++){p6D[i]=0;p6T[i]=0}
+    if(lastGlobal){
+        const d0=new Date(lastGlobal.drawDate+'T12:00:00');
+        const wAgo=new Date(d0); wAgo.setDate(wAgo.getDate()-7);
+        const wStr=wAgo.toISOString().split('T')[0];
+        let wData=all.filter(d=>d.drawDate>=wStr && d.drawDate<=lastGlobal.drawDate);
+        if(mode!=='all') wData=wData.filter(d=>d.shift===mode);
+        wData.forEach(d=>{
+            p6D[getDec(d.number)]++;
+            p6T[getTerm(d.number)]++;
+        });
+    }
+
+    /* ===================================================
+       PEÓN 7: ANÁLISIS HISTÓRICO PREDICTIVO
+       El Jefe mira el historial y valora
+       lo que suele venir después del influencer
+    =================================================== */
+    const p7D={},p7T={}; for(let i=0;i<=9;i++){p7D[i]=0;p7T[i]=0}
+    if(influencer){
+        const d0=getDec(influencer.number), t0=getTerm(influencer.number);
+        for(let i=0;i<allSorted.length-1;i++){
+            const c=allSorted[i],n=allSorted[i+1];
+            const bonus=(mode==='all'||n.shift===mode)?3:1;
+            if(getDec(c.number)===d0) p7D[getDec(n.number)]+=bonus;
+            if(getTerm(c.number)===t0) p7T[getTerm(n.number)]+=bonus;
+        }
+    }
+
+    // normalizar
+    const n1D=spNorm(p1D), n1T=spNorm(p1T);
+    const n2D=spNorm(p2D), n2T=spNorm(p2T);
+    const n3D=spNorm(p3D), n3T=spNorm(p3T);
+    const n4D=spNorm(p4D), n4T=spNorm(p4T);
+    const n5D=spNorm(p5D), n5T=spNorm(p5T);
+    const n6D=spNorm(p6D), n6T=spNorm(p6T);
+    const n7D=spNorm(p7D), n7T=spNorm(p7T);
+
+    // pesos del jefe
+    const W={p1:1.2,p2:1.2,p3:1.5,p4:0.9,p5:1.3,p6:1.0,p7:1.4};
+
+    const finalD={}, finalT={}, detailD={}, detailT={};
+    for(let i=0;i<=9;i++){
+        finalD[i]=n1D[i]*W.p1+n2D[i]*W.p2+n3D[i]*W.p3+n4D[i]*W.p4+n5D[i]*W.p5+n6D[i]*W.p6+n7D[i]*W.p7;
+        finalT[i]=n1T[i]*W.p1+n2T[i]*W.p2+n3T[i]*W.p3+n4T[i]*W.p4+n5T[i]*W.p5+n6T[i]*W.p6+n7T[i]*W.p7;
+
+        detailD[i]={
+            frec:n1D[i], trans:n2D[i], cruce:n3D[i],
+            vib:n4D[i], conn:n5D[i], sem:n6D[i], anal:n7D[i],
+            rawFrec:p1D[i], rawTrans:p2D[i], rawCruce:p3D[i], rawConn:p5D[i]
+        };
+        detailT[i]={
+            frec:n1T[i], trans:n2T[i], cruce:n3T[i],
+            vib:n4T[i], conn:n5T[i], sem:n6T[i], anal:n7T[i],
+            rawFrec:p1T[i], rawTrans:p2T[i], rawCruce:p3T[i], rawConn:p5T[i]
+        };
+    }
+
+    const decSorted=spSortRows(finalD,'dec').map(x=>{
+        x.detail=detailD[x.val];
+        return x;
+    });
+    const termSorted=spSortRows(finalT,'term').map(x=>{
+        x.detail=detailT[x.val];
+        return x;
+    });
+
+    const maxD=decSorted[0]?.score||1;
+    const maxT=termSorted[0]?.score||1;
+    decSorted.forEach(x=>x.pct=Math.round((x.score/maxD)*100));
+    termSorted.forEach(x=>x.pct=Math.round((x.score/maxT)*100));
+
+    return{
+        mode, mLabel,
+        turnoTotal:turnoData.length,
+        lastGlobal,lastTurno,influencer,
+        sameTypeLabel:mode==='midday'?'M-M':mode==='evening'?'N-N':'General',
+        crossTypeLabel:mode==='midday'?'N-M':mode==='evening'?'M-N':'General',
+        decSorted, termSorted,
+        peones:{
+            p1:{name:'Frecuencia',color:'#f5a623',d:spTop(n1D),t:spTop(n1T)},
+            p2:{name:'Transición mismo turno',color:'#9b59b6',d:spTop(n2D),t:spTop(n2T)},
+            p3:{name:'Cruce turno anterior',color:'#00d4aa',d:spTop(n3D),t:spTop(n3T)},
+            p4:{name:'Vibración',color:'#ff4757',d:spTop(n4D),t:spTop(n4T)},
+            p5:{name:'Conexiones',color:'#2ecc71',d:spTop(n5D),t:spTop(n5T)},
+            p6:{name:'Última semana',color:'#3498db',d:spTop(n6D),t:spTop(n6T)},
+            p7:{name:'Análisis histórico',color:'#ff8c00',d:spTop(n7D),t:spTop(n7T)}
+        }
+    };
+};
+
+renderSpider = function(R){
+    const out=document.getElementById('spOut');
+    if(!out||!R)return;
+
+    const zIcon=z=>z==='REF'?'🔵':z==='TEMIBLE'?'⭐':z==='JUGABLE'?'🟡':'❄️';
+
+    // tabla decenas
+    let decHtml=`
+    <div class="sp-hilos-t">🔢 Decenas — ${R.mLabel}</div>
+    <div class="fxs td mb">Analizadas con ${R.turnoTotal} sorteos del turno seleccionado</div>
+    <div class="zona-legend">
+      <span class="zl zl-ref">F0: Referencia</span>
+      <span class="zl zl-tem">F1-3: ⭐⭐⭐ Temibles</span>
+      <span class="zl zl-jug">F4-6: ⭐⭐ Jugables</span>
+      <span class="zl zl-fri">F7-9: ❄️ Frías</span>
+    </div>
+    <div class="tesla-tbl">`;
+    R.decSorted.forEach(x=>{
+        decHtml+=`
+        <div class="t-row">
+          <div class="t-fila cf${x.fila}">${x.fila}</div>
+          <div class="t-item cf${x.fila}">${x.val}0s</div>
+          <div class="t-bwrap"><div class="t-bar bf${x.fila}" style="width:${x.pct}%">${x.pct>18?x.pct+'%':''}</div></div>
+          <div class="t-cnt">${x.pct}%</div>
+          <div class="t-zona">${zIcon(x.zona)}</div>
+        </div>`;
+    });
+    decHtml+='</div>';
+
+    // tabla terminales
+    let termHtml=`
+    <div class="sp-hilos-t" style="margin-top:16px">🎯 Terminales — ${R.mLabel}</div>
+    <div class="tesla-tbl">`;
+    R.termSorted.forEach(x=>{
+        termHtml+=`
+        <div class="t-row">
+          <div class="t-fila cf${x.fila}">${x.fila}</div>
+          <div class="t-item cf${x.fila}">T${x.val}</div>
+          <div class="t-bwrap"><div class="t-bar bf${x.fila}" style="width:${x.pct}%">${x.pct>18?x.pct+'%':''}</div></div>
+          <div class="t-cnt">${x.pct}%</div>
+          <div class="t-zona">${zIcon(x.zona)}</div>
+        </div>`;
+    });
+    termHtml+='</div>';
+
+    const temDec=R.decSorted.filter(x=>x.zona==='TEMIBLE');
+    const jugDec=R.decSorted.filter(x=>x.zona==='JUGABLE');
+    const temTerm=R.termSorted.filter(x=>x.zona==='TEMIBLE');
+    const jugTerm=R.termSorted.filter(x=>x.zona==='JUGABLE');
+
+    // veredicto explicado
+    let verdictHtml=`
+    <div class="sp-verd" style="text-align:left">
+      <div style="text-align:center;margin-bottom:12px">
+        <h3>🕸️ VEREDICTO DE LA TELARAÑA — ${R.mLabel}</h3>
+        <div class="fxs td">
+          Último del turno: <strong class="tg">${R.lastTurno?R.lastTurno.number:'-'}</strong>
+          ${R.influencer?` · Sorteo influyente: <strong style="color:var(--green)">${R.influencer.number}</strong>`:''}
+        </div>
+      </div>
+
+      <div class="card-t fxs" style="color:var(--red);margin-bottom:8px">🔢 Decenas más probables</div>`;
+
+    temDec.forEach(x=>{
+        const reasons=spBuildReasonList(x.detail,false);
+        verdictHtml+=`
+        <div style="background:rgba(255,71,87,0.06);border:1px solid rgba(255,71,87,0.18);border-radius:10px;padding:12px;margin-bottom:8px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <div style="font-size:1.3rem;font-weight:900;color:var(--gold)">${x.val}0s</div>
+            <div style="color:var(--gold)">⭐⭐⭐ TEMIBLE</div>
+            <div class="fxs td">Fila ${x.fila}</div>
+            <div style="margin-left:auto;font-weight:700;color:var(--green)">${x.pct}%</div>
+          </div>
+          <div class="fxs td mb">🕸️ La Telaraña determinó esto porque:</div>
+          ${reasons.map(r=>`<div style="font-size:0.72rem;padding:2px 0 2px 8px;border-left:2px solid var(--gold)">${r}</div>`).join('')}
+        </div>`;
+    });
+
+    if(jugDec.length){
+        verdictHtml+=`<div class="card-t fxs" style="color:var(--green);margin:12px 0 8px">🟡 Decenas jugables</div>`;
+        jugDec.forEach(x=>{
+            const reasons=spBuildReasonList(x.detail,false);
+            verdictHtml+=`
+            <div style="background:rgba(0,212,170,0.05);border:1px solid rgba(0,212,170,0.18);border-radius:10px;padding:10px;margin-bottom:6px">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+                <div style="font-size:1.1rem;font-weight:900;color:var(--green)">${x.val}0s</div>
+                <div style="color:var(--green)">⭐⭐ JUGABLE</div>
+                <div class="fxs td">Fila ${x.fila}</div>
+                <div style="margin-left:auto;font-weight:700;color:var(--green)">${x.pct}%</div>
+              </div>
+              ${reasons.slice(0,3).map(r=>`<div style="font-size:0.7rem;color:var(--dim);padding:2px 0 2px 8px;border-left:2px solid var(--green)">${r}</div>`).join('')}
+            </div>`;
+        });
+    }
+
+    verdictHtml+=`<div class="card-t fxs" style="color:var(--blue);margin:14px 0 8px">🎯 Terminales más probables</div>`;
+
+    temTerm.forEach(x=>{
+        const reasons=spBuildReasonList(x.detail,true);
+        verdictHtml+=`
+        <div style="background:rgba(52,152,219,0.06);border:1px solid rgba(52,152,219,0.18);border-radius:10px;padding:12px;margin-bottom:8px">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <div style="font-size:1.3rem;font-weight:900;color:var(--blue)">T${x.val}</div>
+            <div style="color:var(--gold)">⭐⭐⭐ TEMIBLE</div>
+            <div class="fxs td">Fila ${x.fila}</div>
+            <div style="margin-left:auto;font-weight:700;color:var(--green)">${x.pct}%</div>
+          </div>
+          <div class="fxs td mb">🕸️ La Telaraña determinó esto porque:</div>
+          ${reasons.map(r=>`<div style="font-size:0.72rem;padding:2px 0 2px 8px;border-left:2px solid var(--blue)">${r}</div>`).join('')}
+        </div>`;
+    });
+
+    if(jugTerm.length){
+        verdictHtml+=`<div class="card-t fxs" style="color:var(--green);margin:12px 0 8px">🟡 Terminales jugables</div>`;
+        jugTerm.forEach(x=>{
+            const reasons=spBuildReasonList(x.detail,true);
+            verdictHtml+=`
+            <div style="background:rgba(0,212,170,0.05);border:1px solid rgba(0,212,170,0.18);border-radius:10px;padding:10px;margin-bottom:6px">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+                <div style="font-size:1.1rem;font-weight:900;color:var(--green)">T${x.val}</div>
+                <div style="color:var(--green)">⭐⭐ JUGABLE</div>
+                <div class="fxs td">Fila ${x.fila}</div>
+                <div style="margin-left:auto;font-weight:700;color:var(--green)">${x.pct}%</div>
+              </div>
+              ${reasons.slice(0,3).map(r=>`<div style="font-size:0.7rem;color:var(--dim);padding:2px 0 2px 8px;border-left:2px solid var(--green)">${r}</div>`).join('')}
+            </div>`;
+        });
+    }
+
+    verdictHtml+='</div>';
+
+    // peones
+    const peonesArr=Object.values(R.peones);
+    const peonesHtml=`
+    <div class="sp-hilos-t" style="margin-top:16px">🧵 Reporte de los 7 peones al Jefe</div>
+    ${peonesArr.map(p=>`
+      <div class="h-row">
+        <div class="h-dot" style="background:${p.color}"></div>
+        <div class="h-name">${p.name}</div>
+        <div class="h-val">${p.d?`${p.d[0]}0s`: '-'} / T${p.t?p.t[0]:'-'}</div>
+      </div>
+    `).join('')}`;
+
+    out.innerHTML=`
+    <div class="card">
+      ${decHtml}
+      ${termHtml}
+      ${verdictHtml}
+      ${peonesHtml}
+    </div>`;
+};
+
+// al cargar, si ya está abierta la telaraña, recalcular
+setTimeout(()=>{
+    const sec=document.querySelector('#sec-spider.active');
+    if(sec) rSpider();
+},200);
+    </script>
 </body>
 </html>
