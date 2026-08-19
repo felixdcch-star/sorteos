@@ -2047,5 +2047,90 @@ function renderNucleo(R){
     };
 })();
     </script>
+    <script>
+/* FIX NÚCLEO V2 */
+renderNucleo = function(R){
+    const out=document.getElementById('nucOut');
+    if(!out||!R)return;
+
+    function renderTabla(tipo,order,hala,puntos){
+        const isDec=tipo==='dec';
+        const prefix=isDec?'':'T';
+        const suffix=isDec?'0s':'';
+
+        let matrixHtml='<table class="nuc-matrix"><thead><tr>';
+        matrixHtml+='<th style="min-width:40px">Pos</th>';
+        order.forEach(v=>{
+            matrixHtml+=`<th class="header-dec">${prefix}${v}${suffix}</th>`;
+        });
+        matrixHtml+='</tr></thead><tbody>';
+
+        function filaDatos(){
+            let html='';
+            order.forEach(v=>{
+                const halado=hala[v];
+                html+=`<td class="hala">${prefix}${halado}${suffix}</td>`;
+            });
+            return html;
+        }
+
+        matrixHtml+=`<tr><td class="pcol p1">P1</td>${filaDatos()}</tr>`;
+        matrixHtml+=`<tr><td class="pcol p2" rowspan="3" style="vertical-align:middle">P2</td>${filaDatos()}</tr>`;
+        matrixHtml+=`<tr>${filaDatos()}</tr>`;
+        matrixHtml+=`<tr>${filaDatos()}</tr>`;
+        matrixHtml+=`<tr><td class="pcol p3" rowspan="3" style="vertical-align:middle">P3</td>${filaDatos()}</tr>`;
+        matrixHtml+=`<tr>${filaDatos()}</tr>`;
+        matrixHtml+=`<tr>${filaDatos()}</tr>`;
+        matrixHtml+=`<tr><td class="pcol p4" rowspan="3" style="vertical-align:middle">P4</td>${filaDatos()}</tr>`;
+        matrixHtml+=`<tr>${filaDatos()}</tr>`;
+        matrixHtml+=`<tr>${filaDatos()}</tr>`;
+        matrixHtml+='</tbody></table>';
+
+        const sem=getSemaforo(puntos);
+        const clsFor=(p)=>{
+            if(sem.type==='amarillo')return'rtie';
+            if(sem.winners.includes(p))return'rmax';
+            if(sem.losers&&sem.losers.includes(p))return'rmin';
+            return'';
+        };
+
+        const resultsHtml=`
+        <table class="nuc-results">
+        <thead><tr><th>Pos</th><th>Pts</th></tr></thead>
+        <tbody>
+        <tr><td class="pos-label">P1</td><td class="${clsFor('P1')}">${puntos.P1}</td></tr>
+        <tr><td class="pos-label">P2</td><td class="${clsFor('P2')}">${puntos.P2}</td></tr>
+        <tr><td class="pos-label">P3</td><td class="${clsFor('P3')}">${puntos.P3}</td></tr>
+        <tr><td class="pos-label">P4</td><td class="${clsFor('P4')}">${puntos.P4}</td></tr>
+        </tbody></table>`;
+
+        const semHtml=`
+        <div class="nuc-semaforo ${sem.type==='verde'?'verde':'amarillo'}">
+        <div class="nuc-semaforo-t">${sem.decision}</div>
+        <div class="nuc-semaforo-d">${sem.text}</div>
+        </div>`;
+
+        return`
+        <div class="nuc-block">
+        <div class="nuc-block-t ${tipo}">${isDec?'🔢 DECENAS':'🎯 TERMINALES'} — ${R.mLabel}</div>
+        <div class="nuc-wrap">
+        <div class="nuc-matrix-wrap">${matrixHtml}</div>
+        <div class="nuc-results-wrap">${resultsHtml}</div>
+        </div>
+        ${semHtml}
+        </div>`;
+    }
+
+    const decTabla=renderTabla('dec',R.decOrder,R.decHala,R.decPuntos);
+    const termTabla=renderTabla('term',R.termOrder,R.termHala,R.termPuntos);
+
+    const infoMes=`
+    <div class="nuc-info" style="text-align:center">
+    <strong>${mesNombre(R.mes)}</strong> · ${R.mLabel} · <strong>${R.mesTotal} sorteos</strong> registrados este mes
+    </div>`;
+
+    out.innerHTML=infoMes+decTabla+termTabla;
+};
+</script>
 </body>
 </html>
