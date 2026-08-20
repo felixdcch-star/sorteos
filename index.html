@@ -4613,5 +4613,473 @@ setTimeout(function(){
     if (document.querySelector('#sec-nucleo.active')) window.rNucleo();
 }, 250);
 </script>
+    <script>
+/* ═══════════════════════════════════════════════════════════
+   🌌 MOTOR V1 — LA FÓRMULA DEL MAESTRO
+   Cadena Temporal: (Turno Previo + Turno Opuesto Previo) → Próximo Turno
+   Tablas: Decenas | Terminales | General (Dígito Unificado)
+═══════════════════════════════════════════════════════════ */
+
+// ═══ HELPERS BASE ═══
+window.mNum = function(raw){
+    let s = String(raw == null ? '' : raw).trim().replace(/[^\d]/g, '');
+    if (!s) return null;
+    if (s.length === 1) s = '0' + s;
+    if (s.length > 2) s = s.slice(-2);
+    const n = parseInt(s, 10);
+    if (isNaN(n) || n < 0 || n > 99) return null;
+    return n;
+};
+window.mDec = function(raw){
+    const n = window.mNum(raw);
+    return n === null ? null : Math.floor(n / 10);
+};
+window.mTerm = function(raw){
+    const n = window.mNum(raw);
+    return n === null ? null : n % 10;
+};
+
+window.mMesNombre = function(ym){
+    const n = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+    const p = String(ym).split('-');
+    if (p.length < 2) return ym;
+    return n[parseInt(p[1],10) - 1] + ' ' + p[0];
+};
+window.mPrevMonth = function(ym, back){
+    const parts = String(ym).split('-').map(Number);
+    const d = new Date(parts[0], parts[1] - 1 - back, 1);
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+};
+window.mGetMeses = function(){
+    if (!sorteos || !sorteos.length) return [];
+    const set = new Set();
+    sorteos.forEach(s => {
+        if (s.drawDate && s.drawDate.length >= 7) set.add(s.drawDate.substring(0, 7));
+    });
+    return [...set].sort().reverse();
+};
+window.mMesActual = function(){
+    const m = window.mGetMeses();
+    return m[0] || new Date().toISOString().substring(0, 7);
+};
+
+// ═══════════════════════════════════════════════════════════
+// MOTOR PRINCIPAL — LA FÓRMULA DEL MAESTRO
+// ═══════════════════════════════════════════════════════════
+window.motorMaestro = function(all, mode, mes){
+    const allData = Array.isArray(all) ? all : (sorteos || []);
+    const sorted = [...allData].sort(chronoSort);
+
+    // Ventana estable: 2 meses previos
+    const mes1 = window.mPrevMonth(mes, 2);
+    const mes2 = window.mPrevMonth(mes, 1);
+    let baseHist = sorted.filter(d =>
+        d.drawDate && (d.drawDate.startsWith(mes1) || d.drawDate.startsWith(mes2))
+    );
+    if (baseHist.length < 20) {
+        baseHist = sorted.filter(d => d.drawDate && d.drawDate < (mes + '-01'));
+    }
+
+    const mLabel = mode === 'midday' ? '☀️ Mediodía' :
+                   mode === 'evening' ? '🌙 Noche' : '🌐 General (Dígito)';
+
+    // Turno opuesto (para la cadena temporal)
+    const opuesto = mode === 'midday' ? 'evening' : 'evening' === mode ? 'midday' : null;
+
+    // ═══════════════════════════════════════════════════════
+    // FASE 1: CONSTRUIR MATRICES DE ATRACCIÓN 10×10
+    // Recorremos la base cronológicamente
+    // Cada vez que llega un sorteo del turno OBJETIVO:
+    //   - Buscamos el ANTERIOR del mismo turno
+    //   - Buscamos el ANTERIOR del turno opuesto
+    //   - Ambos "halan" al actual → sumamos 2 puntos en la matriz
+    // ═══════════════════════════════════════════════════════
+
+    // Matriz de decenas 10×10 (columna=origen, fila=destino)
+    // matDec[origen][destino] = cantidad de halones
+    const matDec = Array.from({length: 10}, () => Array(10).fill(0));
+    const matTerm = Array.from({length: 10}, () => Array(10).fill(0));
+
+    // Función para procesar la base y llenar matrices para un turno objetivo
+    function procesarTurno(turnoObjetivo){
+        for (let i = 0; i < baseHist.length; i++) {
+            const actual = baseHist[i];
+            if (turnoObjetivo !== 'all' && actual.shift !== turnoObjetivo) continue;
+
+            const decDestino = window.mDec(actual.number);
+            const termDestino = window.mTerm(actual.number);
+            if (decDestino === null || termDestino === null) continue;
+
+            // Buscar hacia atrás:
+            // - último sorteo del MISMO turno
+            // - último sorteo del turno OPUESTO
+            let prevMismo = null;
+            let prevOpuesto = null;
+            const opu = actual.shift === 'midday' ? 'evening' : 'midday';
+
+            for (let j = i - 1; j >= 0 && (!prevMismo || !prevOpuesto); j--) {
+                const p = baseHist[j];
+                if (!prevMismo && p.shift === actual.shift) prevMismo = p;
+                if (!prevOpuesto && p.shift === opu) prevOpuesto = p;
+            }
+
+            // Halón del sorteo previo del mismo turno
+            if (prevMismo) {
+                const dO = window.mDec(prevMismo.number);
+                const tO = window.mTerm(prevMismo.number);
+                if (dO !== null) matDec[dO][decDestino]++;
+                if (tO !== null) matTerm[tO][termDestino]++;
+            }
+            // Halón del sorteo previo del turno opuesto
+            if (prevOpuesto) {
+                const dO = window.mDec(prevOpuesto.number);
+                const tO = window.mTerm(prevOpuesto.number);
+                if (dO !== null) matDec[dO][decDestino]++;
+                if (tO !== null) matTerm[tO][termDestino]++;
+            }
+        }
+    }
+
+    if (mode === 'all') {
+        // General: procesar ambos turnos
+        procesarTurno('midday');
+        procesarTurno('evening');
+    } else {
+        procesarTurno(mode);
+    }
+
+    // Matriz General Unificada = Decenas + Terminales (fusión del dígito)
+    const matGeneral = Array.from({length: 10}, () => Array(10).fill(0));
+    for (let o = 0; o < 10; o++) {
+        for (let d = 0; d < 10; d++) {
+            matGeneral[o][d] = matDec[o][d] + matTerm[o][d];
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════
+    // FASE 2: ORDENAR CADA COLUMNA (MAYOR A MENOR)
+    // Cada columna tiene 10 destinos ordenados por frecuencia
+    // Fila 0 = P1 (más caliente)
+    // Filas 1-3 = P2
+    // Filas 4-6 = P3
+    // Filas 7-9 = P4
+    // ═══════════════════════════════════════════════════════
+    function ordenarColumnas(matriz){
+        const map = {};
+        for (let col = 0; col < 10; col++) {
+            const counts = [];
+            for (let dest = 0; dest < 10; dest++) {
+                counts.push({dest: dest, count: matriz[col][dest]});
+            }
+            counts.sort((a, b) => b.count - a.count || a.dest - b.dest);
+            map[col] = counts.map(c => c.dest);
+        }
+        return map;
+    }
+
+    const orderDec = ordenarColumnas(matDec);
+    const orderTerm = ordenarColumnas(matTerm);
+    const orderGeneral = ordenarColumnas(matGeneral);
+
+    // ═══════════════════════════════════════════════════════
+    // FASE 3: EVALUAR PUNTOS DEL MES SELECCIONADO
+    // Para cada sorteo del mes evaluamos:
+    //   - Su origen (previo mismo turno + previo opuesto)
+    //   - En qué fila (P1/P2/P3/P4) cayó el destino
+    // ═══════════════════════════════════════════════════════
+    function filaToP(row){
+        if (row === 0) return 'P1';
+        if (row <= 3) return 'P2';
+        if (row <= 6) return 'P3';
+        return 'P4';
+    }
+    function findRow(orderMap, col, dest){
+        if (!orderMap[col]) return 9;
+        const i = orderMap[col].indexOf(dest);
+        return i >= 0 ? i : 9;
+    }
+
+    const decPuntos = {P1:0, P2:0, P3:0, P4:0};
+    const termPuntos = {P1:0, P2:0, P3:0, P4:0};
+    const genPuntos = {P1:0, P2:0, P3:0, P4:0};
+    let evaluados = 0;
+
+    for (let i = 0; i < sorted.length; i++) {
+        const actual = sorted[i];
+        if (!actual.drawDate || !actual.drawDate.startsWith(mes)) continue;
+        if (mode !== 'all' && actual.shift !== mode) continue;
+
+        const decDest = window.mDec(actual.number);
+        const termDest = window.mTerm(actual.number);
+        if (decDest === null || termDest === null) continue;
+
+        // Buscar previos
+        let prevMismo = null, prevOpuesto = null;
+        const opu = actual.shift === 'midday' ? 'evening' : 'midday';
+        for (let j = i - 1; j >= 0 && (!prevMismo || !prevOpuesto); j--) {
+            const p = sorted[j];
+            if (!prevMismo && p.shift === actual.shift) prevMismo = p;
+            if (!prevOpuesto && p.shift === opu) prevOpuesto = p;
+        }
+
+        // Contar cada halón (uno por cada previo)
+        [prevMismo, prevOpuesto].forEach(prev => {
+            if (!prev) return;
+            const dO = window.mDec(prev.number);
+            const tO = window.mTerm(prev.number);
+            if (dO !== null) {
+                const rowD = findRow(orderDec, dO, decDest);
+                decPuntos[filaToP(rowD)]++;
+                const rowG = findRow(orderGeneral, dO, decDest);
+                genPuntos[filaToP(rowG)]++;
+            }
+            if (tO !== null) {
+                const rowT = findRow(orderTerm, tO, termDest);
+                termPuntos[filaToP(rowT)]++;
+                const rowG = findRow(orderGeneral, tO, termDest);
+                genPuntos[filaToP(rowG)]++;
+            }
+        });
+        evaluados++;
+    }
+
+    const sumDec = decPuntos.P1 + decPuntos.P2 + decPuntos.P3 + decPuntos.P4;
+    const sumTerm = termPuntos.P1 + termPuntos.P2 + termPuntos.P3 + termPuntos.P4;
+    const sumGen = genPuntos.P1 + genPuntos.P2 + genPuntos.P3 + genPuntos.P4;
+
+    return {
+        mode, mLabel, mes,
+        esMesActual: (mes === window.mMesActual()),
+        baseLabel: window.mMesNombre(mes1) + ' + ' + window.mMesNombre(mes2),
+        baseCount: baseHist.length,
+        evaluados,
+        sumDec, sumTerm, sumGen,
+        // Cada evaluado suma 2 halones (uno por cada previo)
+        totalHalones: evaluados * 2,
+        valid: (sumDec === sumTerm && sumDec === evaluados * 2),
+        orderDec, orderTerm, orderGeneral,
+        matDec, matTerm, matGeneral,
+        decPuntos, termPuntos, genPuntos
+    };
+};
+
+// ═══════════════════════════════════════════════════════════
+// SEMÁFORO
+// ═══════════════════════════════════════════════════════════
+window.getSemaforoM = function(puntos, esMesActual){
+    if (!esMesActual) {
+        return {
+            type:'neutro',
+            rowClass:{P1:'',P2:'',P3:'',P4:''},
+            resClass:{P1:'',P2:'',P3:'',P4:''},
+            posClass:{P1:'p-neutral',P2:'p-neutral',P3:'p-neutral',P4:'p-neutral'},
+            winners:[], text:'Mes histórico', decision:'📚 Solo consulta'
+        };
+    }
+    const vals = Object.values(puntos);
+    const max = Math.max(...vals), min = Math.min(...vals);
+    const empty = {
+        type:'neutro',
+        rowClass:{P1:'',P2:'',P3:'',P4:''},
+        resClass:{P1:'',P2:'',P3:'',P4:''},
+        posClass:{P1:'p-neutral',P2:'p-neutral',P3:'p-neutral',P4:'p-neutral'},
+        winners:[], text:'Sin datos', decision:'⏳ Esperando'
+    };
+    if (max === 0) return empty;
+
+    if (max === min) {
+        return {
+            type:'amarillo',
+            rowClass:{P1:'bg-amarillo',P2:'bg-amarillo',P3:'bg-amarillo',P4:'bg-amarillo'},
+            resClass:{P1:'rtie',P2:'rtie',P3:'rtie',P4:'rtie'},
+            posClass:{P1:'p-amarillo',P2:'p-amarillo',P3:'p-amarillo',P4:'p-amarillo'},
+            winners:['P1','P2','P3','P4'],
+            text:'Todas las posiciones empatadas',
+            decision:'⚖️ Debate soberano'
+        };
+    }
+
+    const winners = Object.entries(puntos).filter(([,v])=>v===max).map(([k])=>k);
+    const losers = Object.entries(puntos).filter(([,v])=>v===min).map(([k])=>k);
+    const rowClass = {P1:'',P2:'',P3:'',P4:''};
+    const resClass = {P1:'',P2:'',P3:'',P4:''};
+    const posClass = {P1:'p-neutral',P2:'p-neutral',P3:'p-neutral',P4:'p-neutral'};
+
+    if (winners.length > 1) {
+        winners.forEach(p => { rowClass[p]='bg-amarillo'; resClass[p]='rtie'; posClass[p]='p-amarillo'; });
+        return {
+            type:'amarillo', rowClass, resClass, posClass, winners,
+            text:'Empate en ' + winners.join(' y ') + ' con ' + max + ' pts',
+            decision:'⚖️ Debate con la Telaraña'
+        };
+    }
+
+    rowClass[winners[0]] = 'bg-verde';
+    resClass[winners[0]] = 'rmax';
+    posClass[winners[0]] = 'p-verde';
+    losers.forEach(p => {
+        if (p !== winners[0]) {
+            rowClass[p] = 'bg-rojo';
+            resClass[p] = 'rmin';
+            posClass[p] = 'p-rojo';
+        }
+    });
+
+    return {
+        type:'verde', rowClass, resClass, posClass, winners,
+        text: winners[0] + ' lidera con ' + max + ' pts',
+        decision: '🎯 Jugar en ' + winners[0]
+    };
+};
+
+// ═══════════════════════════════════════════════════════════
+// CSS DEL MOTOR V1
+// ═══════════════════════════════════════════════════════════
+(function(){
+    let st = document.getElementById('motor-v1-css');
+    if (!st) {
+        st = document.createElement('style');
+        st.id = 'motor-v1-css';
+        document.head.appendChild(st);
+    }
+    st.textContent = `
+    .nuc-matrix tr.bg-verde td{background:rgba(0,212,170,0.28)!important;font-weight:800!important;color:#fff!important}
+    .nuc-matrix tr.bg-rojo td{background:rgba(255,71,87,0.22)!important;color:#fff!important}
+    .nuc-matrix tr.bg-amarillo td{background:rgba(245,166,35,0.28)!important;font-weight:800!important;color:#fff!important}
+    .nuc-matrix td.p-verde{background:linear-gradient(135deg,#00d4aa,#2ecc71)!important;color:#000!important;font-weight:900!important}
+    .nuc-matrix td.p-rojo{background:linear-gradient(135deg,#ff4757,#ff6b6b)!important;color:#fff!important;font-weight:900!important}
+    .nuc-matrix td.p-amarillo{background:linear-gradient(135deg,#ffa502,#ffb84d)!important;color:#000!important;font-weight:900!important}
+    .nuc-matrix td.p-neutral{background:var(--bg3)!important;color:var(--dim)!important;font-weight:800!important}
+    .nuc-results .rmax{background:rgba(0,212,170,0.3)!important;color:var(--green)!important}
+    .nuc-results .rmin{background:rgba(255,71,87,0.3)!important;color:var(--red)!important}
+    .nuc-results .rtie{background:rgba(245,166,35,0.3)!important;color:var(--gold2)!important}
+    .motor-tab-btn{padding:6px 12px;border-radius:16px;border:1px solid var(--border);background:var(--bg2);color:var(--dim);cursor:pointer;font-size:0.75rem;font-weight:700;margin:2px}
+    .motor-tab-btn.on{background:var(--gold);color:var(--bg);border-color:var(--gold)}
+    `;
+})();
+
+// ═══════════════════════════════════════════════════════════
+// RENDER — Sobrescribe renderNucleo del Núcleo
+// ═══════════════════════════════════════════════════════════
+window.motorTipo = 'dec'; // dec, term, general
+
+window.motorSetTipo = function(t, btn){
+    window.motorTipo = t;
+    document.querySelectorAll('.motor-tab-btn').forEach(b => b.classList.remove('on'));
+    if (btn) btn.classList.add('on');
+    window.rNucleo();
+};
+
+window.calcNucleo = window.motorMaestro;
+
+window.renderNucleo = function(R){
+    const out = document.getElementById('nucOut');
+    if (!out || !R) return;
+
+    // Elegir qué mostrar según motorTipo
+    let orderMap, puntos, titulo, prefix, suffix;
+    if (window.motorTipo === 'term') {
+        orderMap = R.orderTerm;
+        puntos = R.termPuntos;
+        titulo = '🎯 TERMINALES';
+        prefix = 'T';
+        suffix = '';
+    } else if (window.motorTipo === 'general') {
+        orderMap = R.orderGeneral;
+        puntos = R.genPuntos;
+        titulo = '🌐 GENERAL (Dígito Unificado)';
+        prefix = '';
+        suffix = '';
+    } else {
+        orderMap = R.orderDec;
+        puntos = R.decPuntos;
+        titulo = '🔢 DECENAS';
+        prefix = '';
+        suffix = '0s';
+    }
+
+    const sem = window.getSemaforoM(puntos, R.esMesActual);
+    function filaToP(row){
+        if (row === 0) return 'P1';
+        if (row <= 3) return 'P2';
+        if (row <= 6) return 'P3';
+        return 'P4';
+    }
+
+    // Header
+    let h = '<table class="nuc-matrix"><thead><tr><th style="min-width:40px">POS</th>';
+    for (let c = 0; c <= 9; c++) h += '<th class="header-dec">' + prefix + c + suffix + '</th>';
+    h += '</tr></thead><tbody>';
+
+    for (let row = 0; row <= 9; row++) {
+        const p = filaToP(row);
+        h += '<tr class="' + (sem.rowClass[p]||'') + '">';
+        if (row === 0) h += '<td class="' + (sem.posClass.P1||'p-neutral') + '">P1</td>';
+        else if (row === 1) h += '<td class="' + (sem.posClass.P2||'p-neutral') + '" rowspan="3" style="vertical-align:middle">P2</td>';
+        else if (row === 4) h += '<td class="' + (sem.posClass.P3||'p-neutral') + '" rowspan="3" style="vertical-align:middle">P3</td>';
+        else if (row === 7) h += '<td class="' + (sem.posClass.P4||'p-neutral') + '" rowspan="3" style="vertical-align:middle">P4</td>';
+
+        for (let col = 0; col <= 9; col++) {
+            const val = (orderMap[col] && orderMap[col][row] !== undefined) ? orderMap[col][row] : col;
+            h += '<td class="hala">' + prefix + val + suffix + '</td>';
+        }
+        h += '</tr>';
+    }
+    h += '</tbody></table>';
+
+    const pts =
+        '<table class="nuc-results"><thead><tr><th>POS</th><th>PTS</th></tr></thead><tbody>' +
+        '<tr><td class="pos-label">P1</td><td class="'+(sem.resClass.P1||'')+'">'+puntos.P1+'</td></tr>' +
+        '<tr><td class="pos-label">P2</td><td class="'+(sem.resClass.P2||'')+'">'+puntos.P2+'</td></tr>' +
+        '<tr><td class="pos-label">P3</td><td class="'+(sem.resClass.P3||'')+'">'+puntos.P3+'</td></tr>' +
+        '<tr><td class="pos-label">P4</td><td class="'+(sem.resClass.P4||'')+'">'+puntos.P4+'</td></tr>' +
+        '<tr><td class="pos-label" style="color:var(--gold)">Σ</td><td style="font-weight:900;color:var(--gold)">' +
+        (puntos.P1+puntos.P2+puntos.P3+puntos.P4) + '</td></tr>' +
+        '</tbody></table>';
+
+    let semHtml = '';
+    if (sem.type === 'verde') {
+        semHtml = '<div class="nuc-semaforo verde"><div class="nuc-semaforo-t">'+sem.decision+
+            '</div><div class="nuc-semaforo-d">'+sem.text+'</div></div>';
+    } else if (sem.type === 'amarillo') {
+        semHtml = '<div class="nuc-semaforo amarillo"><div class="nuc-semaforo-t">'+sem.decision+
+            '</div><div class="nuc-semaforo-d">'+sem.text+'</div></div>';
+    } else {
+        semHtml = '<div class="nuc-semaforo" style="background:rgba(107,114,128,0.1);border:2px solid var(--dim);color:var(--dim)">'+
+            '<div class="nuc-semaforo-t">'+sem.decision+'</div><div class="nuc-semaforo-d">'+sem.text+'</div></div>';
+    }
+
+    // Tabs de tipo (Decenas / Terminales / General)
+    const tabs =
+        '<div style="text-align:center;margin:10px 0">' +
+        '<button class="motor-tab-btn' + (window.motorTipo==='dec'?' on':'') + '" onclick="motorSetTipo(\'dec\',this)">🔢 Decenas</button>' +
+        '<button class="motor-tab-btn' + (window.motorTipo==='term'?' on':'') + '" onclick="motorSetTipo(\'term\',this)">🎯 Terminales</button>' +
+        '<button class="motor-tab-btn' + (window.motorTipo==='general'?' on':'') + '" onclick="motorSetTipo(\'general\',this)">🌐 General</button>' +
+        '</div>';
+
+    const info =
+        '<div class="nuc-info" style="text-align:center">' +
+        '<strong>Base estable:</strong> ' + R.baseLabel + ' <span class="fxs">(' + R.baseCount + ' sorteos)</span><br>' +
+        '<strong>Evaluando:</strong> ' + window.mMesNombre(R.mes) + ' · ' + R.mLabel + ' · <strong>' + R.evaluados + '</strong> sorteos' +
+        (R.esMesActual ? ' · <span style="color:var(--green)">● En vivo</span>' : ' · ● Histórico') +
+        '</div>' +
+        '<div class="nuc-info" style="text-align:center;font-weight:700;color:' + (R.valid?'var(--green)':'var(--red)') + '">' +
+        (R.valid ? '✅ Cuadre OK' : '⚠️ Descuadre') +
+        ' · Dec Σ=' + R.sumDec + ' · Term Σ=' + R.sumTerm + ' · Halones=' + R.totalHalones +
+        '</div>';
+
+    const tabla =
+        '<div class="nuc-block"><div class="nuc-block-t">' + titulo + ' — ' + R.mLabel + '</div>' +
+        '<div class="nuc-wrap"><div class="nuc-matrix-wrap">' + h + '</div>' +
+        '<div class="nuc-results-wrap">' + pts + '</div></div>' + semHtml + '</div>';
+
+    out.innerHTML = info + tabs + tabla;
+};
+
+// Re-ejecutar
+setTimeout(function(){
+    if (document.querySelector('#sec-nucleo.active')) window.rNucleo();
+}, 300);
+</script>
 </body>
 </html>
