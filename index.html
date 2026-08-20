@@ -3799,5 +3799,180 @@ window.nucMode = function(m, btn){
     window.rNucleo();
 };
 </script>
+    <script>
+/* ═══════════════════════════════════════════════════
+   🌌 NÚCLEO V10 — Semáforo pinta el rango de filas
+═══════════════════════════════════════════════════ */
+
+window.renderNucleo = function(R){
+    const out = document.getElementById('nucOut');
+    if (!out || !R) return;
+
+    // Colores de fondo suaves para celdas del rango
+    const ROW_BG = {
+        verde:    'background:rgba(0,212,170,0.18)!important;color:var(--text)!important;font-weight:800!important;box-shadow:inset 0 0 0 1px rgba(0,212,170,0.35)',
+        rojo:     'background:rgba(255,71,87,0.15)!important;color:var(--text)!important;font-weight:700!important;box-shadow:inset 0 0 0 1px rgba(255,71,87,0.3)',
+        amarillo: 'background:rgba(245,166,35,0.18)!important;color:var(--text)!important;font-weight:800!important;box-shadow:inset 0 0 0 1px rgba(245,166,35,0.4)',
+        neutro:   ''
+    };
+
+    // Dado el número de fila (0-9), a qué P pertenece
+    function filaToP(row){
+        if (row === 0) return 'P1';
+        if (row >= 1 && row <= 3) return 'P2';
+        if (row >= 4 && row <= 6) return 'P3';
+        return 'P4';
+    }
+
+    // Tipo de color del semáforo para un P
+    function colorTipo(sem, p){
+        if (!sem || !sem.colors) return 'neutro';
+        const c = sem.colors[p] || '';
+        if (c.indexOf('verde') >= 0) return 'verde';
+        if (c.indexOf('rojo') >= 0) return 'rojo';
+        if (c.indexOf('amarillo') >= 0) return 'amarillo';
+        return 'neutro';
+    }
+
+    function renderTabla(tipo, transMap, puntos){
+        const isDec = (tipo === 'dec');
+        const prefix = isDec ? '' : 'T';
+        const suffix = isDec ? '0s' : '';
+        const sem = window.getSemaforoNuc(puntos, R.esMesActual);
+
+        // Header fijo
+        let h = '<table class="nuc-matrix"><thead><tr>';
+        h += '<th style="min-width:40px">POS</th>';
+        for (let c = 0; c <= 9; c++) {
+            h += '<th class="header-dec">' + prefix + c + suffix + '</th>';
+        }
+        h += '</tr></thead><tbody>';
+
+        for (let row = 0; row <= 9; row++) {
+            const p = filaToP(row);
+            const tipoColor = colorTipo(sem, p);
+            const cellStyle = ROW_BG[tipoColor] || '';
+
+            h += '<tr>';
+
+            // Etiqueta P (solo al inicio del grupo)
+            if (row === 0) {
+                h += '<td class="' + (sem.colors.P1 || 'p-neutral') + '">P1</td>';
+            } else if (row === 1) {
+                h += '<td class="' + (sem.colors.P2 || 'p-neutral') +
+                    '" rowspan="3" style="vertical-align:middle">P2</td>';
+            } else if (row === 4) {
+                h += '<td class="' + (sem.colors.P3 || 'p-neutral') +
+                    '" rowspan="3" style="vertical-align:middle">P3</td>';
+            } else if (row === 7) {
+                h += '<td class="' + (sem.colors.P4 || 'p-neutral') +
+                    '" rowspan="3" style="vertical-align:middle">P4</td>';
+            }
+
+            // Celdas de la fila — mismo color del semáforo del P
+            for (let col = 0; col <= 9; col++) {
+                const val = (transMap[col] && transMap[col][row] !== undefined)
+                    ? transMap[col][row]
+                    : col;
+                h += '<td class="hala" style="' + cellStyle + '">' +
+                    prefix + val + suffix + '</td>';
+            }
+            h += '</tr>';
+        }
+        h += '</tbody></table>';
+
+        // Tabla de puntos
+        const cr = sem.colorsRes || {};
+        const pts =
+            '<table class="nuc-results"><thead><tr><th>POS</th><th>PTS</th></tr></thead><tbody>' +
+            '<tr><td class="pos-label">P1</td><td class="'+(cr.P1||'')+'">'+puntos.P1+'</td></tr>' +
+            '<tr><td class="pos-label">P2</td><td class="'+(cr.P2||'')+'">'+puntos.P2+'</td></tr>' +
+            '<tr><td class="pos-label">P3</td><td class="'+(cr.P3||'')+'">'+puntos.P3+'</td></tr>' +
+            '<tr><td class="pos-label">P4</td><td class="'+(cr.P4||'')+'">'+puntos.P4+'</td></tr>' +
+            '</tbody></table>';
+
+        let semHtml = '';
+        if (sem.type === 'verde') {
+            semHtml = '<div class="nuc-semaforo verde"><div class="nuc-semaforo-t">'+sem.decision+
+                '</div><div class="nuc-semaforo-d">'+sem.text+'</div></div>';
+        } else if (sem.type === 'amarillo') {
+            semHtml = '<div class="nuc-semaforo amarillo"><div class="nuc-semaforo-t">'+sem.decision+
+                '</div><div class="nuc-semaforo-d">'+sem.text+'</div></div>';
+        } else {
+            semHtml = '<div class="nuc-semaforo" style="background:rgba(107,114,128,0.1);border:2px solid var(--dim);color:var(--dim)">'+
+                '<div class="nuc-semaforo-t">'+sem.decision+'</div>'+
+                '<div class="nuc-semaforo-d">'+sem.text+'</div></div>';
+        }
+
+        // Lista clara de decenas/terminales del rango ganador
+        let listaGanadora = '';
+        if (sem.type === 'verde' && sem.winners && sem.winners[0]) {
+            const winP = sem.winners[0];
+            let rows = [];
+            if (winP === 'P1') rows = [0];
+            else if (winP === 'P2') rows = [1,2,3];
+            else if (winP === 'P3') rows = [4,5,6];
+            else rows = [7,8,9];
+
+            // Para cada columna, las opciones del rango ganador
+            const porCol = [];
+            for (let col = 0; col <= 9; col++) {
+                const vals = rows.map(r => {
+                    const v = (transMap[col] && transMap[col][r] !== undefined)
+                        ? transMap[col][r] : r;
+                    return prefix + v + suffix;
+                });
+                porCol.push('<div style="margin:4px 0"><strong style="color:var(--gold)">' +
+                    prefix + col + suffix + '</strong> → ' +
+                    vals.map(v => '<span style="background:rgba(0,212,170,0.2);padding:2px 6px;border-radius:8px;margin:0 2px;font-weight:700">' +
+                    v + '</span>').join(' ') + '</div>');
+            }
+            listaGanadora =
+                '<div class="nuc-info" style="margin-top:10px;border-color:var(--green)">' +
+                '<strong style="color:var(--green)">🎯 Rango a jugar (' + winP + '):</strong>' +
+                '<div class="fxs td" style="margin:6px 0 8px">Si salió una decena/terminal, mira su columna y usa estas opciones:</div>' +
+                porCol.join('') +
+                '</div>';
+        } else if (sem.type === 'amarillo') {
+            listaGanadora =
+                '<div class="nuc-info" style="margin-top:10px;border-color:var(--gold)">' +
+                '<strong style="color:var(--gold)">⚖️ Empate — debate soberano</strong>' +
+                '<div class="fxs td" style="margin-top:4px">Revisa la Telaraña y elige el rango con más sentido para el próximo sorteo.</div>' +
+                '</div>';
+        }
+
+        return '<div class="nuc-block"><div class="nuc-block-t '+tipo+'">'+
+            (isDec?'🔢 DECENAS':'🎯 TERMINALES')+' — '+R.mLabel+
+            '</div><div class="nuc-wrap"><div class="nuc-matrix-wrap">'+h+
+            '</div><div class="nuc-results-wrap">'+pts+'</div></div>'+
+            semHtml + listaGanadora + '</div>';
+    }
+
+    const info =
+        '<div class="nuc-info" style="text-align:center">' +
+        (R.baseLabel
+            ? '<strong>Matrix estable:</strong> ' + R.baseLabel +
+              ' <span class="fxs">(' + (R.baseCount||0) + ' sorteos)</span><br>'
+            : '') +
+        '<strong>Evaluando:</strong> ' + (window.nucMesNombre ? window.nucMesNombre(R.mes) : R.mes) +
+        ' · ' + R.mLabel + ' · <strong>' + R.mesTotal + ' sorteos</strong>' +
+        (R.esMesActual
+            ? ' · <span style="color:var(--green)">● En vivo</span>'
+            : ' · <span style="color:var(--dim)">● Histórico</span>') +
+        '</div>';
+
+    const guia =
+        '<div class="nuc-info" style="margin-top:8px">' +
+        '<strong>📌 Cómo leer:</strong> El color del semáforo pinta el <strong>rango completo</strong> de filas. ' +
+        'Si salió el <strong>83</strong>, ve a la columna <strong>80s</strong> y juega solo las celdas del color ganador (ej. verde = P2).' +
+        '</div>';
+
+    out.innerHTML =
+        info +
+        renderTabla('dec',  R.decTransMap,  R.decPuntos) +
+        renderTabla('term', R.termTransMap, R.termPuntos) +
+        guia;
+};
+</script>
 </body>
 </html>
