@@ -3974,5 +3974,213 @@ window.renderNucleo = function(R){
         guia;
 };
 </script>
+    <script>
+/* ═══════════════════════════════════════════════════
+   🌌 NÚCLEO V11 — Clases CSS nativas para filas
+   Compatibilidad total con móviles
+═══════════════════════════════════════════════════ */
+
+// 1. Inyectar estilos CSS de filas en el <head>
+(function(){
+    let st = document.getElementById('nuc-v11-css');
+    if (!st) {
+        st = document.createElement('style');
+        st.id = 'nuc-v11-css';
+        document.head.appendChild(st);
+    }
+    st.textContent = `
+    /* Filas pintadas por el semáforo */
+    .nuc-matrix tr.bg-verde td {
+        background: rgba(0, 212, 170, 0.28) !important;
+        color: #ffffff !important;
+        font-weight: 800 !important;
+        border-color: rgba(0, 212, 170, 0.5) !important;
+    }
+    .nuc-matrix tr.bg-rojo td {
+        background: rgba(255, 71, 87, 0.22) !important;
+        color: #ffffff !important;
+        border-color: rgba(255, 71, 87, 0.4) !important;
+    }
+    .nuc-matrix tr.bg-amarillo td {
+        background: rgba(245, 166, 35, 0.28) !important;
+        color: #ffffff !important;
+        font-weight: 800 !important;
+        border-color: rgba(245, 166, 35, 0.5) !important;
+    }
+    /* Estilos de las celdas POS (P1, P2, P3, P4) */
+    .nuc-matrix td.p-verde {
+        background: linear-gradient(135deg, #00d4aa, #2ecc71) !important;
+        color: #000000 !important;
+        font-weight: 900 !important;
+    }
+    .nuc-matrix td.p-rojo {
+        background: linear-gradient(135deg, #ff4757, #ff6b6b) !important;
+        color: #ffffff !important;
+        font-weight: 900 !important;
+    }
+    .nuc-matrix td.p-amarillo {
+        background: linear-gradient(135deg, #ffa502, #ffb84d) !important;
+        color: #000000 !important;
+        font-weight: 900 !important;
+    }
+    .nuc-matrix td.p-neutral {
+        background: var(--bg3) !important;
+        color: var(--dim) !important;
+        font-weight: 800 !important;
+    }
+    `;
+})();
+
+// 2. Mapeo de fila (0-9) a Posición (P1, P2, P3, P4)
+function filaToP(row) {
+    if (row === 0) return 'P1';
+    if (row >= 1 && row <= 3) return 'P2';
+    if (row >= 4 && row <= 6) return 'P3';
+    return 'P4';
+}
+
+// 3. Determinar tipo de color
+function colorTipo(sem, p) {
+    if (!sem || !sem.colors) return 'neutro';
+    const c = sem.colors[p] || '';
+    if (c.indexOf('verde') >= 0) return 'verde';
+    if (c.indexOf('rojo') >= 0) return 'rojo';
+    if (c.indexOf('amarillo') >= 0) return 'amarillo';
+    return 'neutro';
+}
+
+// 4. Renderizado con Clases Nativas en <tr>
+window.renderNucleo = function(R) {
+    const out = document.getElementById('nucOut');
+    if (!out || !R) return;
+
+    function renderTabla(tipo, transMap, puntos) {
+        const isDec = (tipo === 'dec');
+        const prefix = isDec ? '' : 'T';
+        const suffix = isDec ? '0s' : '';
+        const sem = window.getSemaforoNuc(puntos, R.esMesActual);
+
+        let h = '<table class="nuc-matrix"><thead><tr>';
+        h += '<th style="min-width:40px">POS</th>';
+        for (let c = 0; c <= 9; c++) {
+            h += '<th class="header-dec">' + prefix + c + suffix + '</th>';
+        }
+        h += '</tr></thead><tbody>';
+
+        for (let row = 0; row <= 9; row++) {
+            const p = filaToP(row);
+            const tipoC = colorTipo(sem, p); // 'verde', 'rojo', 'amarillo', 'neutro'
+            const rowClass = (tipoC !== 'neutro') ? ('bg-' + tipoC) : '';
+
+            h += '<tr class="' + rowClass + '">';
+
+            // Etiqueta P
+            if (row === 0) {
+                h += '<td class="' + (sem.colors.P1 || 'p-neutral') + '">P1</td>';
+            } else if (row === 1) {
+                h += '<td class="' + (sem.colors.P2 || 'p-neutral') +
+                    '" rowspan="3" style="vertical-align:middle">P2</td>';
+            } else if (row === 4) {
+                h += '<td class="' + (sem.colors.P3 || 'p-neutral') +
+                    '" rowspan="3" style="vertical-align:middle">P3</td>';
+            } else if (row === 7) {
+                h += '<td class="' + (sem.colors.P4 || 'p-neutral') +
+                    '" rowspan="3" style="vertical-align:middle">P4</td>';
+            }
+
+            // Celdas de la fila
+            for (let col = 0; col <= 9; col++) {
+                const val = (transMap[col] && transMap[col][row] !== undefined)
+                    ? transMap[col][row]
+                    : col;
+                h += '<td class="hala">' + prefix + val + suffix + '</td>';
+            }
+            h += '</tr>';
+        }
+        h += '</tbody></table>';
+
+        // Tabla de Puntos
+        const cr = sem.colorsRes || {};
+        const pts =
+            '<table class="nuc-results"><thead><tr><th>POS</th><th>PTS</th></tr></thead><tbody>' +
+            '<tr><td class="pos-label">P1</td><td class="' + (cr.P1||'') + '">' + puntos.P1 + '</td></tr>' +
+            '<tr><td class="pos-label">P2</td><td class="' + (cr.P2||'') + '">' + puntos.P2 + '</td></tr>' +
+            '<tr><td class="pos-label">P3</td><td class="' + (cr.P3||'') + '">' + puntos.P3 + '</td></tr>' +
+            '<tr><td class="pos-label">P4</td><td class="' + (cr.P4||'') + '">' + puntos.P4 + '</td></tr>' +
+            '</tbody></table>';
+
+        let semHtml = '';
+        if (sem.type === 'verde') {
+            semHtml = '<div class="nuc-semaforo verde"><div class="nuc-semaforo-t">' + sem.decision +
+                '</div><div class="nuc-semaforo-d">' + sem.text + '</div></div>';
+        } else if (sem.type === 'amarillo') {
+            semHtml = '<div class="nuc-semaforo amarillo"><div class="nuc-semaforo-t">' + sem.decision +
+                '</div><div class="nuc-semaforo-d">' + sem.text + '</div></div>';
+        } else {
+            semHtml = '<div class="nuc-semaforo" style="background:rgba(107,114,128,0.1);border:2px solid var(--dim);color:var(--dim)">' +
+                '<div class="nuc-semaforo-t">' + sem.decision + '</div>' +
+                '<div class="nuc-semaforo-d">' + sem.text + '</div></div>';
+        }
+
+        // Guía del rango a jugar
+        let listaGanadora = '';
+        if (sem.type === 'verde' && sem.winners && sem.winners[0]) {
+            const winP = sem.winners[0];
+            let rows = (winP==='P1')?[0]:(winP==='P2')?[1,2,3]:(winP==='P3')?[4,5,6]:[7,8,9];
+
+            const porCol = [];
+            for (let col = 0; col <= 9; col++) {
+                const vals = rows.map(r => {
+                    const v = (transMap[col] && transMap[col][r] !== undefined) ? transMap[col][r] : r;
+                    return prefix + v + suffix;
+                });
+                porCol.push('<div style="margin:3px 0"><strong style="color:var(--gold)">' +
+                    prefix + col + suffix + '</strong> → ' +
+                    vals.map(v => '<span style="background:rgba(0,212,170,0.25);padding:2px 7px;border-radius:8px;margin:0 2px;font-weight:800;color:#fff">' +
+                    v + '</span>').join(' ') + '</div>');
+            }
+            listaGanadora =
+                '<div class="nuc-info" style="margin-top:10px;border-color:var(--green)">' +
+                '<strong style="color:var(--green)">🎯 Opciones del Rango Ganador (' + winP + '):</strong>' +
+                '<div class="fxs td" style="margin:4px 0 8px">Busca la columna del número recién salido:</div>' +
+                porCol.join('') +
+                '</div>';
+        } else if (sem.type === 'amarillo') {
+            listaGanadora =
+                '<div class="nuc-info" style="margin-top:10px;border-color:var(--gold)">' +
+                '<strong style="color:var(--gold)">⚖️ Empate — Debate con la Telaraña</strong>' +
+                '</div>';
+        }
+
+        return '<div class="nuc-block"><div class="nuc-block-t ' + tipo + '">' +
+            (isDec ? '🔢 DECENAS' : '🎯 TERMINALES') + ' — ' + R.mLabel +
+            '</div><div class="nuc-wrap"><div class="nuc-matrix-wrap">' + h +
+            '</div><div class="nuc-results-wrap">' + pts + '</div></div>' +
+            semHtml + listaGanadora + '</div>';
+    }
+
+    const info =
+        '<div class="nuc-info" style="text-align:center">' +
+        (R.baseLabel
+            ? '<strong>Matrix basada en:</strong> ' + R.baseLabel + '<br>'
+            : '') +
+        '<strong>Evaluando:</strong> ' + (window.nucMesNombre ? window.nucMesNombre(R.mes) : R.mes) +
+        ' · ' + R.mLabel + ' · <strong>' + R.mesTotal + ' sorteos</strong>' +
+        (R.esMesActual
+            ? ' · <span style="color:var(--green)">● En vivo</span>'
+            : ' · <span style="color:var(--dim)">● Histórico</span>') +
+        '</div>';
+
+    out.innerHTML =
+        info +
+        renderTabla('dec',  R.decTransMap,  R.decPuntos) +
+        renderTabla('term', R.termTransMap, R.termPuntos);
+};
+
+// Re-ejecutar si ya está abierta
+setTimeout(function(){
+    if (document.querySelector('#sec-nucleo.active')) window.rNucleo();
+}, 200);
+</script>
 </body>
 </html>
