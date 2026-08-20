@@ -2941,5 +2941,396 @@ renderNucleo = function(R) {
     out.innerHTML = infoMes + decTabla + termTabla;
 };
 </script>
+    <script>
+/* ═══════════════════════════════════════════════════
+   🌌 EL NÚCLEO — PARCHE FINAL ÚNICO (V7)
+   Este bloque REEMPLAZA todo lo anterior del Núcleo
+═══════════════════════════════════════════════════ */
+
+// ---------- HELPERS ----------
+window.nucNorm = function(obj){
+    const mx = Math.max(...Object.values(obj), 1);
+    const r = {};
+    for (let i = 0; i <= 9; i++) r[i] = ((obj[i] || 0) / mx) * 100;
+    return r;
+};
+
+window.nucGetMeses = function(){
+    if (!sorteos || !sorteos.length) return [];
+    const set = new Set();
+    sorteos.forEach(s => {
+        if (s.drawDate && s.drawDate.length >= 7) set.add(s.drawDate.substring(0, 7));
+    });
+    return [...set].sort().reverse();
+};
+
+window.nucMesActual = function(){
+    const m = window.nucGetMeses();
+    return m[0] || new Date().toISOString().substring(0, 7);
+};
+
+window.nucMesNombre = function(ym){
+    const n = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+    const p = String(ym).split('-');
+    const y = p[0], m = parseInt(p[1], 10);
+    if (!y || !m) return ym;
+    return n[m - 1] + ' ' + y;
+};
+
+// ---------- SEMÁFORO ----------
+window.getSemaforoNuc = function(puntos, esMesActual){
+    const empty = {
+        type: 'neutro',
+        colors: {P1:'p-neutral', P2:'p-neutral', P3:'p-neutral', P4:'p-neutral'},
+        colorsRes: {P1:'', P2:'', P3:'', P4:''},
+        winners: [], losers: [],
+        text: 'Sin datos',
+        decision: '⏳ Esperando'
+    };
+    if (!esMesActual) {
+        return {
+            type: 'neutro',
+            colors: {P1:'p-neutral', P2:'p-neutral', P3:'p-neutral', P4:'p-neutral'},
+            colorsRes: {P1:'', P2:'', P3:'', P4:''},
+            winners: [], losers: [],
+            text: 'Mes histórico — resultado ya establecido',
+            decision: '📚 Solo consulta'
+        };
+    }
+    const vals = Object.values(puntos);
+    const max = Math.max(...vals);
+    const min = Math.min(...vals);
+    if (max === 0) return empty;
+
+    if (max === min) {
+        return {
+            type: 'amarillo',
+            colors: {P1:'p-amarillo', P2:'p-amarillo', P3:'p-amarillo', P4:'p-amarillo'},
+            colorsRes: {P1:'rtie', P2:'rtie', P3:'rtie', P4:'rtie'},
+            winners: ['P1','P2','P3','P4'], losers: [],
+            text: 'Todas las posiciones tienen el mismo puntaje',
+            decision: '⚖️ Debate con la Telaraña — decisión soberana'
+        };
+    }
+
+    const winners = Object.entries(puntos).filter(([,v]) => v === max).map(([k]) => k);
+    const losers  = Object.entries(puntos).filter(([,v]) => v === min).map(([k]) => k);
+    const colors = {P1:'p-neutral', P2:'p-neutral', P3:'p-neutral', P4:'p-neutral'};
+    const colorsRes = {P1:'', P2:'', P3:'', P4:''};
+
+    if (winners.length > 1) {
+        winners.forEach(p => { colors[p] = 'p-amarillo'; colorsRes[p] = 'rtie'; });
+        return {
+            type: 'amarillo', colors, colorsRes, winners, losers,
+            text: 'Empate en ' + winners.join(' y ') + ' con ' + max + ' puntos',
+            decision: '⚖️ Debate con la Telaraña — decisión soberana'
+        };
+    }
+
+    colors[winners[0]] = 'p-verde';
+    colorsRes[winners[0]] = 'rmax';
+    losers.forEach(p => {
+        if (p !== winners[0]) { colors[p] = 'p-rojo'; colorsRes[p] = 'rmin'; }
+    });
+
+    return {
+        type: 'verde', colors, colorsRes, winners, losers,
+        text: winners[0] + ' lidera con ' + max + ' puntos',
+        decision: '🎯 Jugar en ' + winners[0]
+    };
+};
+
+// ---------- MOTOR PRINCIPAL ----------
+// Columnas FIJAS: D0..D9 / T0..T9
+// Cada COLUMNA se llena con las 10 destinos ordenados de mayor a menor
+// Fila 0 = P1 | Filas 1-3 = P2 | Filas 4-6 = P3 | Filas 7-9 = P4
+window.calcNucleo = function(all, mode, mes){
+    const allData = Array.isArray(all) ? all : (sorteos || []);
+    const mesData = allData.filter(d => d.drawDate && d.drawDate.startsWith(mes));
+    const turnoMesData = mode === 'midday' ? mesData.filter(d => d.shift === 'midday') :
+                         mode === 'evening' ? mesData.filter(d => d.shift === 'evening') :
+                         mesData;
+
+    const mLabel = mode === 'midday' ? '☀️ Mediodía' :
+                   mode === 'evening' ? '🌙 Noche' : '🌐 General';
+    const esMesActual = (mes === window.nucMesActual());
+
+    // Historial ordenado
+    const sorted = [...allData].sort(chronoSort);
+
+    // --- Matriz de DECENAS ---
+    // decTransMap[col] = [dest0, dest1, ... dest9] ordenados por frecuencia desc
+    const decTransMap = {};
+    for (let col = 0; col <= 9; col++) {
+        const counts = Array(10).fill(0);
+        for (let i = 0; i < sorted.length - 1; i++) {
+            const curr = sorted[i];
+            const next = sorted[i + 1];
+            // solo cuento cuando el SIGUIENTE es del turno que voy a jugar
+            if (mode !== 'all' && next.shift !== mode) continue;
+            if (getDec(curr.number) === col) {
+                counts[getDec(next.number)]++;
+            }
+        }
+        decTransMap[col] = [0,1,2,3,4,5,6,7,8,9].sort((a,b) => counts[b] - counts[a] || a - b);
+    }
+
+    // --- Matriz de TERMINALES ---
+    const termTransMap = {};
+    for (let col = 0; col <= 9; col++) {
+        const counts = Array(10).fill(0);
+        for (let i = 0; i < sorted.length - 1; i++) {
+            const curr = sorted[i];
+            const next = sorted[i + 1];
+            if (mode !== 'all' && next.shift !== mode) continue;
+            if (getTerm(curr.number) === col) {
+                counts[getTerm(next.number)]++;
+            }
+        }
+        termTransMap[col] = [0,1,2,3,4,5,6,7,8,9].sort((a,b) => counts[b] - counts[a] || a - b);
+    }
+
+    // --- Puntos del mes ---
+    // Para cada sorteo del mes: miro el ANTERIOR y el ACTUAL
+    // y veo en qué fila cayó el destino
+    const decPuntos = {P1:0, P2:0, P3:0, P4:0};
+    const termPuntos = {P1:0, P2:0, P3:0, P4:0};
+
+    for (let i = 0; i < sorted.length - 1; i++) {
+        const curr = sorted[i];
+        const next = sorted[i + 1];
+        if (!next.drawDate || !next.drawDate.startsWith(mes)) continue;
+        if (mode !== 'all' && next.shift !== mode) continue;
+
+        const prevD = getDec(curr.number);
+        const nextD = getDec(next.number);
+        const prevT = getTerm(curr.number);
+        const nextT = getTerm(next.number);
+
+        const rowD = decTransMap[prevD].indexOf(nextD);
+        if (rowD === 0) decPuntos.P1++;
+        else if (rowD >= 1 && rowD <= 3) decPuntos.P2++;
+        else if (rowD >= 4 && rowD <= 6) decPuntos.P3++;
+        else if (rowD >= 7) decPuntos.P4++;
+
+        const rowT = termTransMap[prevT].indexOf(nextT);
+        if (rowT === 0) termPuntos.P1++;
+        else if (rowT >= 1 && rowT <= 3) termPuntos.P2++;
+        else if (rowT >= 4 && rowT <= 6) termPuntos.P3++;
+        else if (rowT >= 7) termPuntos.P4++;
+    }
+
+    return {
+        mode, mLabel, mes, esMesActual,
+        mesTotal: turnoMesData.length,
+        decTransMap, termTransMap,
+        decPuntos, termPuntos
+    };
+};
+
+// ---------- RENDER ----------
+window.renderNucleo = function(R){
+    const out = document.getElementById('nucOut');
+    if (!out || !R) return;
+
+    function renderTabla(tipo, transMap, puntos){
+        const isDec = (tipo === 'dec');
+        const prefix = isDec ? '' : 'T';
+        const suffix = isDec ? '0s' : '';
+        const sem = window.getSemaforoNuc(puntos, R.esMesActual);
+
+        // HEADER FIJO: POS | 0 | 1 | 2 | ... | 9
+        let h = '<table class="nuc-matrix"><thead><tr>';
+        h += '<th style="min-width:40px">POS</th>';
+        for (let c = 0; c <= 9; c++) {
+            h += '<th class="header-dec">' + prefix + c + suffix + '</th>';
+        }
+        h += '</tr></thead><tbody>';
+
+        // 10 filas
+        for (let row = 0; row <= 9; row++) {
+            h += '<tr>';
+            // etiqueta P solo en la primera fila del grupo
+            if (row === 0) {
+                h += '<td class="' + (sem.colors.P1 || 'p-neutral') + '">P1</td>';
+            } else if (row === 1) {
+                h += '<td class="' + (sem.colors.P2 || 'p-neutral') + '" rowspan="3" style="vertical-align:middle">P2</td>';
+            } else if (row === 4) {
+                h += '<td class="' + (sem.colors.P3 || 'p-neutral') + '" rowspan="3" style="vertical-align:middle">P3</td>';
+            } else if (row === 7) {
+                h += '<td class="' + (sem.colors.P4 || 'p-neutral') + '" rowspan="3" style="vertical-align:middle">P4</td>';
+            }
+
+            // celdas de cada columna fija 0..9
+            for (let col = 0; col <= 9; col++) {
+                const val = (transMap[col] && transMap[col][row] !== undefined)
+                    ? transMap[col][row]
+                    : row;
+                h += '<td class="hala">' + prefix + val + suffix + '</td>';
+            }
+            h += '</tr>';
+        }
+        h += '</tbody></table>';
+
+        // tabla de puntos
+        const cr = sem.colorsRes || {};
+        const pts =
+            '<table class="nuc-results">' +
+            '<thead><tr><th>POS</th><th>PTS</th></tr></thead><tbody>' +
+            '<tr><td class="pos-label">P1</td><td class="' + (cr.P1||'') + '">' + puntos.P1 + '</td></tr>' +
+            '<tr><td class="pos-label">P2</td><td class="' + (cr.P2||'') + '">' + puntos.P2 + '</td></tr>' +
+            '<tr><td class="pos-label">P3</td><td class="' + (cr.P3||'') + '">' + puntos.P3 + '</td></tr>' +
+            '<tr><td class="pos-label">P4</td><td class="' + (cr.P4||'') + '">' + puntos.P4 + '</td></tr>' +
+            '</tbody></table>';
+
+        let semHtml = '';
+        if (sem.type === 'verde') {
+            semHtml = '<div class="nuc-semaforo verde"><div class="nuc-semaforo-t">' +
+                sem.decision + '</div><div class="nuc-semaforo-d">' + sem.text + '</div></div>';
+        } else if (sem.type === 'amarillo') {
+            semHtml = '<div class="nuc-semaforo amarillo"><div class="nuc-semaforo-t">' +
+                sem.decision + '</div><div class="nuc-semaforo-d">' + sem.text + '</div></div>';
+        } else {
+            semHtml = '<div class="nuc-semaforo" style="background:rgba(107,114,128,0.1);border:2px solid var(--dim);color:var(--dim)">' +
+                '<div class="nuc-semaforo-t">' + sem.decision + '</div>' +
+                '<div class="nuc-semaforo-d">' + sem.text + '</div></div>';
+        }
+
+        return (
+            '<div class="nuc-block">' +
+            '<div class="nuc-block-t ' + tipo + '">' +
+            (isDec ? '🔢 DECENAS' : '🎯 TERMINALES') + ' — ' + R.mLabel +
+            '</div>' +
+            '<div class="nuc-wrap">' +
+            '<div class="nuc-matrix-wrap">' + h + '</div>' +
+            '<div class="nuc-results-wrap">' + pts + '</div>' +
+            '</div>' +
+            semHtml +
+            '</div>'
+        );
+    }
+
+    const decTabla  = renderTabla('dec',  R.decTransMap,  R.decPuntos);
+    const termTabla = renderTabla('term', R.termTransMap, R.termPuntos);
+
+    const info =
+        '<div class="nuc-info" style="text-align:center">' +
+        '<strong>' + window.nucMesNombre(R.mes) + '</strong> · ' + R.mLabel +
+        ' · <strong>' + R.mesTotal + ' sorteos</strong> este mes' +
+        (R.esMesActual
+            ? ' · <span style="color:var(--green)">● En vivo</span>'
+            : ' · <span style="color:var(--dim)">● Histórico</span>') +
+        '</div>';
+
+    // Ejemplo de uso debajo del semáforo
+    const ejemplo =
+        '<div class="nuc-info" style="margin-top:8px">' +
+        '<strong>📌 Cómo leer:</strong> Si salió el <strong>83</strong> (decena 80s), ' +
+        'mira la columna <strong>80s</strong>. ' +
+        'Si el semáforo dice <strong>P2 en verde</strong>, juega las <strong>3 decenas</strong> ' +
+        'que están en las filas P2 de esa columna.' +
+        '</div>';
+
+    out.innerHTML = info + decTabla + termTabla + ejemplo;
+};
+
+// ---------- ENTRADA PRINCIPAL ----------
+window.rNucleo = function(){
+    const out = document.getElementById('nucOut');
+    const loader = document.getElementById('nucLoader');
+    if (!out) return;
+
+    if (!sorteos || !sorteos.length) {
+        out.innerHTML = '<div class="empty"><div class="ei">🌌</div><p>Importa datos primero</p></div>';
+        return;
+    }
+
+    // selector de mes
+    const sel = document.getElementById('nucMesSel');
+    const meses = window.nucGetMeses();
+    if (sel) {
+        if (!window.curNucMes || meses.indexOf(window.curNucMes) < 0) {
+            window.curNucMes = meses[0];
+        }
+        sel.innerHTML = meses.map(m =>
+            '<option value="' + m + '"' +
+            (m === window.curNucMes ? ' selected' : '') + '>' +
+            window.nucMesNombre(m) + '</option>'
+        ).join('');
+        sel.onchange = function(){
+            window.curNucMes = this.value;
+            window.rNucleo();
+        };
+    }
+
+    const tag = document.getElementById('nucMesTag');
+    if (tag) {
+        const actual = window.nucMesActual();
+        tag.className = (window.curNucMes === actual) ? 'nuc-mes-actual' : 'nuc-mes-hist';
+        tag.textContent = (window.curNucMes === actual) ? '● En vivo' : '● Histórico';
+    }
+
+    if (!window.curNucMode) window.curNucMode = 'midday';
+    if (loader) loader.style.display = 'block';
+    out.innerHTML = '';
+
+    setTimeout(function(){
+        try {
+            const R = window.calcNucleo(sorteos, window.curNucMode, window.curNucMes);
+            window.renderNucleo(R);
+        } catch (e) {
+            out.innerHTML = '<div class="empty"><p>Error: ' + e.message + '</p></div>';
+            console.error(e);
+        }
+        if (loader) loader.style.display = 'none';
+    }, 200);
+};
+
+// botones de modo
+window.nucMode = function(m, btn){
+    window.curNucMode = m;
+    document.querySelectorAll('.nuc-mbtn').forEach(b => b.classList.remove('on'));
+    if (btn) btn.classList.add('on');
+    window.rNucleo();
+};
+
+// enganchar goTab
+(function(){
+    const old = window.goTab;
+    window.goTab = function(id, btn){
+        if (typeof old === 'function') old(id, btn);
+        else {
+            document.querySelectorAll('.sec').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+            const sec = document.getElementById('sec-' + id);
+            if (sec) sec.classList.add('active');
+            if (btn) btn.classList.add('active');
+        }
+        if (id === 'nucleo') window.rNucleo();
+    };
+})();
+
+// estilos de semáforo por si faltan
+(function(){
+    if (document.getElementById('nuc-v7-style')) return;
+    const st = document.createElement('style');
+    st.id = 'nuc-v7-style';
+    st.textContent = `
+    .nuc-matrix .p-neutral{background:var(--bg3)!important;color:var(--dim)!important;font-weight:900!important}
+    .nuc-matrix .p-verde{background:linear-gradient(135deg,#00d4aa,#2ecc71)!important;color:#000!important;font-weight:900!important}
+    .nuc-matrix .p-rojo{background:linear-gradient(135deg,#ff4757,#ff6b6b)!important;color:#fff!important;font-weight:900!important}
+    .nuc-matrix .p-amarillo{background:linear-gradient(135deg,#ffa502,#ffb84d)!important;color:#000!important;font-weight:900!important}
+    .nuc-results .rmax{background:rgba(0,212,170,0.3)!important;color:var(--green)!important}
+    .nuc-results .rmin{background:rgba(255,71,87,0.3)!important;color:var(--red)!important}
+    .nuc-results .rtie{background:rgba(245,166,35,0.3)!important;color:var(--gold2)!important}
+    `;
+    document.head.appendChild(st);
+})();
+
+// auto-run si ya está abierta
+setTimeout(function(){
+    if (document.querySelector('#sec-nucleo.active')) window.rNucleo();
+}, 300);
+</script>
 </body>
 </html>
