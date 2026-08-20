@@ -2304,5 +2304,452 @@ renderNucleo = function(R){
     out.innerHTML=infoMes+decTabla+termTabla;
 };
 </script>
+    <style>
+/* NÚCLEO V5 — Estilos actualizados */
+.nuc-matrix .p-neutral{background:var(--bg3);color:var(--dim);
+    font-weight:900;font-size:0.85rem}
+.nuc-matrix .p-verde{background:linear-gradient(135deg,#00d4aa,#2ecc71);
+    color:#000;font-weight:900;font-size:0.85rem;
+    box-shadow:inset 0 0 10px rgba(0,212,170,0.4)}
+.nuc-matrix .p-rojo{background:linear-gradient(135deg,#ff4757,#ff6b6b);
+    color:#fff;font-weight:900;font-size:0.85rem;
+    box-shadow:inset 0 0 10px rgba(255,71,87,0.4)}
+.nuc-matrix .p-amarillo{background:linear-gradient(135deg,#ffa502,#ffb84d);
+    color:#000;font-weight:900;font-size:0.85rem;
+    box-shadow:inset 0 0 10px rgba(245,166,35,0.4)}
+.nuc-info-9{background:linear-gradient(135deg,rgba(245,166,35,0.08),rgba(0,212,170,0.06));
+    border:1px solid var(--gold);border-radius:10px;padding:10px;
+    margin-bottom:12px;font-size:0.72rem;color:var(--dim);
+    text-align:center;line-height:1.5}
+.nuc-info-9 strong{color:var(--gold)}
+</style>
+
+<script>
+/* ═══════════════════════════════════════════
+   🌌 EL NÚCLEO V5 — Cálculo Universal 90%
+   El Origen del Éxito (9+0)
+═══════════════════════════════════════════ */
+
+calcNucleo = function(all,mode,mes){
+    // Datos del mes seleccionado
+    const mesData=all.filter(d=>d.drawDate.startsWith(mes));
+    const midMesData=mesData.filter(d=>d.shift==='midday');
+    const eveMesData=mesData.filter(d=>d.shift==='evening');
+    const turnoMesData=mode==='midday'?midMesData:
+                       mode==='evening'?eveMesData:mesData;
+
+    const mLabel=mode==='midday'?'☀️ Mediodía':
+                 mode==='evening'?'🌙 Noche':'🌐 General';
+
+    // ¿Es el mes actual? (para activar semáforo)
+    const mesActual=getMesActual();
+    const esMesActual=(mes===mesActual);
+
+    // Datos históricos filtrados por turno
+    const dataHist=mode==='midday'?all.filter(d=>d.shift==='midday'):
+                   mode==='evening'?all.filter(d=>d.shift==='evening'):all;
+
+    // ═══════════════════════════════════════════
+    // PESOS UNIVERSALES 9-0 (suma 90%)
+    // ═══════════════════════════════════════════
+    const W={
+        frec:18,     // Frecuencias (2×9)
+        dec:18,      // Decenas (2×9)
+        term:18,     // Terminales (2×9)
+        conn:18,     // Conexiones (2×9)
+        vib:9,       // Vibraciones (1×9)
+        sem:9        // Semana (1×9)
+    };
+
+    // ═══════════════════════════════════════════
+    // PEÓN 1: FRECUENCIAS
+    // ═══════════════════════════════════════════
+    const p1Dec={},p1Term={};
+    for(let i=0;i<=9;i++){p1Dec[i]=0;p1Term[i]=0}
+    dataHist.forEach(d=>{
+        p1Dec[getDec(d.number)]++;
+        p1Term[getTerm(d.number)]++;
+    });
+
+    // ═══════════════════════════════════════════
+    // PEÓN 2: DECENAS (misma data pero análisis diferente)
+    // Últimos 40 sorteos con momentum
+    // ═══════════════════════════════════════════
+    const p2Dec={},p2Term={};
+    for(let i=0;i<=9;i++){p2Dec[i]=0;p2Term[i]=0}
+    if(dataHist.length){
+        const recent=[...dataHist].sort(revSort)
+            .slice(0,Math.min(40,dataHist.length));
+        recent.forEach(d=>{
+            p2Dec[getDec(d.number)]++;
+            p2Term[getTerm(d.number)]++;
+        });
+    }
+
+    // ═══════════════════════════════════════════
+    // PEÓN 3: TERMINALES (mismo pero enfocado)
+    // ═══════════════════════════════════════════
+    const p3Dec={},p3Term={};
+    for(let i=0;i<=9;i++){p3Dec[i]=0;p3Term[i]=0}
+    // Análisis del último año
+    if(dataHist.length){
+        const ls=getLastSorteoMes();
+        if(ls){
+            const lDate=new Date(ls.drawDate+'T12:00:00');
+            const yAgo=new Date(lDate);
+            yAgo.setDate(yAgo.getDate()-365);
+            const yStr=yAgo.toISOString().split('T')[0];
+            dataHist.filter(d=>d.drawDate>=yStr).forEach(d=>{
+                p3Dec[getDec(d.number)]++;
+                p3Term[getTerm(d.number)]++;
+            });
+        }
+    }
+
+    // ═══════════════════════════════════════════
+    // PEÓN 4: CONEXIONES (los haladores)
+    // ═══════════════════════════════════════════
+    const sortedHist=[...dataHist].sort(chronoSort);
+
+    // Qué decena hala cada decena (la más frecuente después)
+    const decHala={};
+    const decHalaScore={};
+    for(let i=0;i<=9;i++){decHalaScore[i]=0}
+    for(let d=0;d<=9;d++){
+        const conn={};
+        for(let i=0;i<sortedHist.length-1;i++){
+            if(getDec(sortedHist[i].number)===d){
+                const nextD=getDec(sortedHist[i+1].number);
+                conn[nextD]=(conn[nextD]||0)+1;
+            }
+        }
+        const sortedConn=Object.entries(conn).sort((a,b)=>b[1]-a[1]);
+        decHala[d]=sortedConn.length>0?parseInt(sortedConn[0][0]):d;
+        // La decena halada acumula puntos de conexión
+        if(sortedConn.length>0){
+            const haladaFreq=sortedConn[0][1];
+            decHalaScore[parseInt(sortedConn[0][0])]+=haladaFreq;
+        }
+    }
+
+    const termHala={};
+    const termHalaScore={};
+    for(let i=0;i<=9;i++){termHalaScore[i]=0}
+    for(let t=0;t<=9;t++){
+        const conn={};
+        for(let i=0;i<sortedHist.length-1;i++){
+            if(getTerm(sortedHist[i].number)===t){
+                const nextT=getTerm(sortedHist[i+1].number);
+                conn[nextT]=(conn[nextT]||0)+1;
+            }
+        }
+        const sortedConn=Object.entries(conn).sort((a,b)=>b[1]-a[1]);
+        termHala[t]=sortedConn.length>0?parseInt(sortedConn[0][0]):t;
+        if(sortedConn.length>0){
+            termHalaScore[parseInt(sortedConn[0][0])]+=sortedConn[0][1];
+        }
+    }
+
+    // ═══════════════════════════════════════════
+    // PEÓN 5: VIBRACIONES
+    // ═══════════════════════════════════════════
+    const p5Dec={},p5Term={};
+    for(let i=0;i<=9;i++){p5Dec[i]=0;p5Term[i]=0}
+    if(dataHist.length>5){
+        const recent=[...dataHist].sort(revSort)
+            .slice(0,Math.min(20,dataHist.length));
+        for(let i=0;i<=9;i++){
+            const gD=dataHist.filter(d=>getDec(d.number)===i).length/dataHist.length;
+            const rD=recent.filter(d=>getDec(d.number)===i).length/recent.length;
+            p5Dec[i]=(rD/Math.max(gD,0.001))*10;
+
+            const gT=dataHist.filter(d=>getTerm(d.number)===i).length/dataHist.length;
+            const rT=recent.filter(d=>getTerm(d.number)===i).length/recent.length;
+            p5Term[i]=(rT/Math.max(gT,0.001))*10;
+        }
+    }
+
+    // ═══════════════════════════════════════════
+    // PEÓN 6: ÚLTIMA SEMANA
+    // ═══════════════════════════════════════════
+    const p6Dec={},p6Term={};
+    for(let i=0;i<=9;i++){p6Dec[i]=0;p6Term[i]=0}
+    const ls=getLastSorteoMes();
+    if(ls){
+        const lDate=new Date(ls.drawDate+'T12:00:00');
+        const wAgo=new Date(lDate);
+        wAgo.setDate(wAgo.getDate()-7);
+        const wStr=wAgo.toISOString().split('T')[0];
+        let wData=all.filter(d=>d.drawDate>=wStr&&d.drawDate<=ls.drawDate);
+        if(mode!=='all')wData=wData.filter(d=>d.shift===mode);
+        wData.forEach(d=>{
+            p6Dec[getDec(d.number)]++;
+            p6Term[getTerm(d.number)]++;
+        });
+    }
+
+    // ═══════════════════════════════════════════
+    // NORMALIZAR cada peón a escala 0-100
+    // ═══════════════════════════════════════════
+    function norm(obj){
+        const mx=Math.max(...Object.values(obj),1);
+        const r={};
+        for(let i=0;i<=9;i++)r[i]=((obj[i]||0)/mx)*100;
+        return r;
+    }
+
+    const n1D=norm(p1Dec),n1T=norm(p1Term);
+    const n2D=norm(p2Dec),n2T=norm(p2Term);
+    const n3D=norm(p3Dec),n3T=norm(p3Term);
+    const n4D=norm(decHalaScore),n4T=norm(termHalaScore);
+    const n5D=norm(p5Dec),n5T=norm(p5Term);
+    const n6D=norm(p6Dec),n6T=norm(p6Term);
+
+    // ═══════════════════════════════════════════
+    // 🌌 EL NÚCLEO CONVERGE — 90% Universal
+    // ═══════════════════════════════════════════
+    const decFinal={},termFinal={};
+    for(let i=0;i<=9;i++){
+        decFinal[i]=
+            n1D[i]*W.frec+
+            n2D[i]*W.dec+
+            n3D[i]*W.term+
+            n4D[i]*W.conn+
+            n5D[i]*W.vib+
+            n6D[i]*W.sem;
+
+        termFinal[i]=
+            n1T[i]*W.frec+
+            n2T[i]*W.dec+
+            n3T[i]*W.term+
+            n4T[i]*W.conn+
+            n5T[i]*W.vib+
+            n6T[i]*W.sem;
+    }
+
+    // Ordenar de mayor a menor (Fila 0 = más caliente)
+    const decOrder=Object.entries(decFinal)
+        .sort((a,b)=>b[1]-a[1])
+        .map(([d])=>parseInt(d));
+
+    const termOrder=Object.entries(termFinal)
+        .sort((a,b)=>b[1]-a[1])
+        .map(([t])=>parseInt(t));
+
+    // Posiciones
+    const decPos={};
+    decOrder.forEach((d,idx)=>{
+        decPos[d]=idx===0?'P1':idx<=3?'P2':idx<=6?'P3':'P4';
+    });
+    const termPos={};
+    termOrder.forEach((t,idx)=>{
+        termPos[t]=idx===0?'P1':idx<=3?'P2':idx<=6?'P3':'P4';
+    });
+
+    // Puntos del mes
+    const decPuntos={P1:0,P2:0,P3:0,P4:0};
+    const termPuntos={P1:0,P2:0,P3:0,P4:0};
+    turnoMesData.forEach(d=>{
+        const dec=getDec(d.number);
+        const term=getTerm(d.number);
+        if(decPos[dec])decPuntos[decPos[dec]]++;
+        if(termPos[term])termPuntos[termPos[term]]++;
+    });
+
+    return{
+        mode,mLabel,mes,esMesActual,
+        mesData:turnoMesData,
+        mesTotal:turnoMesData.length,
+        decOrder,termOrder,
+        decHala,termHala,
+        decPos,termPos,
+        decPuntos,termPuntos
+    };
+};
+
+// ═══════════════════════════════════════════
+// SEMÁFORO — solo actúa en mes actual
+// ═══════════════════════════════════════════
+getSemaforoNuc = function(puntos,esMesActual){
+    // Si NO es mes actual, todos neutrales
+    if(!esMesActual){
+        return{
+            type:'neutro',
+            colors:{P1:'p-neutral',P2:'p-neutral',P3:'p-neutral',P4:'p-neutral'},
+            colorsRes:{P1:'',P2:'',P3:'',P4:''},
+            text:'Mes histórico — resultado ya establecido',
+            decision:'📚 Solo consulta'
+        };
+    }
+
+    const values=Object.values(puntos);
+    const max=Math.max(...values);
+    const min=Math.min(...values);
+
+    // Sin datos aún
+    if(max===0){
+        return{
+            type:'neutro',
+            colors:{P1:'p-neutral',P2:'p-neutral',P3:'p-neutral',P4:'p-neutral'},
+            colorsRes:{P1:'',P2:'',P3:'',P4:''},
+            text:'Esperando sorteos del mes',
+            decision:'⏳ Sin datos aún'
+        };
+    }
+
+    // Todos iguales
+    if(max===min){
+        return{
+            type:'amarillo',
+            colors:{P1:'p-amarillo',P2:'p-amarillo',P3:'p-amarillo',P4:'p-amarillo'},
+            colorsRes:{P1:'rtie',P2:'rtie',P3:'rtie',P4:'rtie'},
+            text:'Todas las posiciones tienen el mismo puntaje',
+            decision:'⚖️ Debate con la Telaraña — decisión soberana'
+        };
+    }
+
+    const winners=Object.entries(puntos).filter(([,v])=>v===max).map(([k])=>k);
+    const losers=Object.entries(puntos).filter(([,v])=>v===min).map(([k])=>k);
+
+    const colors={P1:'p-neutral',P2:'p-neutral',P3:'p-neutral',P4:'p-neutral'};
+    const colorsRes={P1:'',P2:'',P3:'',P4:''};
+
+    if(winners.length>1){
+        // Empate en el máximo → amarillo
+        winners.forEach(p=>{colors[p]='p-amarillo';colorsRes[p]='rtie'});
+        return{
+            type:'amarillo',
+            colors,colorsRes,
+            text:`Empate en ${winners.join(' y ')} con ${max} puntos`,
+            decision:'⚖️ Debate con la Telaraña — decisión soberana'
+        };
+    }
+
+    // Verde ganador, rojo perdedor
+    colors[winners[0]]='p-verde';
+    colorsRes[winners[0]]='rmax';
+    losers.forEach(p=>{
+        if(p!==winners[0]){
+            colors[p]='p-rojo';
+            colorsRes[p]='rmin';
+        }
+    });
+
+    return{
+        type:'verde',
+        colors,colorsRes,winners,losers,
+        text:`${winners[0]} lidera con ${max} puntos`,
+        decision:`🎯 Jugar en ${winners[0]}`
+    };
+};
+
+// ═══════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════
+renderNucleo = function(R){
+    const out=document.getElementById('nucOut');
+    if(!out||!R)return;
+
+    function renderTabla(tipo,order,hala,puntos){
+        const isDec=tipo==='dec';
+        const prefix=isDec?'':'T';
+        const suffix=isDec?'0s':'';
+        const sem=getSemaforoNuc(puntos,R.esMesActual);
+
+        // Header con las decenas ordenadas por el Núcleo
+        let matrixHtml='<table class="nuc-matrix"><thead><tr>';
+        matrixHtml+='<th style="min-width:44px">Pos</th>';
+        order.forEach(v=>{
+            matrixHtml+=`<th class="header-dec">${prefix}${v}${suffix}</th>`;
+        });
+        matrixHtml+='</tr></thead><tbody>';
+
+        function filaDatos(){
+            let html='';
+            order.forEach(v=>{
+                const halado=hala[v]!==undefined?hala[v]:v;
+                html+=`<td class="hala">${prefix}${halado}${suffix}</td>`;
+            });
+            return html;
+        }
+
+        // P1 — Fila única
+        matrixHtml+=`<tr><td class="${sem.colors.P1}">P1</td>${filaDatos()}</tr>`;
+
+        // P2 — 3 filas
+        matrixHtml+=`<tr><td class="${sem.colors.P2}" rowspan="3" style="vertical-align:middle">P2</td>${filaDatos()}</tr>`;
+        matrixHtml+=`<tr>${filaDatos()}</tr>`;
+        matrixHtml+=`<tr>${filaDatos()}</tr>`;
+
+        // P3 — 3 filas
+        matrixHtml+=`<tr><td class="${sem.colors.P3}" rowspan="3" style="vertical-align:middle">P3</td>${filaDatos()}</tr>`;
+        matrixHtml+=`<tr>${filaDatos()}</tr>`;
+        matrixHtml+=`<tr>${filaDatos()}</tr>`;
+
+        // P4 — 3 filas
+        matrixHtml+=`<tr><td class="${sem.colors.P4}" rowspan="3" style="vertical-align:middle">P4</td>${filaDatos()}</tr>`;
+        matrixHtml+=`<tr>${filaDatos()}</tr>`;
+        matrixHtml+=`<tr>${filaDatos()}</tr>`;
+
+        matrixHtml+='</tbody></table>';
+
+        const resultsHtml=`
+        <table class="nuc-results">
+        <thead><tr><th>Pos</th><th>Pts</th></tr></thead>
+        <tbody>
+        <tr><td class="pos-label">P1</td><td class="${sem.colorsRes.P1}">${puntos.P1}</td></tr>
+        <tr><td class="pos-label">P2</td><td class="${sem.colorsRes.P2}">${puntos.P2}</td></tr>
+        <tr><td class="pos-label">P3</td><td class="${sem.colorsRes.P3}">${puntos.P3}</td></tr>
+        <tr><td class="pos-label">P4</td><td class="${sem.colorsRes.P4}">${puntos.P4}</td></tr>
+        </tbody></table>`;
+
+        let semHtml='';
+        if(sem.type==='verde'){
+            semHtml=`<div class="nuc-semaforo verde">
+            <div class="nuc-semaforo-t">${sem.decision}</div>
+            <div class="nuc-semaforo-d">${sem.text}</div>
+            </div>`;
+        } else if(sem.type==='amarillo'){
+            semHtml=`<div class="nuc-semaforo amarillo">
+            <div class="nuc-semaforo-t">${sem.decision}</div>
+            <div class="nuc-semaforo-d">${sem.text}</div>
+            </div>`;
+        } else{
+            semHtml=`<div class="nuc-semaforo" style="background:rgba(107,114,128,0.1);border:2px solid var(--dim);color:var(--dim)">
+            <div class="nuc-semaforo-t">${sem.decision}</div>
+            <div class="nuc-semaforo-d">${sem.text}</div>
+            </div>`;
+        }
+
+        return`
+        <div class="nuc-block">
+        <div class="nuc-block-t ${tipo}">${isDec?'🔢 DECENAS':'🎯 TERMINALES'} — ${R.mLabel}</div>
+        <div class="nuc-wrap">
+        <div class="nuc-matrix-wrap">${matrixHtml}</div>
+        <div class="nuc-results-wrap">${resultsHtml}</div>
+        </div>
+        ${semHtml}
+        </div>`;
+    }
+
+    const decTabla=renderTabla('dec',R.decOrder,R.decHala,R.decPuntos);
+    const termTabla=renderTabla('term',R.termOrder,R.termHala,R.termPuntos);
+
+    const infoUniversal=`
+    <div class="nuc-info-9">
+    🌌 <strong>EL NÚCLEO</strong> opera al <strong>90%</strong> universal
+    (9+0 = El Origen del Éxito) · 6 peones aportando su fuerza
+    </div>`;
+
+    const infoMes=`
+    <div class="nuc-info" style="text-align:center">
+    <strong>${mesNombre(R.mes)}</strong> · ${R.mLabel} · 
+    <strong>${R.mesTotal} sorteos</strong> este mes
+    ${R.esMesActual?' · <span style="color:var(--green)">● En vivo</span>':' · <span style="color:var(--dim)">● Histórico</span>'}
+    </div>`;
+
+    out.innerHTML=infoUniversal+infoMes+decTabla+termTabla;
+};
+</script>
 </body>
 </html>
