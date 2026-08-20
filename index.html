@@ -3332,5 +3332,199 @@ setTimeout(function(){
     if (document.querySelector('#sec-nucleo.active')) window.rNucleo();
 }, 300);
 </script>
+    <script>
+/* ═══════════════════════════════════════════════════════════
+   🌌 EL NÚCLEO V8 — VIAJE EN EL TIEMPO Y CÁLCULO REAL
+   ═══════════════════════════════════════════════════════════ */
+
+window.calcNucleo = function(all, mode, mes) {
+    const allData = Array.isArray(all) ? all : (sorteos || []);
+    const sortedAll = [...allData].sort(chronoSort);
+
+    // 1. Filtrar historial HASTA el final del mes seleccionado (viaje en el tiempo)
+    // Para que la Matrix refleje lo que se sabía en ESE momento histórico
+    const lastDayOfMonth = mes + '-31T23:59:59';
+    const histUpToMonth = sortedAll.filter(d => d.drawDate <= (mes + '-31'));
+
+    // Sorteos que ocurrieron DENTRO del mes seleccionado
+    const mesData = sortedAll.filter(d => d.drawDate && d.drawDate.startsWith(mes));
+    const turnoMesData = mode === 'midday' ? mesData.filter(d => d.shift === 'midday') :
+                         mode === 'evening' ? mesData.filter(d => d.shift === 'evening') :
+                         mesData;
+
+    const mLabel = mode === 'midday' ? '☀️ Mediodía' :
+                   mode === 'evening' ? '🌙 Noche' : '🌐 General';
+    const esMesActual = (mes === window.nucMesActual());
+
+    // 2. MATRIZ DE TRANSICIÓN DE DECENAS HASTA ESE MES
+    const decTransMap = {};
+    for (let col = 0; col <= 9; col++) {
+        const counts = Array(10).fill(0);
+        for (let i = 0; i < histUpToMonth.length - 1; i++) {
+            const curr = histUpToMonth[i];
+            const next = histUpToMonth[i + 1];
+            if (mode !== 'all' && next.shift !== mode) continue;
+            if (getDec(curr.number) === col) {
+                counts[getDec(next.number)]++;
+            }
+        }
+        decTransMap[col] = [0,1,2,3,4,5,6,7,8,9].sort((a,b) => counts[b] - counts[a] || a - b);
+    }
+
+    // 3. MATRIZ DE TRANSICIÓN DE TERMINALES HASTA ESE MES
+    const termTransMap = {};
+    for (let col = 0; col <= 9; col++) {
+        const counts = Array(10).fill(0);
+        for (let i = 0; i < histUpToMonth.length - 1; i++) {
+            const curr = histUpToMonth[i];
+            const next = histUpToMonth[i + 1];
+            if (mode !== 'all' && next.shift !== mode) continue;
+            if (getTerm(curr.number) === col) {
+                counts[getTerm(next.number)]++;
+            }
+        }
+        termTransMap[col] = [0,1,2,3,4,5,6,7,8,9].sort((a,b) => counts[b] - counts[a] || a - b);
+    }
+
+    // 4. CONTEO EXACTO DE PUNTOS DENTRO DEL MES
+    const decPuntos = {P1: 0, P2: 0, P3: 0, P4: 0};
+    const termPuntos = {P1: 0, P2: 0, P3: 0, P4: 0};
+
+    for (let i = 0; i < sortedAll.length - 1; i++) {
+        const curr = sortedAll[i];
+        const next = sortedAll[i + 1];
+
+        // Evaluar solo si el sorteo de llegada cayó DENTRO del mes seleccionado
+        if (!next.drawDate || !next.drawDate.startsWith(mes)) continue;
+        if (mode !== 'all' && next.shift !== mode) continue;
+
+        const prevD = getDec(curr.number);
+        const nextD = getDec(next.number);
+        const prevT = getTerm(curr.number);
+        const nextT = getTerm(next.number);
+
+        // Buscar en qué fila de la Matrix de ESE momento cayó el resultado real
+        const rowD = decTransMap[prevD].indexOf(nextD);
+        if (rowD === 0) decPuntos.P1++;
+        else if (rowD >= 1 && rowD <= 3) decPuntos.P2++;
+        else if (rowD >= 4 && rowD <= 6) decPuntos.P3++;
+        else if (rowD >= 7) decPuntos.P4++;
+
+        const rowT = termTransMap[prevT].indexOf(nextT);
+        if (rowT === 0) termPuntos.P1++;
+        else if (rowT >= 1 && rowT <= 3) termPuntos.P2++;
+        else if (rowT >= 4 && rowT <= 6) termPuntos.P3++;
+        else if (rowT >= 7) termPuntos.P4++;
+    }
+
+    return {
+        mode, mLabel, mes, esMesActual,
+        mesTotal: turnoMesData.length,
+        decTransMap, termTransMap,
+        decPuntos, termPuntos
+    };
+};
+
+window.renderNucleo = function(R) {
+    const out = document.getElementById('nucOut');
+    if (!out || !R) return;
+
+    function renderTabla(tipo, transMap, puntos) {
+        const isDec = (tipo === 'dec');
+        const prefix = isDec ? '' : 'T';
+        const suffix = isDec ? '0s' : '';
+        const sem = window.getSemaforoNuc(puntos, R.esMesActual);
+
+        // HEADER FIJO DE COLUMNAS: POS | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+        let h = '<table class="nuc-matrix"><thead><tr>';
+        h += '<th style="min-width:40px">POS</th>';
+        for (let c = 0; c <= 9; c++) {
+            h += '<th class="header-dec">' + prefix + c + suffix + '</th>';
+        }
+        h += '</tr></thead><tbody>';
+
+        // 10 FILAS DE LA MATRIX
+        for (let row = 0; row <= 9; row++) {
+            h += '<tr>';
+            if (row === 0) {
+                h += '<td class="' + (sem.colors.P1 || 'p-neutral') + '">P1</td>';
+            } else if (row === 1) {
+                h += '<td class="' + (sem.colors.P2 || 'p-neutral') + '" rowspan="3" style="vertical-align:middle">P2</td>';
+            } else if (row === 4) {
+                h += '<td class="' + (sem.colors.P3 || 'p-neutral') + '" rowspan="3" style="vertical-align:middle">P3</td>';
+            } else if (row === 7) {
+                h += '<td class="' + (sem.colors.P4 || 'p-neutral') + '" rowspan="3" style="vertical-align:middle">P4</td>';
+            }
+
+            for (let col = 0; col <= 9; col++) {
+                const val = (transMap[col] && transMap[col][row] !== undefined)
+                    ? transMap[col][row]
+                    : row;
+                h += '<td class="hala">' + prefix + val + suffix + '</td>';
+            }
+            h += '</tr>';
+        }
+        h += '</tbody></table>';
+
+        // TABLA DE PUNTOS AL LADO
+        const cr = sem.colorsRes || {};
+        const pts =
+            '<table class="nuc-results">' +
+            '<thead><tr><th>POS</th><th>PTS</th></tr></thead><tbody>' +
+            '<tr><td class="pos-label">P1</td><td class="' + (cr.P1||'') + '">' + puntos.P1 + '</td></tr>' +
+            '<tr><td class="pos-label">P2</td><td class="' + (cr.P2||'') + '">' + puntos.P2 + '</td></tr>' +
+            '<tr><td class="pos-label">P3</td><td class="' + (cr.P3||'') + '">' + puntos.P3 + '</td></tr>' +
+            '<tr><td class="pos-label">P4</td><td class="' + (cr.P4||'') + '">' + puntos.P4 + '</td></tr>' +
+            '</tbody></table>';
+
+        let semHtml = '';
+        if (sem.type === 'verde') {
+            semHtml = '<div class="nuc-semaforo verde"><div class="nuc-semaforo-t">' +
+                sem.decision + '</div><div class="nuc-semaforo-d">' + sem.text + '</div></div>';
+        } else if (sem.type === 'amarillo') {
+            semHtml = '<div class="nuc-semaforo amarillo"><div class="nuc-semaforo-t">' +
+                sem.decision + '</div><div class="nuc-semaforo-d">' + sem.text + '</div></div>';
+        } else {
+            semHtml = '<div class="nuc-semaforo" style="background:rgba(107,114,128,0.1);border:2px solid var(--dim);color:var(--dim)">' +
+                '<div class="nuc-semaforo-t">' + sem.decision + '</div>' +
+                '<div class="nuc-semaforo-d">' + sem.text + '</div></div>';
+        }
+
+        return (
+            '<div class="nuc-block">' +
+            '<div class="nuc-block-t ' + tipo + '">' +
+            (isDec ? '🔢 DECENAS' : '🎯 TERMINALES') + ' — ' + R.mLabel +
+            '</div>' +
+            '<div class="nuc-wrap">' +
+            '<div class="nuc-matrix-wrap">' + h + '</div>' +
+            '<div class="nuc-results-wrap">' + pts + '</div>' +
+            '</div>' +
+            semHtml +
+            '</div>'
+        );
+    }
+
+    const decTabla  = renderTabla('dec',  R.decTransMap,  R.decPuntos);
+    const termTabla = renderTabla('term', R.termTransMap, R.termPuntos);
+
+    const info =
+        '<div class="nuc-info" style="text-align:center">' +
+        '<strong>' + window.nucMesNombre(R.mes) + '</strong> · ' + R.mLabel +
+        ' · <strong>' + R.mesTotal + ' sorteos</strong> evaluados este mes' +
+        (R.esMesActual
+            ? ' · <span style="color:var(--green)">● En vivo</span>'
+            : ' · <span style="color:var(--dim)">● Histórico</span>') +
+        '</div>';
+
+    const ejemplo =
+        '<div class="nuc-info" style="margin-top:8px">' +
+        '<strong>📌 Guía de jugada:</strong> Si el sorteo previo fue <strong>83</strong> (decena 80s), ' +
+        'busca la columna <strong>80s</strong>. ' +
+        'Si el semáforo marca <strong>P2 en VERDE</strong>, juega las 3 decenas ubicadas en las filas de <strong>P2</strong> en esa columna.' +
+        '</div>';
+
+    out.innerHTML = info + decTabla + termTabla + ejemplo;
+};
+</script>
 </body>
 </html>
