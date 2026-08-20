@@ -4182,5 +4182,436 @@ setTimeout(function(){
     if (document.querySelector('#sec-nucleo.active')) window.rNucleo();
 }, 200);
 </script>
+    <script>
+/* ═══════════════════════════════════════════════════
+   🌌 NÚCLEO V12 — Conteos cerrados (sin fugas)
+   - Cruza mes anterior → día 1 del mes
+   - Nunca pierde punto por indexOf -1
+   - Decenas y Terminales SIEMPRE suman igual
+   - Normaliza number (texto/número/espacios)
+═══════════════════════════════════════════════════ */
+
+// Normalizar número del sorteo a "00"-"99"
+window.nucNum = function(raw){
+    let s = String(raw == null ? '' : raw).trim().replace(/[^\d]/g, '');
+    if (!s) return null;
+    if (s.length === 1) s = '0' + s;
+    if (s.length > 2) s = s.slice(-2);
+    const n = parseInt(s, 10);
+    if (isNaN(n) || n < 0 || n > 99) return null;
+    return (n < 10 ? '0' : '') + n;
+};
+
+window.nucDec = function(raw){
+    const s = window.nucNum(raw);
+    return s == null ? null : Math.floor(parseInt(s, 10) / 10);
+};
+
+window.nucTerm = function(raw){
+    const s = window.nucNum(raw);
+    return s == null ? null : parseInt(s, 10) % 10;
+};
+
+// Fila → P
+window.nucRowToP = function(row){
+    if (row <= 0) return 'P1';
+    if (row <= 3) return 'P2';
+    if (row <= 6) return 'P3';
+    return 'P4';
+};
+
+// Buscar fila con fallback (nunca -1 suelto)
+window.nucFindRow = function(arr, val){
+    if (!arr || !arr.length) return 9;
+    let i = arr.indexOf(val);
+    if (i >= 0) return i;
+    // fallback: por si val vino string
+    i = arr.indexOf(parseInt(val, 10));
+    if (i >= 0) return i;
+    return 9; // último rango P4 — NUNCA se pierde el punto
+};
+
+window.nucPrevMonth = window.nucPrevMonth || function(ym, back){
+    const parts = String(ym).split('-').map(Number);
+    const d = new Date(parts[0], parts[1] - 1 - back, 1);
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+};
+
+window.nucMesNombre = window.nucMesNombre || function(ym){
+    const n = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+    const p = String(ym).split('-');
+    return n[parseInt(p[1],10) - 1] + ' ' + p[0];
+};
+
+window.nucGetMeses = window.nucGetMeses || function(){
+    if (!sorteos || !sorteos.length) return [];
+    const set = new Set();
+    sorteos.forEach(s => {
+        if (s.drawDate && s.drawDate.length >= 7) set.add(s.drawDate.substring(0, 7));
+    });
+    return [...set].sort().reverse();
+};
+
+window.nucMesActual = window.nucMesActual || function(){
+    const m = window.nucGetMeses();
+    return m[0] || new Date().toISOString().substring(0, 7);
+};
+
+window.getSemaforoNuc = window.getSemaforoNuc || function(puntos, esMesActual){
+    const neutro = {
+        type:'neutro',
+        colors:{P1:'p-neutral',P2:'p-neutral',P3:'p-neutral',P4:'p-neutral'},
+        colorsRes:{P1:'',P2:'',P3:'',P4:''},
+        winners:[], losers:[],
+        text:'Sin datos', decision:'⏳ Esperando'
+    };
+    if (!esMesActual) {
+        return {
+            type:'neutro',
+            colors:{P1:'p-neutral',P2:'p-neutral',P3:'p-neutral',P4:'p-neutral'},
+            colorsRes:{P1:'',P2:'',P3:'',P4:''},
+            winners:[], losers:[],
+            text:'Mes histórico — resultado ya establecido',
+            decision:'📚 Solo consulta'
+        };
+    }
+    const vals = Object.values(puntos);
+    const max = Math.max(...vals), min = Math.min(...vals);
+    if (max === 0) return neutro;
+    if (max === min) {
+        return {
+            type:'amarillo',
+            colors:{P1:'p-amarillo',P2:'p-amarillo',P3:'p-amarillo',P4:'p-amarillo'},
+            colorsRes:{P1:'rtie',P2:'rtie',P3:'rtie',P4:'rtie'},
+            winners:['P1','P2','P3','P4'], losers:[],
+            text:'Todas las posiciones tienen el mismo puntaje',
+            decision:'⚖️ Debate con la Telaraña — decisión soberana'
+        };
+    }
+    const winners = Object.entries(puntos).filter(([,v])=>v===max).map(([k])=>k);
+    const losers  = Object.entries(puntos).filter(([,v])=>v===min).map(([k])=>k);
+    const colors = {P1:'p-neutral',P2:'p-neutral',P3:'p-neutral',P4:'p-neutral'};
+    const colorsRes = {P1:'',P2:'',P3:'',P4:''};
+    if (winners.length > 1) {
+        winners.forEach(p => { colors[p]='p-amarillo'; colorsRes[p]='rtie'; });
+        return {
+            type:'amarillo', colors, colorsRes, winners, losers,
+            text:'Empate en ' + winners.join(' y ') + ' con ' + max + ' puntos',
+            decision:'⚖️ Debate con la Telaraña — decisión soberana'
+        };
+    }
+    colors[winners[0]] = 'p-verde';
+    colorsRes[winners[0]] = 'rmax';
+    losers.forEach(p => {
+        if (p !== winners[0]) { colors[p]='p-rojo'; colorsRes[p]='rmin'; }
+    });
+    return {
+        type:'verde', colors, colorsRes, winners, losers,
+        text: winners[0] + ' lidera con ' + max + ' puntos',
+        decision: '🎯 Jugar en ' + winners[0]
+    };
+};
+
+// CSS filas pintadas (móvil)
+(function(){
+    let st = document.getElementById('nuc-v12-css');
+    if (!st) {
+        st = document.createElement('style');
+        st.id = 'nuc-v12-css';
+        document.head.appendChild(st);
+    }
+    st.textContent = `
+    .nuc-matrix tr.bg-verde td{background:rgba(0,212,170,0.28)!important;font-weight:800!important}
+    .nuc-matrix tr.bg-rojo td{background:rgba(255,71,87,0.22)!important}
+    .nuc-matrix tr.bg-amarillo td{background:rgba(245,166,35,0.28)!important;font-weight:800!important}
+    .nuc-matrix td.p-verde{background:linear-gradient(135deg,#00d4aa,#2ecc71)!important;color:#000!important;font-weight:900!important}
+    .nuc-matrix td.p-rojo{background:linear-gradient(135deg,#ff4757,#ff6b6b)!important;color:#fff!important;font-weight:900!important}
+    .nuc-matrix td.p-amarillo{background:linear-gradient(135deg,#ffa502,#ffb84d)!important;color:#000!important;font-weight:900!important}
+    .nuc-matrix td.p-neutral{background:var(--bg3)!important;color:var(--dim)!important;font-weight:800!important}
+    .nuc-valid.ok{border-color:var(--green)!important;color:var(--green)}
+    .nuc-valid.bad{border-color:var(--red)!important;color:var(--red)}
+    .nuc-results .rmax{background:rgba(0,212,170,0.3)!important;color:var(--green)!important}
+    .nuc-results .rmin{background:rgba(255,71,87,0.3)!important;color:var(--red)!important}
+    .nuc-results .rtie{background:rgba(245,166,35,0.3)!important;color:var(--gold2)!important}
+    `;
+})();
+
+window.calcNucleo = function(all, mode, mes){
+    const allData = Array.isArray(all) ? all : (sorteos || []);
+    const sorted = [...allData].sort(chronoSort);
+
+    const mes1 = window.nucPrevMonth(mes, 2);
+    const mes2 = window.nucPrevMonth(mes, 1);
+
+    // Base estable: 2 meses previos
+    let histBase = sorted.filter(d =>
+        d.drawDate && (d.drawDate.startsWith(mes1) || d.drawDate.startsWith(mes2))
+    );
+    if (histBase.length < 10) {
+        histBase = sorted.filter(d => d.drawDate && d.drawDate < (mes + '-01'));
+    }
+
+    const mesData = sorted.filter(d => d.drawDate && d.drawDate.startsWith(mes));
+    const turnoMesData = mode === 'midday' ? mesData.filter(d => d.shift === 'midday') :
+                         mode === 'evening' ? mesData.filter(d => d.shift === 'evening') :
+                         mesData;
+
+    const mLabel = mode === 'midday' ? '☀️ Mediodía' :
+                   mode === 'evening' ? '🌙 Noche' : '🌐 General';
+    const esMesActual = (mes === window.nucMesActual());
+
+    // Matrix decenas (columnas fijas 0-9)
+    const decTransMap = {};
+    for (let col = 0; col <= 9; col++) {
+        const counts = Array(10).fill(0);
+        for (let i = 0; i < histBase.length - 1; i++) {
+            const curr = histBase[i], next = histBase[i + 1];
+            if (mode !== 'all' && next.shift !== mode) continue;
+            const cd = window.nucDec(curr.number);
+            const nd = window.nucDec(next.number);
+            if (cd === null || nd === null) continue;
+            if (cd === col) counts[nd]++;
+        }
+        decTransMap[col] = [0,1,2,3,4,5,6,7,8,9]
+            .sort((a,b) => counts[b] - counts[a] || a - b);
+    }
+
+    // Matrix terminales
+    const termTransMap = {};
+    for (let col = 0; col <= 9; col++) {
+        const counts = Array(10).fill(0);
+        for (let i = 0; i < histBase.length - 1; i++) {
+            const curr = histBase[i], next = histBase[i + 1];
+            if (mode !== 'all' && next.shift !== mode) continue;
+            const ct = window.nucTerm(curr.number);
+            const nt = window.nucTerm(next.number);
+            if (ct === null || nt === null) continue;
+            if (ct === col) counts[nt]++;
+        }
+        termTransMap[col] = [0,1,2,3,4,5,6,7,8,9]
+            .sort((a,b) => counts[b] - counts[a] || a - b);
+    }
+
+    // Conteos del mes — usa historial COMPLETO (cruza junio→julio)
+    const decPuntos = {P1:0,P2:0,P3:0,P4:0};
+    const termPuntos = {P1:0,P2:0,P3:0,P4:0};
+    let evaluados = 0;
+    let saltados = 0; // number inválido
+
+    for (let i = 0; i < sorted.length - 1; i++) {
+        const curr = sorted[i];
+        const next = sorted[i + 1];
+
+        if (!next.drawDate || !next.drawDate.startsWith(mes)) continue;
+        if (mode !== 'all' && next.shift !== mode) continue;
+
+        const prevD = window.nucDec(curr.number);
+        const nextD = window.nucDec(next.number);
+        const prevT = window.nucTerm(curr.number);
+        const nextT = window.nucTerm(next.number);
+
+        // Si el número del next es inválido, no se puede evaluar
+        if (nextD === null || nextT === null) {
+            saltados++;
+            continue;
+        }
+        // Si el curr es inválido, usamos 0 como columna origen (no perdemos next)
+        const colD = (prevD === null) ? 0 : prevD;
+        const colT = (prevT === null) ? 0 : prevT;
+
+        const rowD = window.nucFindRow(decTransMap[colD], nextD);
+        const rowT = window.nucFindRow(termTransMap[colT], nextT);
+
+        decPuntos[window.nucRowToP(rowD)]++;
+        termPuntos[window.nucRowToP(rowT)]++;
+        evaluados++;
+    }
+
+    const sumDec  = decPuntos.P1 + decPuntos.P2 + decPuntos.P3 + decPuntos.P4;
+    const sumTerm = termPuntos.P1 + termPuntos.P2 + termPuntos.P3 + termPuntos.P4;
+
+    return {
+        mode, mLabel, mes, esMesActual,
+        mes1, mes2,
+        baseLabel: (window.nucMesNombre(mes1) + ' + ' + window.nucMesNombre(mes2)),
+        baseCount: histBase.length,
+        mesTotal: turnoMesData.length,
+        evaluados, saltados,
+        sumDec, sumTerm,
+        valid: (sumDec === sumTerm && sumDec === evaluados),
+        decTransMap, termTransMap,
+        decPuntos, termPuntos
+    };
+};
+
+window.renderNucleo = function(R){
+    const out = document.getElementById('nucOut');
+    if (!out || !R) return;
+
+    function colorTipo(sem, p){
+        if (!sem || !sem.colors) return 'neutro';
+        const c = sem.colors[p] || '';
+        if (c.indexOf('verde') >= 0) return 'verde';
+        if (c.indexOf('rojo') >= 0) return 'rojo';
+        if (c.indexOf('amarillo') >= 0) return 'amarillo';
+        return 'neutro';
+    }
+    function filaToP(row){
+        if (row === 0) return 'P1';
+        if (row <= 3) return 'P2';
+        if (row <= 6) return 'P3';
+        return 'P4';
+    }
+
+    function renderTabla(tipo, transMap, puntos){
+        const isDec = tipo === 'dec';
+        const prefix = isDec ? '' : 'T';
+        const suffix = isDec ? '0s' : '';
+        const sem = window.getSemaforoNuc(puntos, R.esMesActual);
+
+        let h = '<table class="nuc-matrix"><thead><tr><th style="min-width:40px">POS</th>';
+        for (let c = 0; c <= 9; c++) h += '<th class="header-dec">' + prefix + c + suffix + '</th>';
+        h += '</tr></thead><tbody>';
+
+        for (let row = 0; row <= 9; row++) {
+            const p = filaToP(row);
+            const tc = colorTipo(sem, p);
+            const rowClass = tc !== 'neutro' ? ('bg-' + tc) : '';
+            h += '<tr class="' + rowClass + '">';
+            if (row === 0) h += '<td class="' + (sem.colors.P1||'p-neutral') + '">P1</td>';
+            else if (row === 1) h += '<td class="' + (sem.colors.P2||'p-neutral') + '" rowspan="3" style="vertical-align:middle">P2</td>';
+            else if (row === 4) h += '<td class="' + (sem.colors.P3||'p-neutral') + '" rowspan="3" style="vertical-align:middle">P3</td>';
+            else if (row === 7) h += '<td class="' + (sem.colors.P4||'p-neutral') + '" rowspan="3" style="vertical-align:middle">P4</td>';
+
+            for (let col = 0; col <= 9; col++) {
+                const val = (transMap[col] && transMap[col][row] !== undefined) ? transMap[col][row] : col;
+                h += '<td class="hala">' + prefix + val + suffix + '</td>';
+            }
+            h += '</tr>';
+        }
+        h += '</tbody></table>';
+
+        const cr = sem.colorsRes || {};
+        const pts =
+            '<table class="nuc-results"><thead><tr><th>POS</th><th>PTS</th></tr></thead><tbody>' +
+            '<tr><td class="pos-label">P1</td><td class="'+(cr.P1||'')+'">'+puntos.P1+'</td></tr>' +
+            '<tr><td class="pos-label">P2</td><td class="'+(cr.P2||'')+'">'+puntos.P2+'</td></tr>' +
+            '<tr><td class="pos-label">P3</td><td class="'+(cr.P3||'')+'">'+puntos.P3+'</td></tr>' +
+            '<tr><td class="pos-label">P4</td><td class="'+(cr.P4||'')+'">'+puntos.P4+'</td></tr>' +
+            '<tr><td class="pos-label" style="color:var(--gold)">Σ</td><td style="font-weight:900;color:var(--gold)">' +
+            (puntos.P1+puntos.P2+puntos.P3+puntos.P4) + '</td></tr>' +
+            '</tbody></table>';
+
+        let semHtml = '';
+        if (sem.type === 'verde') {
+            semHtml = '<div class="nuc-semaforo verde"><div class="nuc-semaforo-t">'+sem.decision+
+                '</div><div class="nuc-semaforo-d">'+sem.text+'</div></div>';
+        } else if (sem.type === 'amarillo') {
+            semHtml = '<div class="nuc-semaforo amarillo"><div class="nuc-semaforo-t">'+sem.decision+
+                '</div><div class="nuc-semaforo-d">'+sem.text+'</div></div>';
+        } else {
+            semHtml = '<div class="nuc-semaforo" style="background:rgba(107,114,128,0.1);border:2px solid var(--dim);color:var(--dim)">'+
+                '<div class="nuc-semaforo-t">'+sem.decision+'</div><div class="nuc-semaforo-d">'+sem.text+'</div></div>';
+        }
+
+        let lista = '';
+        if (sem.type === 'verde' && sem.winners && sem.winners[0]) {
+            const winP = sem.winners[0];
+            const rows = winP==='P1'?[0]:winP==='P2'?[1,2,3]:winP==='P3'?[4,5,6]:[7,8,9];
+            const porCol = [];
+            for (let col = 0; col <= 9; col++) {
+                const vals = rows.map(r => {
+                    const v = (transMap[col] && transMap[col][r] !== undefined) ? transMap[col][r] : r;
+                    return prefix + v + suffix;
+                });
+                porCol.push('<div style="margin:3px 0"><strong style="color:var(--gold)">'+prefix+col+suffix+
+                    '</strong> → '+vals.map(v=>'<span style="background:rgba(0,212,170,0.25);padding:2px 7px;border-radius:8px;margin:0 2px;font-weight:800">'+v+'</span>').join(' ')+'</div>');
+            }
+            lista = '<div class="nuc-info" style="margin-top:10px;border-color:var(--green)">'+
+                '<strong style="color:var(--green)">🎯 Rango a jugar ('+winP+'):</strong>'+
+                '<div class="fxs td" style="margin:4px 0 8px">Columna del número previo → opciones del rango:</div>'+
+                porCol.join('')+'</div>';
+        }
+
+        return '<div class="nuc-block"><div class="nuc-block-t '+tipo+'">'+
+            (isDec?'🔢 DECENAS':'🎯 TERMINALES')+' — '+R.mLabel+
+            '</div><div class="nuc-wrap"><div class="nuc-matrix-wrap">'+h+
+            '</div><div class="nuc-results-wrap">'+pts+'</div></div>'+semHtml+lista+'</div>';
+    }
+
+    const validCls = R.valid ? 'ok' : 'bad';
+    const validTxt = R.valid
+        ? '✅ Cuadre OK: Decenas Σ=' + R.sumDec + ' · Terminales Σ=' + R.sumTerm + ' · Evaluados=' + R.evaluados
+        : '⚠️ Descuadre: Decenas Σ=' + R.sumDec + ' · Terminales Σ=' + R.sumTerm + ' · Evaluados=' + R.evaluados +
+          (R.saltados ? ' · Saltados(formato)=' + R.saltados : '');
+
+    const info =
+        '<div class="nuc-info" style="text-align:center">' +
+        '<strong>Matrix estable:</strong> ' + R.baseLabel +
+        ' <span class="fxs">(' + R.baseCount + ' sorteos)</span><br>' +
+        '<strong>Evaluando:</strong> ' + window.nucMesNombre(R.mes) +
+        ' · ' + R.mLabel +
+        ' · <strong>' + R.mesTotal + '</strong> en mes / <strong>' + R.evaluados + '</strong> evaluados' +
+        (R.esMesActual ? ' · <span style="color:var(--green)">● En vivo</span>' : ' · ● Histórico') +
+        '</div>' +
+        '<div class="nuc-info nuc-valid ' + validCls + '" style="text-align:center;font-weight:700">' +
+        validTxt +
+        '</div>';
+
+    out.innerHTML =
+        info +
+        renderTabla('dec', R.decTransMap, R.decPuntos) +
+        renderTabla('term', R.termTransMap, R.termPuntos);
+};
+
+window.rNucleo = function(){
+    const out = document.getElementById('nucOut');
+    const loader = document.getElementById('nucLoader');
+    if (!out) return;
+    if (!sorteos || !sorteos.length) {
+        out.innerHTML = '<div class="empty"><div class="ei">🌌</div><p>Importa datos primero</p></div>';
+        return;
+    }
+    const sel = document.getElementById('nucMesSel');
+    const meses = window.nucGetMeses();
+    if (sel && meses.length) {
+        if (!window.curNucMes || meses.indexOf(window.curNucMes) < 0) window.curNucMes = meses[0];
+        sel.innerHTML = meses.map(m =>
+            '<option value="'+m+'"'+(m===window.curNucMes?' selected':'')+'>'+window.nucMesNombre(m)+'</option>'
+        ).join('');
+        sel.onchange = function(){ window.curNucMes = this.value; window.rNucleo(); };
+    }
+    const tag = document.getElementById('nucMesTag');
+    if (tag) {
+        const act = window.nucMesActual();
+        tag.className = window.curNucMes === act ? 'nuc-mes-actual' : 'nuc-mes-hist';
+        tag.textContent = window.curNucMes === act ? '● En vivo' : '● Histórico';
+    }
+    if (!window.curNucMode) window.curNucMode = 'midday';
+    if (loader) loader.style.display = 'block';
+    out.innerHTML = '';
+    setTimeout(function(){
+        try {
+            const R = window.calcNucleo(sorteos, window.curNucMode, window.curNucMes);
+            window.renderNucleo(R);
+        } catch(e) {
+            out.innerHTML = '<div class="empty"><p>Error: '+e.message+'</p></div>';
+            console.error(e);
+        }
+        if (loader) loader.style.display = 'none';
+    }, 200);
+};
+
+window.nucMode = function(m, btn){
+    window.curNucMode = m;
+    document.querySelectorAll('.nuc-mbtn').forEach(b => b.classList.remove('on'));
+    if (btn) btn.classList.add('on');
+    window.rNucleo();
+};
+
+setTimeout(function(){
+    if (document.querySelector('#sec-nucleo.active')) window.rNucleo();
+}, 250);
+</script>
 </body>
 </html>
