@@ -828,5 +828,163 @@ window.addEventListener('online',updOffStatus);
 window.addEventListener('offline',updOffStatus);
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
+    <script>
+/* ═══════════════════════════════════════════════════════════
+   🎯 CÓDIGO MAESTRO COMPLETO — IMPORTACIÓN + TODAS LAS PESTAÑAS
+   ═══════════════════════════════════════════════════════════ */
+
+// OVERLAY DE CARGA
+window.showOv = function(t){
+    const o=document.getElementById('ov');
+    const ot=document.getElementById('ovt');
+    if(ot)ot.textContent=t||'Procesando...';
+    if(o)o.classList.add('show');
+};
+window.hideOv = function(){
+    const o=document.getElementById('ov');
+    if(o)o.classList.remove('show');
+};
+
+// IMPORTAR EXCEL (.XLSX / .XLS)
+window.importXL = function(inp){
+    const file=inp.files[0];if(!file)return;
+    const ok=document.getElementById('impOk');
+    const err=document.getElementById('impErr');
+    const info=document.getElementById('impInfo');
+    if(ok)ok.style.display='none';if(err)err.style.display='none';if(info)info.style.display='none';
+    
+    window.showOv('Leyendo Excel...');
+    const reader=new FileReader();
+    reader.onload=function(e){
+        try{
+            const wb=XLSX.read(e.target.result,{type:'array'});
+            const ws=wb.Sheets[wb.SheetNames[0]];
+            const rows=XLSX.utils.sheet_to_json(ws,{header:1,raw:false});
+            const newS=[];let skipped=0;
+            
+            rows.forEach(function(row){
+                if(!row||row.length<3)return;
+                const rawDate=String(row[0]||'').trim();
+                const rawShift=String(row[1]||'').trim().toLowerCase();
+                const rawNum=String(row[2]||'').trim().replace(/\D/g,'').padStart(2,'0');
+                
+                if(!rawDate||!rawNum||rawNum==='00'||rawNum.length>2)return;
+                
+                const shift=rawShift.includes('mid')||rawShift==='m'||rawShift==='d'||rawShift.includes('med')?'midday':
+                            rawShift.includes('eve')||rawShift==='e'||rawShift==='n'||rawShift.includes('noch')?'evening':'midday';
+                
+                let drawDate=rawDate;
+                if(/^\d{5}$/.test(rawDate)){
+                    const d=new Date(Math.round((parseInt(rawDate)-25569)*86400*1000));
+                    drawDate=d.toISOString().split('T')[0];
+                } else if(/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(rawDate)){
+                    const p=rawDate.split('/');
+                    drawDate=`${p[2]}-${p[0].padStart(2,'0')}-${p[1].padStart(2,'0')}`;
+                } else if(/^\d{1,2}-\d{1,2}-\d{4}$/.test(rawDate)){
+                    const p=rawDate.split('-');
+                    drawDate=`${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
+                }
+                
+                if(parseInt(rawNum,10)>99){skipped++;return;}
+                newS.push({drawDate:drawDate,shift:shift,number:rawNum});
+            });
+            
+            window.hideOv();
+            if(!newS.length){
+                if(err){err.textContent='❌ No se encontraron datos válidos';err.style.display='block';}
+                return;
+            }
+            
+            const existing=new Set((sorteos||[]).map(s=>`${s.drawDate}-${s.shift}-${s.number}`));
+            const added=newS.filter(s=>!existing.has(`${s.drawDate}-${s.shift}-${s.number}`));
+            
+            sorteos=[...(sorteos||[]),...added].sort(chronoSort);
+            saveData();
+            rAll();
+            
+            if(ok){
+                ok.textContent=`✅ ${added.length} nuevos sorteos importados (${skipped} omitidos)`;
+                ok.style.display='block';
+            }
+        }catch(ex){
+            window.hideOv();
+            if(err){err.textContent='❌ Error: '+ex.message;err.style.display='block';}
+        }
+    };
+    reader.readAsArrayBuffer(file);
+};
+
+// IMPORTAR Y EXPORTAR JSON
+window.importJSON = function(inp){
+    const file=inp.files[0];if(!file)return;
+    const ok=document.getElementById('impOk');
+    const err=document.getElementById('impErr');
+    if(ok)ok.style.display='none';if(err)err.style.display='none';
+    const reader=new FileReader();
+    reader.onload=function(e){
+        try{
+            const data=JSON.parse(e.target.result);
+            if(!Array.isArray(data))throw new Error('Formato inválido');
+            sorteos=data;saveData();rAll();
+            if(ok){ok.textContent=`✅ ${data.length} sorteos importados`;ok.style.display='block';}
+        }catch(ex){if(err){err.textContent='❌ '+ex.message;err.style.display='block';}}
+    };
+    reader.readAsText(file);
+};
+
+window.exportJSON = function(){
+    const b=new Blob([JSON.stringify(sorteos,null,2)],{type:'application/json'});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(b);
+    a.download=`sorteos_${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+};
+
+window.clearAll = function(){
+    if(confirm('¿Borrar TODOS los datos?')){
+        sorteos=[];saveData();rAll();
+    }
+};
+
+// AGREGAR Y EDITAR SORTEOS MANUALMENTE
+window.addSorteo = function(){
+    const d=document.getElementById('aDate').value;
+    const t=document.getElementById('aTurno').value;
+    const n=document.getElementById('aNum').value.trim().padStart(2,'0');
+    const ok=document.getElementById('addOk');
+    const err=document.getElementById('addErr');
+    if(ok)ok.style.display='none';if(err)err.style.display='none';
+    if(!d||!n||!/^\d{2}$/.test(n)||parseInt(n,10)>99){
+        if(err)err.style.display='block';
+        return;
+    }
+    sorteos.push({drawDate:d,shift:t,number:n});
+    saveData();
+    if(ok)ok.style.display='block';
+    document.getElementById('aNum').value='';
+    rAll();
+};
+
+let editIdx = -1;
+window.editS = function(i){
+    const data=LD().sort(revSort);
+    const s=data[i];if(!s)return;
+    editIdx=sorteos.indexOf(s);
+    document.getElementById('eFecha').value=s.drawDate;
+    document.getElementById('eTurno').value=s.shift;
+    document.getElementById('eNum').value=s.number;
+    document.getElementById('editModal').classList.add('show');
+};
+window.closeEdit = function(){
+    document.getElementById('editModal').classList.remove('show');
+};
+window.saveEdit = function(){
+    if(editIdx<0)return;
+    const n=document.getElementById('eNum').value.trim().padStart(2,'0');
+    if(!/^\d{2}$/.test(n)||parseInt(n,10)>99)return;
+    sorteos[editIdx]={...sorteos[editIdx],drawDate:document.getElementById('eFecha').value,shift:document.getElementById('eTurno').value,number:n};
+    saveData();closeEdit();rAll();
+};
+</script>
 </body>
 </html>
