@@ -5892,6 +5892,573 @@ MU.renderConvergencia = function(snap, mode){
         if (!out || !R) return;
 
         try {
+<script>
+/* ═══════════════════════════════════════════════════════════
+   🌌 MOTOR UNIVERSAL V1
+   Fórmula del Maestro para TODA la app
+   Cadena:
+     Mediodía ← (Mediodía previo + Noche previa)
+     Noche    ← (Noche previa + Mediodía nuevo)
+   Matrices: Decenas | Terminales | General (dígito 0-9)
+═══════════════════════════════════════════════════════════ */
 
+window.MU = window.MU || {};
+
+// ── helpers número ──
+MU.num = function(raw){
+    let s = String(raw == null ? '' : raw).trim().replace(/[^\d]/g,'');
+    if (!s) return null;
+    if (s.length === 1) s = '0' + s;
+    if (s.length > 2) s = s.slice(-2);
+    const n = parseInt(s, 10);
+    if (isNaN(n) || n < 0 || n > 99) return null;
+    return n;
+};
+MU.dec = function(raw){ const n = MU.num(raw); return n === null ? null : Math.floor(n/10); };
+MU.term = function(raw){ const n = MU.num(raw); return n === null ? null : n % 10; };
+
+MU.sorted = function(){
+    return [...(sorteos || [])].sort(chronoSort);
+};
+
+// Busca hacia atrás el último del mismo turno y del opuesto
+MU.previos = function(sorted, i){
+    const actual = sorted[i];
+    const opu = actual.shift === 'midday' ? 'evening' : 'midday';
+    let mismo = null, opuesto = null;
+    for (let j = i - 1; j >= 0 && (!mismo || !opuesto); j--) {
+        const p = sorted[j];
+        if (!mismo && p.shift === actual.shift) mismo = p;
+        if (!opuesto && p.shift === opu) opuesto = p;
+    }
+    return { mismo, opuesto };
+};
+
+/**
+ * Construye matrices 10x10 de atracción
+ * mode: 'midday' | 'evening' | 'all'
+ * windowMonths: si se pasa {from:'YYYY-MM', to:'YYYY-MM'} filtra base
+ * o baseList: array ya filtrado
+ *
+ * Regla: cada vez que llega un sorteo del turno objetivo,
+ * los DOS previos (mismo turno + opuesto) suman +1 cada uno
+ * hacia la decena/terminal del actual.
+ */
+MU.buildMatrices = function(mode, baseList){
+    const base = baseList || MU.sorted();
+    const matDec  = Array.from({length:10}, () => Array(10).fill(0));
+    const matTerm = Array.from({length:10}, () => Array(10).fill(0));
+
+    function feed(turnoObj){
+        for (let i = 0; i < base.length; i++) {
+            const actual = base[i];
+            if (turnoObj !== 'all' && actual.shift !== turnoObj) continue;
+
+            const dD = MU.dec(actual.number);
+            const tD = MU.term(actual.number);
+            if (dD === null || tD === null) continue;
+
+            const prev = MU.previos(base, i);
+            [prev.mismo, prev.opuesto].forEach(function(p){
+                if (!p) return;
+                const dO = MU.dec(p.number);
+                const tO = MU.term(p.number);
+                if (dO !== null) matDec[dO][dD]++;
+                if (tO !== null) matTerm[tO][tD]++;
+            });
+        }
+    }
+
+    if (mode === 'all') {
+        feed('midday');
+        feed('evening');
+    } else {
+        feed(mode);
+    }
+
+    const matGen = Array.from({length:10}, () => Array(10).fill(0));
+    for (let o = 0; o < 10; o++)
+        for (let d = 0; d < 10; d++)
+            matGen[o][d] = matDec[o][d] + matTerm[o][d];
+
+    return { matDec, matTerm, matGen, baseCount: base.length };
+};
+
+/** Ordena cada columna mayor → menor. Devuelve map[col] = [dest0..dest9] */
+MU.orderColumns = function(mat){
+    const map = {};
+    for (let col = 0; col < 10; col++) {
+        const arr = [];
+        for (let dest = 0; dest < 10; dest++)
+            arr.push({ dest: dest, c: mat[col][dest] });
+        arr.sort(function(a,b){ return b.c - a.c || a.dest - b.dest; });
+        map[col] = arr.map(function(x){ return x.dest; });
+        map['counts_' + col] = arr; // {dest, c} ordenado
+    }
+    return map;
+};
+
+/** Score total de un destino (suma de todas las columnas que lo halan) */
+MU.destinationStrength = function(mat){
+    const s = Array(10).fill(0);
+    for (let o = 0; o < 10; o++)
+        for (let d = 0; d < 10; d++)
+            s[d] += mat[o][d];
+    return s;
+};
+
+/** Top N que hala un origen */
+MU.topPulls = function(mat, origin, n){
+    n = n || 5;
+    const arr = [];
+    for (let d = 0; d < 10; d++) arr.push({ dest: d, c: mat[origin][d] });
+    arr.sort(function(a,b){ return b.c - a.c || a.dest - b.dest; });
+    return arr.slice(0, n);
+};
+
+/** Base de 2 meses previos a ym */
+MU.base2Months = function(ym){
+    const sorted = MU.sorted();
+    const m1 = (window.mPrevMonth || window.nucPrevMonth)(ym, 2);
+    const m2 = (window.mPrevMonth || window.nucPrevMonth)(ym, 1);
+    let base = sorted.filter(function(d){
+        return d.drawDate && (d.drawDate.startsWith(m1) || d.drawDate.startsWith(m2));
+    });
+    if (base.length < 20) {
+        base = sorted.filter(function(d){
+            return d.drawDate && d.drawDate < (ym + '-01');
+        });
+    }
+    return { base: base, m1: m1, m2: m2 };
+};
+
+/** API rápida para UI */
+MU.snapshot = function(mode, ym){
+    mode = mode || 'all';
+    ym = ym || (window.mMesActual ? window.mMesActual() : (window.nucMesActual ? window.nucMesActual() : new Date().toISOString().slice(0,7)));
+    const b = MU.base2Months(ym);
+    const mats = MU.buildMatrices(mode, b.base);
+    return {
+        mode: mode,
+        ym: ym,
+        m1: b.m1,
+        m2: b.m2,
+        baseCount: mats.baseCount,
+        matDec: mats.matDec,
+        matTerm: mats.matTerm,
+        matGen: mats.matGen,
+        orderDec: MU.orderColumns(mats.matDec),
+        orderTerm: MU.orderColumns(mats.matTerm),
+        orderGen: MU.orderColumns(mats.matGen),
+        strDec: MU.destinationStrength(mats.matDec),
+        strTerm: MU.destinationStrength(mats.matTerm),
+        strGen: MU.destinationStrength(mats.matGen)
+    };
+};
+
+// ═══════════════════════════════════════════════════════════
+// 🕸️ TELARAÑA — misma fórmula
+// ═══════════════════════════════════════════════════════════
+window.calcSpider = function(all, mode){
+    const ym = (window.mMesActual && window.mMesActual()) ||
+               (window.nucMesActual && window.nucMesActual()) ||
+               new Date().toISOString().slice(0,7);
+    const snap = MU.snapshot(mode === 'all' ? 'all' : mode, ym);
+    const ls = typeof getLastSorteoMes === 'function' ? getLastSorteoMes() : null;
+    const next = typeof getNextTurno === 'function' ? getNextTurno() : { label: '—', shift: mode };
+
+    // Ranking de decenas/terminales por fuerza de destino
+    function rank(strArr){
+        return strArr
+            .map(function(s, i){ return { val: i, score: s }; })
+            .sort(function(a,b){ return b.score - a.score || a.val - b.val; })
+            .map(function(x, idx){
+                return {
+                    val: x.val,
+                    dec: x.val,
+                    term: x.val,
+                    score: x.score,
+                    fila: idx,
+                    zona: idx === 0 ? 'REF' : idx <= 3 ? 'TEMIBLE' : idx <= 6 ? 'JUGABLE' : 'FRÍA'
+                };
+            });
+    }
+
+    const decSorted = rank(snap.strDec);
+    const termSorted = rank(snap.strTerm);
+
+    // Si hay último sorteo, resaltar qué hala su decena/terminal
+    let pullDec = [], pullTerm = [];
+    if (ls) {
+        const d = MU.dec(ls.number);
+        const t = MU.term(ls.number);
+        if (d !== null) pullDec = MU.topPulls(snap.matDec, d, 5);
+        if (t !== null) pullTerm = MU.topPulls(snap.matTerm, t, 5);
+    }
+
+    return {
+        mode: mode,
+        mLabel: mode === 'midday' ? '☀️ Mediodía' : mode === 'evening' ? '🌙 Noche' : '🌐 Universal',
+        ym: ym,
+        baseLabel: (snap.m1 || '') + ' + ' + (snap.m2 || ''),
+        baseCount: snap.baseCount,
+        ls: ls,
+        next: next,
+        decSorted: decSorted,
+        termSorted: termSorted,
+        pullDec: pullDec,
+        pullTerm: pullTerm,
+        snap: snap,
+        // compat con renders viejos
+        sorted: decSorted.map(function(x){ return [String(x.val), x.score]; }),
+        lastN: ls ? ls.number : null,
+        total: snap.baseCount
+    };
+};
+
+// Render Telaraña (si existe el contenedor clásico o spOut)
+window.renderSpider = function(A){
+    // Preferir salida del spider tab original
+    let box = document.getElementById('spResults') ||
+              document.getElementById('spOut') ||
+              document.getElementById('spiderResults');
+    if (!box) return;
+
+    const decTop = (A.decSorted || []).slice(0, 6);
+    const termTop = (A.termSorted || []).slice(0, 6);
+
+    function zonaStars(z){
+        if (z === 'TEMIBLE') return '⭐⭐⭐';
+        if (z === 'JUGABLE') return '⭐⭐';
+        if (z === 'REF') return '🔥';
+        return '❄️';
+    }
+
+    let html = '';
+    html += '<div class="card" style="margin-top:10px">';
+    html += '<div class="card-t">🕸️ Telaraña — Fórmula del Maestro</div>';
+    html += '<div class="fxs td mb">Base estable: <strong class="tg">' + (A.baseLabel || '—') +
+        '</strong> · ' + (A.baseCount || 0) + ' sorteos · Modo: <strong>' + (A.mLabel || '') + '</strong></div>';
+
+    if (A.ls) {
+        html += '<div class="rec-box"><h4>📌 Último: ' + A.ls.number +
+            ' (' + (A.ls.shift === 'midday' ? '☀️' : '🌙') + ') → Próximo: ' +
+            (A.next && A.next.label ? A.next.label : '—') + '</h4>';
+        html += '<div class="fxs td">Lo que HALA su decena / terminal (misma fórmula):</div><div class="rec-nums">';
+        (A.pullDec || []).forEach(function(p){
+            html += '<div class="rec-item"><span>' + p.dest + '0s</span>(' + p.c + 'x)</div>';
+        });
+        html += '</div><div class="rec-nums" style="margin-top:6px">';
+        (A.pullTerm || []).forEach(function(p){
+            html += '<div class="rec-item"><span>T' + p.dest + '</span>(' + p.c + 'x)</div>';
+        });
+        html += '</div></div>';
+    }
+
+    html += '<div class="g2">';
+    html += '<div><div class="card-t fxs mb">🔢 Decenas más fuertes</div>';
+    decTop.forEach(function(x){
+        html += '<div class="fb"><div class="n">' + x.val + '0s</div>' +
+            '<div class="track"><div class="fill fill-gold" style="width:' +
+            Math.min(100, (x.score / (decTop[0].score || 1)) * 100) +
+            '%"><span>' + x.score + '</span></div></div>' +
+            '<div class="c">' + zonaStars(x.zona) + '</div></div>';
+    });
+    html += '</div>';
+
+    html += '<div><div class="card-t fxs mb">🎯 Terminales más fuertes</div>';
+    termTop.forEach(function(x){
+        html += '<div class="fb"><div class="n">T' + x.val + '</div>' +
+            '<div class="track"><div class="fill fill-blue" style="width:' +
+            Math.min(100, (x.score / (termTop[0].score || 1)) * 100) +
+            '%"><span>' + x.score + '</span></div></div>' +
+            '<div class="c">' + zonaStars(x.zona) + '</div></div>';
+    });
+    html += '</div></div>';
+
+    html += '<div class="fxs td mt">Misma cadena temporal que El Núcleo: ' +
+        'previo mismo turno + previo opuesto → turno objetivo.</div>';
+    html += '</div>';
+
+    box.innerHTML = html;
+    box.style.display = 'block';
+};
+
+// Si existe rSpider viejo, enganchar
+(function(){
+    const old = window.rSpider;
+    window.rSpider = function(){
+        if (!sorteos || !sorteos.length) {
+            if (typeof old === 'function') return old();
+            return;
+        }
+        const mode = window.curSpMode || window.SP_MODE || 'midday';
+        const loader = document.getElementById('spLoader');
+        if (loader) loader.style.display = 'block';
+        setTimeout(function(){
+            try {
+                const A = window.calcSpider(sorteos, mode);
+                window.renderSpider(A);
+            } catch (e) {
+                console.error(e);
+                if (typeof old === 'function') old();
+            }
+            if (loader) loader.style.display = 'none';
+        }, 200);
+    };
+})();
+
+// ═══════════════════════════════════════════════════════════
+// PEONES: Decenas / Terminales / Conexiones / Matrix
+// usan la misma fórmula
+// ═══════════════════════════════════════════════════════════
+
+function muModeFromUI(fallback){
+    // intentar leer filtros de peones si existen
+    return fallback || 'all';
+}
+
+function muRenderAttractionBars(title, mat, asTerm){
+    const prefix = asTerm ? 'T' : '';
+    const suffix = asTerm ? '' : '0s';
+    // fuerza por origen (cuánto hala en total)
+    let html = '<div class="card-t fxs mb">' + title + '</div>';
+    html += '<div class="fxs td mb">Fórmula Maestro · base 2 meses previos al mes actual · mismo+opuesto → objetivo</div>';
+
+    for (let o = 0; o < 10; o++) {
+        const tops = MU.topPulls(mat, o, 5);
+        const maxc = tops[0] ? tops[0].c : 1;
+        html += '<div style="margin:8px 0;padding:8px;background:var(--bg3);border-radius:8px;border:1px solid var(--border)">';
+        html += '<div class="fw tg" style="margin-bottom:4px">Origen ' + prefix + o + suffix + ' hala →</div>';
+        tops.forEach(function(t){
+            const pct = maxc ? Math.round(t.c / maxc * 100) : 0;
+            html += '<div class="fb"><div class="n" style="width:36px">' + prefix + t.dest + suffix +
+                '</div><div class="track"><div class="fill fill-gold" style="width:' + pct +
+                '%"><span>' + t.c + '</span></div></div><div class="c">' + t.c + 'x</div></div>';
+        });
+        html += '</div>';
+    }
+    return html;
+}
+
+function muRenderMatrixTable(mat, asTerm){
+    const prefix = asTerm ? 'T' : '';
+    const suffix = asTerm ? '' : '0s';
+    let max = 1;
+    for (let i = 0; i < 10; i++)
+        for (let j = 0; j < 10; j++)
+            if (mat[i][j] > max) max = mat[i][j];
+
+    let h = '<div style="overflow-x:auto"><table class="nuc-matrix"><thead><tr><th>Origen\\Dest</th>';
+    for (let d = 0; d < 10; d++) h += '<th>' + prefix + d + suffix + '</th>';
+    h += '</tr></thead><tbody>';
+    for (let o = 0; o < 10; o++) {
+        h += '<tr><th class="header-dec">' + prefix + o + suffix + '</th>';
+        for (let d = 0; d < 10; d++) {
+            const v = mat[o][d];
+            const inten = v / max;
+            const bg = v ? ('background:rgba(245,166,35,' + (0.1 + inten * 0.55) + ')') : '';
+            h += '<td class="hala" style="' + bg + ';font-weight:' + (inten > 0.5 ? 800 : 600) + '">' +
+                (v || '·') + '</td>';
+        }
+        h += '</tr>';
+    }
+    h += '</tbody></table></div>';
+    return h;
+}
+
+// --- Override Decenas (vista general principal) ---
+(function(){
+    const oldRDec = window.rDec;
+    window.rDec = function(){
+        try {
+            const host = document.getElementById('decContent');
+            if (!host || !sorteos || !sorteos.length) {
+                if (typeof oldRDec === 'function') return oldRDec();
+                return;
+            }
+            // respetar subvista si no es general: dejar peón viejo en transiciones
+            if (typeof curDV !== 'undefined' && curDV && curDV !== 'general' && curDV !== 'best') {
+                if (typeof oldRDec === 'function') return oldRDec();
+            }
+            if (typeof renderLsBanner === 'function') renderLsBanner('lsBannerDec');
+            const ym = window.mMesActual ? window.mMesActual() : (window.nucMesActual ? window.nucMesActual() : new Date().toISOString().slice(0,7));
+            // en decenas: mostrar midday / evening / all según pill si se puede
+            let mode = 'all';
+            // si el usuario está en best o general, all; se puede mejorar luego
+            const snapM = MU.snapshot('midday', ym);
+            const snapN = MU.snapshot('evening', ym);
+            const snapA = MU.snapshot('all', ym);
+
+            if (typeof document.getElementById('decTitle') !== 'undefined' && document.getElementById('decTitle'))
+                document.getElementById('decTitle').textContent = '🔢 Decenas — Fórmula Maestro';
+
+            let html = '';
+            html += '<div class="rec-box"><h4>🌌 Misma fórmula que El Núcleo / Telaraña</h4>';
+            html += '<div class="fxs td">Base: 2 meses previos · Cadena: previo mismo + previo opuesto → turno</div></div>';
+
+            html += '<div class="card-t fxs mb">☀️ Mediodía — top atracciones por origen</div>';
+            html += muRenderAttractionBars('', snapM.matDec, false);
+
+            html += '<div class="divider"></div><div class="card-t fxs mb">🌙 Noche — top atracciones por origen</div>';
+            html += muRenderAttractionBars('', snapN.matDec, false);
+
+            html += '<div class="divider"></div><div class="card-t fxs mb">🌐 Matriz Decenas (General turnos combinados)</div>';
+            html += muRenderMatrixTable(snapA.matDec, false);
+
+            host.innerHTML = html;
+        } catch (e) {
+            console.error('rDec MU', e);
+            if (typeof oldRDec === 'function') oldRDec();
+        }
+    };
+})();
+
+// --- Override Terminales ---
+(function(){
+    const oldRTerm = window.rTerm;
+    window.rTerm = function(){
+        try {
+            const host = document.getElementById('termContent');
+            if (!host || !sorteos || !sorteos.length) {
+                if (typeof oldRTerm === 'function') return oldRTerm();
+                return;
+            }
+            if (typeof curTV !== 'undefined' && curTV && curTV !== 'general' && curTV !== 'best') {
+                if (typeof oldRTerm === 'function') return oldRTerm();
+            }
+            if (typeof renderLsBanner === 'function') renderLsBanner('lsBannerTerm');
+            const ym = window.mMesActual ? window.mMesActual() : (window.nucMesActual ? window.nucMesActual() : new Date().toISOString().slice(0,7));
+            const snapM = MU.snapshot('midday', ym);
+            const snapN = MU.snapshot('evening', ym);
+            const snapA = MU.snapshot('all', ym);
+
+            if (document.getElementById('termTitle'))
+                document.getElementById('termTitle').textContent = '🎯 Terminales — Fórmula Maestro';
+
+            let html = '';
+            html += '<div class="rec-box"><h4>🌌 Misma fórmula que El Núcleo / Telaraña</h4>';
+            html += '<div class="fxs td">Base: 2 meses previos · Cadena temporal del Maestro</div></div>';
+            html += '<div class="card-t fxs mb">☀️ Mediodía</div>' + muRenderAttractionBars('', snapM.matTerm, true);
+            html += '<div class="divider"></div><div class="card-t fxs mb">🌙 Noche</div>' + muRenderAttractionBars('', snapN.matTerm, true);
+            html += '<div class="divider"></div><div class="card-t fxs mb">🌐 Matriz Terminales</div>' + muRenderMatrixTable(snapA.matTerm, true);
+            host.innerHTML = html;
+        } catch (e) {
+            console.error('rTerm MU', e);
+            if (typeof oldRTerm === 'function') oldRTerm();
+        }
+    };
+})();
+
+// --- Override Conexiones ---
+(function(){
+    const oldRPull = window.rPull;
+    window.rPull = function(){
+        try {
+            const host = document.getElementById('pullContent');
+            if (!host || !sorteos || !sorteos.length) {
+                if (typeof oldRPull === 'function') return oldRPull();
+                return;
+            }
+            if (typeof renderLsBanner === 'function') {/* opcional */}
+            const ym = window.mMesActual ? window.mMesActual() : (window.nucMesActual ? window.nucMesActual() : new Date().toISOString().slice(0,7));
+            // usar modo según subtab si existe
+            let mode = 'all';
+            if (typeof curPV !== 'undefined') {
+                // nums/decs/terms — decs y terms usan matriz; nums muestra ambos
+            }
+            const snap = MU.snapshot(mode, ym);
+            const ls = typeof getLastSorteoMes === 'function' ? getLastSorteoMes() : null;
+
+            if (document.getElementById('pullTitle'))
+                document.getElementById('pullTitle').textContent = '🧲 Conexiones — Fórmula Maestro';
+
+            let html = '<div class="rec-box"><h4>🧲 Halones reales (misma fórmula del Núcleo)</h4>';
+            html += '<div class="fxs td">Cada origen suma halones del previo mismo turno + previo opuesto</div></div>';
+
+            if (ls) {
+                const d = MU.dec(ls.number), t = MU.term(ls.number);
+                html += '<div class="card-t fxs mb">🎯 Tras último ' + ls.number + '</div>';
+                html += '<div class="g2">';
+                html += '<div><div class="fxs td mb">Decena ' + d + '0s hala →</div>';
+                MU.topPulls(snap.matDec, d, 6).forEach(function(p){
+                    html += '<div class="pull-box"><div class="pull-from">' + d + '0s</div><div class="pull-arrow">→</div><div class="pull-to">' + p.dest + '0s</div><div class="pull-count">' + p.c + 'x</div></div>';
+                });
+                html += '</div><div><div class="fxs td mb">Terminal T' + t + ' hala →</div>';
+                MU.topPulls(snap.matTerm, t, 6).forEach(function(p){
+                    html += '<div class="pull-box"><div class="pull-from">T' + t + '</div><div class="pull-arrow">→</div><div class="pull-to">T' + p.dest + '</div><div class="pull-count">' + p.c + 'x</div></div>';
+                });
+                html += '</div></div><div class="divider"></div>';
+            }
+
+            // top global de pares decena
+            html += '<div class="card-t fxs mb">🔝 Top pares Decena (fuerza)</div>';
+            const pairs = [];
+            for (let o = 0; o < 10; o++)
+                for (let d = 0; d < 10; d++)
+                    if (snap.matDec[o][d] > 0) pairs.push({ o:o, d:d, c:snap.matDec[o][d] });
+            pairs.sort(function(a,b){ return b.c - a.c; });
+            pairs.slice(0, 15).forEach(function(p){
+                html += '<div class="pull-box"><div class="pull-from">' + p.o + '0s</div><div class="pull-arrow">→</div><div class="pull-to">' + p.d + '0s</div><div class="pull-count">' + p.c + 'x</div></div>';
+            });
+
+            host.innerHTML = html;
+        } catch (e) {
+            console.error('rPull MU', e);
+            if (typeof oldRPull === 'function') oldRPull();
+        }
+    };
+})();
+
+// --- Override Matrix ---
+(function(){
+    const oldRMat = window.rMat;
+    window.rMat = function(){
+        try {
+            const host = document.getElementById('matContent');
+            if (!host || !sorteos || !sorteos.length) {
+                if (typeof oldRMat === 'function') return oldRMat();
+                return;
+            }
+            if (typeof renderLsBanner === 'function') renderLsBanner('lsBannerMatrix');
+            const ym = window.mMesActual ? window.mMesActual() : (window.nucMesActual ? window.nucMesActual() : new Date().toISOString().slice(0,7));
+            const snap = MU.snapshot('all', ym);
+            if (document.getElementById('matTitle'))
+                document.getElementById('matTitle').textContent = '🧮 Matrix — Fórmula Maestro';
+
+            let html = '<div class="rec-box"><h4>🧮 Matriz de atracción unificada</h4>';
+            html += '<div class="fxs td">Filas = origen · Columnas = destino · Valor = veces que originó ese destino (cadena Maestro)</div></div>';
+            html += '<div class="card-t fxs mb">🔢 Decenas</div>' + muRenderMatrixTable(snap.matDec, false);
+            html += '<div class="divider"></div><div class="card-t fxs mb">🎯 Terminales</div>' + muRenderMatrixTable(snap.matTerm, true);
+            html += '<div class="divider"></div><div class="card-t fxs mb">🌐 General (Dec+Term dígito)</div>' + muRenderMatrixTable(snap.matGen, true);
+            // general labels as digit only - reuse term style without T by quick replace
+            host.innerHTML = html;
+        } catch (e) {
+            console.error('rMat MU', e);
+            if (typeof oldRMat === 'function') oldRMat();
+        }
+    };
+})();
+
+// Enganchar goTab para refrescar peones alineados
+(function(){
+    const old = window.goTab;
+    window.goTab = function(id, btn){
+        if (typeof old === 'function') old(id, btn);
+        // forzar re-render con motor si entra a peones clave
+        setTimeout(function(){
+            try {
+                if (id === 'dec' && typeof rDec === 'function') rDec();
+                if (id === 'term' && typeof rTerm === 'function') rTerm();
+                if (id === 'pull' && typeof rPull === 'function') rPull();
+                if (id === 'matrix' && typeof rMat === 'function') rMat();
+                if (id === 'spider' && typeof rSpider === 'function') rSpider();
+            } catch(e) {}
+        }, 50);
+    };
+})();
+
+console.log('%c🌌 MOTOR UNIVERSAL V1 activo — Fórmula del Maestro en Núcleo + Telaraña + Decenas + Terminales + Conexiones + Matrix', 'color:#00d4aa;font-weight:bold');
+</script>
 </body>
 </html>
