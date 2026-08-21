@@ -1137,5 +1137,98 @@ window.editS = function(pageIdx){
 
 console.log('%c📋 Historial: ✏️ Editar + 🗑️ Borrar listos', 'color:#00d4aa;font-weight:bold');
 </script>
+   <script>
+/* ===================================================
+   HISTORIAL CON EDITAR (✏️) Y BORRAR (🗑️)
+   100% Compatible con todos los celulares
+=================================================== */
+
+// Función para borrar un sorteo
+window.delS = function(dDate, shift, num) {
+    var fechaFmt = (typeof fmtD === 'function') ? fmtD(dDate) : dDate;
+    if (!confirm('¿Borrar sorteo ' + num + ' del ' + fechaFmt + '?')) return;
+    var idx = -1;
+    for (var i = 0; i < sorteos.length; i++) {
+        if (sorteos[i].drawDate === dDate && sorteos[i].shift === shift && sorteos[i].number === num) {
+            idx = i;
+            break;
+        }
+    }
+    if (idx !== -1) {
+        sorteos.splice(idx, 1);
+        if (typeof saveData === 'function') saveData();
+        if (typeof rAll === 'function') rAll();
+    }
+};
+
+// Función para editar un sorteo
+window.editS = function(dDate, shift, num) {
+    var idx = -1;
+    for (var i = 0; i < sorteos.length; i++) {
+        if (sorteos[i].drawDate === dDate && sorteos[i].shift === shift && sorteos[i].number === num) {
+            idx = i;
+            break;
+        }
+    }
+    if (idx === -1) return;
+    window.editIdx = idx;
+    var s = sorteos[idx];
+    var ef = document.getElementById('eFecha');
+    var et = document.getElementById('eTurno');
+    var en = document.getElementById('eNum');
+    var modal = document.getElementById('editModal');
+    if (ef) ef.value = s.drawDate || '';
+    if (et) et.value = s.shift || 'midday';
+    if (en) en.value = s.number || '';
+    if (modal) modal.classList.add('show');
+};
+
+// Sobrescribir el Historial para mostrar los botones ✏️ y 🗑️
+window.rHist = function() {
+    var sI = document.getElementById('sI');
+    var sF = document.getElementById('sF');
+    var q = (sI && sI.value) ? sI.value.toLowerCase() : '';
+    var f = (sF && sF.value) ? sF.value : '';
+    var data = (typeof LD === 'function') ? LD() : (sorteos || []);
+    if (f) {
+        data = data.filter(function(s) { return s.shift === f; });
+    }
+    var flt = data.filter(function(d) {
+        var nStr = String(d.number || '');
+        var dtStr = String(d.drawDate || '');
+        return !q || (nStr.indexOf(q) !== -1) || (dtStr.indexOf(q) !== -1);
+    }).sort(typeof revSort === 'function' ? revSort : function(a,b){ return b.drawDate.localeCompare(a.drawDate); });
+
+    var perPage = 20;
+    var tot = Math.ceil(flt.length / perPage) || 1;
+    window.curPage = Math.max(0, Math.min(window.curPage || 0, tot - 1));
+    var page = flt.slice(window.curPage * perPage, (window.curPage + 1) * perPage);
+
+    var tb = document.getElementById('hBody');
+    if (!tb) return;
+
+    tb.innerHTML = page.map(function(d) {
+        var dateFmt = (typeof fmtD === 'function') ? fmtD(d.drawDate) : d.drawDate;
+        var decVal = (typeof getDec === 'function') ? getDec(d.number) : Math.floor(parseInt(d.number)/10);
+        var termVal = (typeof getTerm === 'function') ? getTerm(d.number) : (parseInt(d.number)%10);
+        var isMid = (d.shift === 'midday');
+
+        return '<tr>' +
+            '<td>' + dateFmt + '</td>' +
+            '<td><span class="badge ' + (isMid ? 'badge-m' : 'badge-e') + '">' + (isMid ? '☀️ Med' : '🌙 Noc') + '</span></td>' +
+            '<td><strong class="tg">' + d.number + '</strong></td>' +
+            '<td>' + decVal + '0s</td>' +
+            '<td>T' + termVal + '</td>' +
+            '<td style="white-space:nowrap">' +
+            '<button class="btn btn-outline" style="padding:3px 7px;font-size:0.7rem;margin-right:4px" onclick="editS(\'' + d.drawDate + '\',\'' + d.shift + '\',\'' + d.number + '\')">✏️</button>' +
+            '<button class="btn btn-outline" style="padding:3px 7px;font-size:0.7rem;border-color:var(--red);color:var(--red)" onclick="delS(\'' + d.drawDate + '\',\'' + d.shift + '\',\'' + d.number + '\')">🗑️</button>' +
+            '</td>' +
+            '</tr>';
+    }).join('');
+
+    var pInfo = document.getElementById('pInfo');
+    if (pInfo) pInfo.textContent = (window.curPage + 1) + '/' + tot + ' (' + flt.length + ')';
+};
+</script>
 </body>
 </html>
