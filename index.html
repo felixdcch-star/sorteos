@@ -986,5 +986,1019 @@ window.saveEdit = function(){
     saveData();closeEdit();rAll();
 };
 </script>
+    <script>
+/* ═══════════════════════════════════════════════════════════
+   🛠️ REPARACIÓN PEONES V1
+   Restaura: Home, Frecuencias, Decenas, Terminales, Matrix,
+   Vibraciones, Conexiones, Año, Semana, Análisis
+   NO toca Telaraña ni Núcleo ni import Excel
+═══════════════════════════════════════════════════════════ */
+
+// Asegurar helpers si faltan
+window.getDec = window.getDec || function(n){
+    const v = parseInt(String(n).replace(/\D/g,'').padStart(2,'0').slice(-2),10);
+    return isNaN(v)?0:Math.floor(v/10);
+};
+window.getTerm = window.getTerm || function(n){
+    const v = parseInt(String(n).replace(/\D/g,'').padStart(2,'0').slice(-2),10);
+    return isNaN(v)?0:v%10;
+};
+window.p2 = window.p2 || function(n){return String(n).padStart(2,'0');};
+window.fmtD = window.fmtD || function(d){
+    if(!d)return '';
+    const p=String(d).split('-');
+    return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:d;
+};
+window.getDayName = window.getDayName || function(d){
+    const days=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+    return days[new Date(d+'T12:00:00').getDay()];
+};
+window.gFreq = window.gFreq || function(data){
+    const f={}; (data||[]).forEach(d=>{f[d.number]=(f[d.number]||0)+1;}); return f;
+};
+window.sFreq = window.sFreq || function(f){
+    return Object.entries(f).sort((a,b)=>b[1]-a[1]);
+};
+window.chronoSort = window.chronoSort || function(a,b){
+    if(a.drawDate!==b.drawDate)return a.drawDate.localeCompare(b.drawDate);
+    return a.shift==='midday'?-1:1;
+};
+window.revSort = window.revSort || function(a,b){return -chronoSort(a,b);};
+window.LD = window.LD || function(){
+    const f=document.getElementById('sF')?document.getElementById('sF').value:'';
+    const data = window.sorteos || [];
+    return f?data.filter(s=>s.shift===f):data.slice();
+};
+window.getLastSorteoMes = window.getLastSorteoMes || function(){
+    if(!sorteos||!sorteos.length)return null;
+    return [...sorteos].sort(revSort)[0];
+};
+window.getNextTurno = window.getNextTurno || function(){
+    const ls=getLastSorteoMes();
+    if(!ls)return{shift:'midday',label:'Mediodía'};
+    if(ls.shift==='midday')return{shift:'evening',label:'Noche'};
+    return{shift:'midday',label:'Mediodía'};
+};
+window.renderLsBanner = window.renderLsBanner || function(id){
+    const el=document.getElementById(id); if(!el)return;
+    const ls=getLastSorteoMes(); const next=getNextTurno();
+    if(!ls){el.innerHTML='';return;}
+    el.innerHTML='<div class="ls-banner"><div><div class="ls-lbl">Último Sorteo</div>'+
+        '<div class="ls-num">'+ls.number+'</div><div class="ls-info">'+
+        (ls.shift==='midday'?'☀️ Mediodía':'🌙 Noche')+' · '+fmtD(ls.drawDate)+
+        '</div></div><div><div class="ls-lbl">Próximo</div><div class="ls-next">→ '+
+        next.label+'</div></div></div>';
+};
+window.getTransitions = window.getTransitions || function(data,type){
+    const sorted=[...data].sort(chronoSort); const pairs=[];
+    for(let i=0;i<sorted.length-1;i++){
+        const c=sorted[i],n=sorted[i+1];
+        if(type==='all')pairs.push({from:c,to:n});
+        else if(type==='dd'&&c.shift==='midday'&&n.shift==='midday')pairs.push({from:c,to:n});
+        else if(type==='nn'&&c.shift==='evening'&&n.shift==='evening')pairs.push({from:c,to:n});
+        else if(type==='dn'&&c.shift==='midday'&&n.shift==='evening')pairs.push({from:c,to:n});
+        else if(type==='nd'&&c.shift==='evening'&&n.shift==='midday')pairs.push({from:c,to:n});
+    }
+    return pairs;
+};
+window.getDecTransFreq = window.getDecTransFreq || function(pairs){
+    const f={}; for(let i=0;i<=9;i++)for(let j=0;j<=9;j++)f[i+'->'+j]=0;
+    pairs.forEach(p=>{f[getDec(p.from.number)+'->'+getDec(p.to.number)]++;});
+    return f;
+};
+window.getTermTransFreq = window.getTermTransFreq || function(pairs){
+    const f={}; for(let i=0;i<=9;i++)for(let j=0;j<=9;j++)f[i+'->'+j]=0;
+    pairs.forEach(p=>{f[getTerm(p.from.number)+'->'+getTerm(p.to.number)]++;});
+    return f;
+};
+window.getPullConnections = window.getPullConnections || function(data,limit){
+    const sorted=[...data].sort(chronoSort); const f={};
+    for(let i=0;i<sorted.length-1;i++){
+        const k=sorted[i].number+'->'+sorted[i+1].number;
+        f[k]=(f[k]||0)+1;
+    }
+    return Object.entries(f).map(([k,c])=>{
+        const p=k.split('->'); return {from:p[0],to:p[1],count:c};
+    }).sort((a,b)=>b.count-a.count).slice(0,limit||25);
+};
+window.calcVibration = window.calcVibration || function(data,num,window){
+    const sorted=[...data].sort(revSort);
+    const recent=sorted.slice(0,window||20);
+    const gF=data.filter(d=>d.number===num).length/Math.max(data.length,1);
+    const rF=recent.filter(d=>d.number===num).length/Math.max(window||20,1);
+    const ratio=rF/Math.max(gF,0.001);
+    const level=Math.min(100,Math.round(ratio*50));
+    return {
+        level:level,
+        cls:ratio>1.2?'vib-high':ratio>0.8?'vib-med':'vib-low',
+        label:ratio>1.5?'🔥MUY ALTA':ratio>1?'⚡ALTA':ratio>0.5?'➡️MEDIA':'💤BAJA'
+    };
+};
+
+// ===== HOME COMPLETO =====
+window.rHome = function(){
+    const data = sorteos || [];
+    const ls = getLastSorteoMes();
+    const next = getNextTurno();
+    const hsub = document.getElementById('hsub');
+    const lastDraw = document.getElementById('lastDraw');
+    const genStats = document.getElementById('genStats');
+    const hotN = document.getElementById('hotN');
+    const coldN = document.getElementById('coldN');
+    const last2 = document.getElementById('last2months');
+    const streak = document.getElementById('streak');
+    const lastAnalCard = document.getElementById('lastAnalCard');
+    const lastAnal = document.getElementById('lastAnal');
+
+    if(!ls){
+        if(hsub) hsub.textContent = 'Sin datos — Importa tu Excel/JSON';
+        if(lastDraw) lastDraw.innerHTML = '<div class="empty" style="grid-column:1/-1"><div class="ei">🎲</div><p>Importa datos para comenzar</p></div>';
+        if(genStats) genStats.innerHTML = '<div class="empty" style="grid-column:1/-1"><p>Sin datos</p></div>';
+        if(hotN) hotN.innerHTML = '';
+        if(coldN) coldN.innerHTML = '';
+        if(last2) last2.innerHTML = '';
+        if(streak) streak.textContent = 'Sin datos';
+        if(lastAnalCard) lastAnalCard.style.display = 'none';
+        return;
+    }
+
+    if(hsub) hsub.textContent = data.length + ' sorteos · Próximo: ' + next.label;
+    const lsD = getDec(ls.number), lsT = getTerm(ls.number);
+
+    if(lastDraw){
+        lastDraw.innerHTML =
+            '<div class="draw-box"><div class="lbl">'+(ls.shift==='midday'?'☀️ Mediodía':'🌙 Noche')+
+            '</div><div class="num">'+ls.number+'</div><div class="dt">'+fmtD(ls.drawDate)+
+            '</div><div class="fxs td mt">Dec: '+lsD+'0s · T: T'+lsT+'</div></div>'+
+            '<div class="draw-box"><div class="lbl">→ Próximo</div>'+
+            '<div style="font-size:1.8rem;font-weight:900;color:var(--green);margin:8px 0">'+next.label+'</div>'+
+            '<div class="fxs td">Analiza en 🎯 / 🕸️ / 🌌</div></div>';
+    }
+
+    // Análisis último
+    if(lastAnalCard && lastAnal){
+        lastAnalCard.style.display = 'block';
+        const sorted = [...data].sort(chronoSort);
+        const dA={}, tA={};
+        for(let i=0;i<sorted.length-1;i++){
+            if(getDec(sorted[i].number)===lsD) dA[getDec(sorted[i+1].number)]=(dA[getDec(sorted[i+1].number)]||0)+1;
+            if(getTerm(sorted[i].number)===lsT) tA[getTerm(sorted[i+1].number)]=(tA[getTerm(sorted[i+1].number)]||0)+1;
+        }
+        const bD=Object.entries(dA).sort((a,b)=>b[1]-a[1]).slice(0,4);
+        const bT=Object.entries(tA).sort((a,b)=>b[1]-a[1]).slice(0,4);
+        lastAnal.innerHTML =
+            '<div class="g2"><div><div class="fxs td mb">Dec tras '+lsD+'0s:</div><div class="rec-nums">'+
+            bD.map(([d,c])=>'<div class="rec-item"><span>'+d+'0s</span>('+c+'x)</div>').join('')+
+            '</div></div><div><div class="fxs td mb">Term tras T'+lsT+':</div><div class="rec-nums">'+
+            bT.map(([t,c])=>'<div class="rec-item"><span>T'+t+'</span>('+c+'x)</div>').join('')+
+            '</div></div></div>';
+    }
+
+    const mid=data.filter(d=>d.shift==='midday');
+    const eve=data.filter(d=>d.shift==='evening');
+    const freq=gFreq(data);
+    if(genStats){
+        genStats.innerHTML =
+            '<div class="stat-box"><div class="v">'+data.length+'</div><div class="l">Total</div></div>'+
+            '<div class="stat-box"><div class="v">'+mid.length+'</div><div class="l">☀️ Mediodía</div></div>'+
+            '<div class="stat-box"><div class="v">'+eve.length+'</div><div class="l">🌙 Noche</div></div>'+
+            '<div class="stat-box"><div class="v">'+Object.keys(freq).length+'</div><div class="l">Únicos</div></div>';
+    }
+
+    const sf=sFreq(freq);
+    if(hotN) hotN.innerHTML = sf.slice(0,5).map(([n,c])=>'<div class="hc-n">'+n+'<br><span style="font-size:0.6rem">'+c+'x</span></div>').join('');
+    if(coldN) coldN.innerHTML = sf.slice(-5).reverse().map(([n,c])=>'<div class="hc-n">'+n+'<br><span style="font-size:0.6rem">'+c+'x</span></div>').join('');
+
+    // Últimos 2 meses
+    if(last2){
+        const now=new Date(ls.drawDate+'T12:00:00');
+        const twoM=new Date(now); twoM.setMonth(twoM.getMonth()-2);
+        const twoMStr=twoM.toISOString().split('T')[0];
+        const recent2=data.filter(d=>d.drawDate>=twoMStr);
+        const dF2={},tF2={}; for(let i=0;i<=9;i++){dF2[i]=0;tF2[i]=0;}
+        recent2.forEach(d=>{dF2[getDec(d.number)]++; tF2[getTerm(d.number)]++;});
+        const topD2=Object.entries(dF2).sort((a,b)=>b[1]-a[1]).slice(0,5);
+        const topT2=Object.entries(tF2).sort((a,b)=>b[1]-a[1]).slice(0,5);
+        last2.innerHTML='<div class="g2"><div><div class="fxs td mb">🔢 Top Dec</div>'+
+            topD2.map(([d,c])=>'<div class="fxs mb">'+d+'0s <span class="tg fw">'+c+'x</span></div>').join('')+
+            '</div><div><div class="fxs td mb">🎯 Top Term</div>'+
+            topT2.map(([t,c])=>'<div class="fxs mb">T'+t+' <span class="tgr fw">'+c+'x</span></div>').join('')+
+            '</div></div>';
+    }
+
+    if(streak){
+        const s2=[...data].sort(revSort);
+        let st=1;
+        for(let i=1;i<s2.length;i++){
+            if(getDec(s2[i].number)===getDec(s2[0].number)) st++; else break;
+        }
+        streak.innerHTML='Decena '+getDec(ls.number)+'0s lleva <strong style="color:var(--gold)">'+st+'</strong> sorteo(s) consecutivo(s)';
+    }
+};
+
+// ===== HISTORIAL =====
+window.curPage = window.curPage || 0;
+window.perPage = window.perPage || 20;
+window.rHist = function(){
+    const data=LD();
+    const q=(document.getElementById('sI')&&document.getElementById('sI').value||'').toLowerCase();
+    const filtered=data.filter(d=>!q||String(d.number).includes(q)||String(d.drawDate).includes(q)).sort(revSort);
+    const total=Math.ceil(filtered.length/perPage)||1;
+    curPage=Math.max(0,Math.min(curPage,total-1));
+    const page=filtered.slice(curPage*perPage,(curPage+1)*perPage);
+    const tb=document.getElementById('hBody'); if(!tb)return;
+    tb.innerHTML=page.map((d,i)=>'<tr><td>'+fmtD(d.drawDate)+'</td><td><span class="badge '+
+        (d.shift==='midday'?'badge-m':'badge-e')+'">'+(d.shift==='midday'?'☀️ Med':'🌙 Noc')+
+        '</span></td><td><strong class="tg">'+d.number+'</strong></td><td>'+getDec(d.number)+
+        '0s</td><td>T'+getTerm(d.number)+'</td><td><button class="btn btn-outline" style="padding:4px 8px;font-size:0.7rem" onclick="editS('+(curPage*perPage+i)+')">✏️</button></td></tr>').join('');
+    const pi=document.getElementById('pInfo');
+    if(pi) pi.textContent=(curPage+1)+'/'+total+' ('+filtered.length+')';
+};
+window.cPage = function(d){ curPage+=d; rHist(); };
+
+// ===== FRECUENCIAS =====
+window.curFV = window.curFV || 'all';
+window.freqView = function(v,btn){
+    curFV=v;
+    document.querySelectorAll('#sec-freq .sub-tab').forEach(b=>b.classList.remove('active'));
+    if(btn) btn.classList.add('active');
+    rFreq();
+};
+window.rFreq = function(){
+    const data = sorteos||[];
+    const host = document.getElementById('freqContent');
+    if(!host) return;
+    if(!data.length){ host.innerHTML='<div class="empty"><p>Sin datos</p></div>'; return; }
+    renderLsBanner('lsBannerFreq');
+    const mid=data.filter(d=>d.shift==='midday');
+    const eve=data.filter(d=>d.shift==='evening');
+    let src = curFV==='midday'?mid:curFV==='evening'?eve:data;
+
+    if(curFV==='decs'){
+        const dF={}; for(let i=0;i<=9;i++) dF[i]=0;
+        src.forEach(d=>dF[getDec(d.number)]++);
+        const sorted=Object.entries(dF).sort((a,b)=>b[1]-a[1]);
+        const mx=sorted[0]?sorted[0][1]:1;
+        if(document.getElementById('freqTitle')) document.getElementById('freqTitle').textContent='🔢 Decenas';
+        host.innerHTML=sorted.map(([d,c])=>
+            '<div class="fb"><div class="n">'+d+'0s</div><div class="track"><div class="fill fill-gold" style="width:'+(c/mx*100)+
+            '%"><span>'+c+'</span></div></div><div class="c">'+c+'x</div></div>').join('');
+        return;
+    }
+    if(curFV==='terms'){
+        const tF={}; for(let i=0;i<=9;i++) tF[i]=0;
+        src.forEach(d=>tF[getTerm(d.number)]++);
+        const sorted=Object.entries(tF).sort((a,b)=>b[1]-a[1]);
+        const mx=sorted[0]?sorted[0][1]:1;
+        if(document.getElementById('freqTitle')) document.getElementById('freqTitle').textContent='🎯 Terminales';
+        host.innerHTML=sorted.map(([t,c])=>
+            '<div class="fb"><div class="n">T'+t+'</div><div class="track"><div class="fill fill-blue" style="width:'+(c/mx*100)+
+            '%"><span>'+c+'</span></div></div><div class="c">'+c+'x</div></div>').join('');
+        return;
+    }
+    let sf=sFreq(gFreq(src));
+    if(curFV==='top') sf=sf.slice(0,15);
+    if(curFV==='bottom') sf=sf.slice(-15).reverse();
+    const mx=sf[0]?sf[0][1]:1;
+    if(document.getElementById('freqTitle')){
+        document.getElementById('freqTitle').textContent =
+            curFV==='top'?'🔥 Top 15':curFV==='bottom'?'❄️ Bottom 15':
+            curFV==='midday'?'☀️ Mediodía':curFV==='evening'?'🌙 Noche':'📊 Todos';
+    }
+    host.innerHTML=sf.map(([n,c])=>
+        '<div class="fb"><div class="n">'+n+'</div><div class="track"><div class="fill fill-green" style="width:'+(c/mx*100)+
+        '%"><span>'+c+'</span></div></div><div class="c">'+c+'x</div></div>').join('');
+};
+
+// ===== DECENAS =====
+window.curDV = window.curDV || 'general';
+window.decView = function(v,btn){
+    curDV=v;
+    document.querySelectorAll('#sec-dec .sub-tab').forEach(b=>b.classList.remove('active'));
+    if(btn) btn.classList.add('active');
+    rDec();
+};
+window.rDec = function(){
+    const data=LD();
+    const host=document.getElementById('decContent');
+    if(!host) return;
+    if(!data.length){ host.innerHTML='<div class="empty"><p>Sin datos</p></div>'; return; }
+    renderLsBanner('lsBannerDec');
+    if(curDV==='general') rDecGen(data);
+    else if(curDV==='best') rDecBest(data);
+    else rDecTrans(data,curDV);
+};
+window.rDecGen = function(data){
+    if(document.getElementById('decTitle')) document.getElementById('decTitle').textContent='🔢 Decenas General';
+    const ls=getLastSorteoMes(); const lsD=ls?getDec(ls.number):null;
+    const dF={}; for(let i=0;i<=9;i++) dF[i]=0;
+    data.forEach(d=>dF[getDec(d.number)]++);
+    const sorted=Object.entries(dF).sort((a,b)=>b[1]-a[1]);
+    const mx=sorted[0]?sorted[0][1]:1;
+    let html=ls?'<div class="fxs td mb">📌 '+ls.number+' Dec:'+lsD+'0s</div>':'';
+    html+=sorted.map(([d,c])=>{
+        const isLS=parseInt(d,10)===lsD;
+        return '<div class="fb"><div class="n" style="'+(isLS?'color:var(--gold2)':'')+'">'+d+'0s'+(isLS?' 📌':'')+
+            '</div><div class="track"><div class="fill '+(isLS?'fill-hot':'fill-gold')+'" style="width:'+(c/mx*100)+
+            '%"><span>'+c+'</span></div></div><div class="c">'+c+'x</div></div>';
+    }).join('');
+    document.getElementById('decContent').innerHTML=html;
+};
+window.rDecTrans = function(data,type){
+    const labels={dd:'☀️→☀️ M-M',nn:'🌙→🌙 N-N',dn:'☀️→🌙 M-N',nd:'🌙→☀️ N-M'};
+    if(document.getElementById('decTitle')) document.getElementById('decTitle').textContent='🔢 '+(labels[type]||type);
+    const ls=getLastSorteoMes(); const lsD=ls?getDec(ls.number):null;
+    const pairs=getTransitions(data,type);
+    if(!pairs.length){ document.getElementById('decContent').innerHTML='<div class="empty"><p>Sin transiciones</p></div>'; return; }
+    const freq=getDecTransFreq(pairs);
+    const sorted=Object.entries(freq).sort((a,b)=>b[1]-a[1]).filter(([,c])=>c>0);
+    const mx=sorted[0]?sorted[0][1]:1;
+    let html='';
+    if(ls&&lsD!==null){
+        const fl=Object.entries(freq).filter(([k])=>k.startsWith(lsD+'->')).sort((a,b)=>b[1]-a[1]).filter(([,c])=>c>0).slice(0,5);
+        if(fl.length){
+            html+='<div class="rec-box"><h4>🎯 '+lsD+'0s('+ls.number+')→</h4><div class="rec-nums">';
+            fl.forEach(([k,c])=>{html+='<div class="rec-item"><span>'+k.split('->')[1]+'0s</span>('+c+'x)</div>';});
+            html+='</div></div>';
+        }
+    }
+    html+='<p class="fxs td mb">'+pairs.length+' transiciones</p>';
+    html+=sorted.slice(0,15).map(([k,c])=>{
+        const p=k.split('->');
+        return '<div class="fb"><div class="n" style="width:55px;font-size:0.75rem">'+p[0]+'0s→'+p[1]+'0s</div>'+
+            '<div class="track"><div class="fill fill-gold" style="width:'+(c/mx*100)+'%"><span>'+c+'</span></div></div>'+
+            '<div class="c">'+c+'x</div></div>';
+    }).join('');
+    document.getElementById('decContent').innerHTML=html;
+};
+window.rDecBest = function(data){
+    if(document.getElementById('decTitle')) document.getElementById('decTitle').textContent='🏆 Mejores Decenas';
+    const ls=getLastSorteoMes();
+    const sorted=[...data].sort(revSort);
+    const recent=sorted.slice(0,Math.min(40,sorted.length));
+    const gD={},rD={}; for(let i=0;i<=9;i++){gD[i]=0;rD[i]=0;}
+    data.forEach(d=>gD[getDec(d.number)]++);
+    recent.forEach(d=>rD[getDec(d.number)]++);
+    const scores=[];
+    for(let i=0;i<=9;i++){
+        const mom=(rD[i]/Math.max(recent.length,1))/Math.max(gD[i]/Math.max(data.length,1),0.001);
+        scores.push({dec:i,g:gD[i],r:rD[i],m:mom.toFixed(2)});
+    }
+    scores.sort((a,b)=>b.m-a.m);
+    let html=ls?'<div class="fxs td mb">📌 '+ls.number+'</div>':'';
+    html+=scores.map((s,idx)=>{
+        const isLS=ls&&s.dec===getDec(ls.number);
+        return '<div class="pull-box" style="'+(isLS?'border-color:var(--gold);':'')+'">'+
+            '<div style="font-size:1.5rem;font-weight:900;color:'+(idx<3?'var(--gold)':'var(--dim)')+'">#'+(idx+1)+'</div>'+
+            '<div><div class="fw tg" style="font-size:1.2rem">'+s.dec+'0s'+(isLS?' 📌':'')+'</div>'+
+            '<div class="fxs td">G:'+s.g+'x R:'+s.r+'x M:'+s.m+'x</div></div></div>';
+    }).join('');
+    document.getElementById('decContent').innerHTML=html;
+};
+
+// ===== TERMINALES =====
+window.curTV = window.curTV || 'general';
+window.termView = function(v,btn){
+    curTV=v;
+    document.querySelectorAll('#sec-term .sub-tab').forEach(b=>b.classList.remove('active'));
+    if(btn) btn.classList.add('active');
+    rTerm();
+};
+window.rTerm = function(){
+    const data=LD();
+    const host=document.getElementById('termContent');
+    if(!host) return;
+    if(!data.length){ host.innerHTML='<div class="empty"><p>Sin datos</p></div>'; return; }
+    renderLsBanner('lsBannerTerm');
+    if(curTV==='general') rTermGen(data);
+    else if(curTV==='best') rTermBest(data);
+    else rTermTrans(data,curTV);
+};
+window.rTermGen = function(data){
+    if(document.getElementById('termTitle')) document.getElementById('termTitle').textContent='🎯 Terminales General';
+    const ls=getLastSorteoMes(); const lsT=ls?getTerm(ls.number):null;
+    const tF={}; for(let i=0;i<=9;i++) tF[i]=0;
+    data.forEach(d=>tF[getTerm(d.number)]++);
+    const sorted=Object.entries(tF).sort((a,b)=>b[1]-a[1]);
+    const mx=sorted[0]?sorted[0][1]:1;
+    let html=ls?'<div class="fxs td mb">📌 '+ls.number+' T:T'+lsT+'</div>':'';
+    html+=sorted.map(([t,c])=>{
+        const isLS=parseInt(t,10)===lsT;
+        return '<div class="fb"><div class="n" style="'+(isLS?'color:var(--gold2)':'')+'">T'+t+(isLS?' 📌':'')+
+            '</div><div class="track"><div class="fill '+(isLS?'fill-hot':'fill-blue')+'" style="width:'+(c/mx*100)+
+            '%"><span>'+c+'</span></div></div><div class="c">'+c+'x</div></div>';
+    }).join('');
+    document.getElementById('termContent').innerHTML=html;
+};
+window.rTermTrans = function(data,type){
+    const labels={dd:'☀️→☀️ M-M',nn:'🌙→🌙 N-N',dn:'☀️→🌙 M-N',nd:'🌙→☀️ N-M'};
+    if(document.getElementById('termTitle')) document.getElementById('termTitle').textContent='🎯 '+(labels[type]||type);
+    const ls=getLastSorteoMes(); const lsT=ls?getTerm(ls.number):null;
+    const pairs=getTransitions(data,type);
+    if(!pairs.length){ document.getElementById('termContent').innerHTML='<div class="empty"><p>Sin transiciones</p></div>'; return; }
+    const freq=getTermTransFreq(pairs);
+    const sorted=Object.entries(freq).sort((a,b)=>b[1]-a[1]).filter(([,c])=>c>0);
+    const mx=sorted[0]?sorted[0][1]:1;
+    let html='';
+    if(ls&&lsT!==null){
+        const fl=Object.entries(freq).filter(([k])=>k.startsWith(lsT+'->')).sort((a,b)=>b[1]-a[1]).filter(([,c])=>c>0).slice(0,5);
+        if(fl.length){
+            html+='<div class="rec-box"><h4>🎯 T'+lsT+'('+ls.number+')→</h4><div class="rec-nums">';
+            fl.forEach(([k,c])=>{html+='<div class="rec-item"><span>T'+k.split('->')[1]+'</span>('+c+'x)</div>';});
+            html+='</div></div>';
+        }
+    }
+    html+='<p class="fxs td mb">'+pairs.length+' transiciones</p>';
+    html+=sorted.slice(0,15).map(([k,c])=>{
+        const p=k.split('->');
+        return '<div class="fb"><div class="n" style="width:50px;font-size:0.75rem">T'+p[0]+'→T'+p[1]+'</div>'+
+            '<div class="track"><div class="fill fill-blue" style="width:'+(c/mx*100)+'%"><span>'+c+'</span></div></div>'+
+            '<div class="c">'+c+'x</div></div>';
+    }).join('');
+    document.getElementById('termContent').innerHTML=html;
+};
+window.rTermBest = function(data){
+    if(document.getElementById('termTitle')) document.getElementById('termTitle').textContent='🏆 Mejores Terminales';
+    const ls=getLastSorteoMes();
+    const sorted=[...data].sort(revSort);
+    const recent=sorted.slice(0,Math.min(40,sorted.length));
+    const gT={},rT={}; for(let i=0;i<=9;i++){gT[i]=0;rT[i]=0;}
+    data.forEach(d=>gT[getTerm(d.number)]++);
+    recent.forEach(d=>rT[getTerm(d.number)]++);
+    const scores=[];
+    for(let i=0;i<=9;i++){
+        const mom=(rT[i]/Math.max(recent.length,1))/Math.max(gT[i]/Math.max(data.length,1),0.001);
+        scores.push({term:i,g:gT[i],r:rT[i],m:mom.toFixed(2)});
+    }
+    scores.sort((a,b)=>b.m-a.m);
+    let html=ls?'<div class="fxs td mb">📌 '+ls.number+'</div>':'';
+    html+=scores.map((s,idx)=>{
+        const isLS=ls&&s.term===getTerm(ls.number);
+        return '<div class="pull-box" style="'+(isLS?'border-color:var(--gold);':'')+'">'+
+            '<div style="font-size:1.5rem;font-weight:900;color:'+(idx<3?'var(--gold)':'var(--dim)')+'">#'+(idx+1)+'</div>'+
+            '<div><div class="fw tg" style="font-size:1.2rem">T'+s.term+(isLS?' 📌':'')+'</div>'+
+            '<div class="fxs td">G:'+s.g+'x R:'+s.r+'x M:'+s.m+'x</div></div></div>';
+    }).join('');
+    document.getElementById('termContent').innerHTML=html;
+};
+
+// ===== MATRIX =====
+window.curMV = window.curMV || 'dec';
+window.matView = function(v,btn){
+    curMV=v;
+    document.querySelectorAll('#sec-matrix .sub-tab').forEach(b=>b.classList.remove('active'));
+    if(btn) btn.classList.add('active');
+    rMat();
+};
+window.rMat = function(){
+    const data=LD();
+    const host=document.getElementById('matContent');
+    if(!host) return;
+    if(!data.length){ host.innerHTML='<div class="empty"><p>Sin datos</p></div>'; return; }
+    renderLsBanner('lsBannerMatrix');
+    if(curMV==='dec') rMatD(data);
+    else if(curMV==='term') rMatT(data);
+    else rMatTr(data);
+};
+window.rMatD = function(data){
+    if(document.getElementById('matTitle')) document.getElementById('matTitle').textContent='🧮 Decenas';
+    const ls=getLastSorteoMes(); const lsD=ls?getDec(ls.number):null;
+    const dF={}; for(let i=0;i<=9;i++) dF[i]=0;
+    data.forEach(d=>dF[getDec(d.number)]++);
+    const sorted=Object.entries(dF).sort((a,b)=>b[1]-a[1]);
+    let html='<div style="overflow-x:auto"><div class="matrix"><div class="matrix-row">'+
+        '<div class="matrix-cell matrix-header">DEC</div><div class="matrix-cell matrix-header">F</div>'+
+        '<div class="matrix-cell matrix-header">%</div><div class="matrix-cell matrix-header">🔥</div></div>';
+    sorted.forEach(([d,c],idx)=>{
+        const pct=((c/Math.max(data.length,1))*100).toFixed(1);
+        let cls='normal';
+        if(idx===0)cls='hot-1'; else if(idx<=2)cls='hot-2'; else if(idx<=4)cls='hot-3'; else if(idx>=8)cls='cold-1';
+        const isLS=parseInt(d,10)===lsD;
+        html+='<div class="matrix-row"><div class="matrix-cell '+cls+'" style="font-weight:800'+(isLS?';color:var(--gold2)':'')+'">'+
+            d+'0s'+(isLS?' 📌':'')+'</div><div class="matrix-cell '+cls+'">'+c+'x</div><div class="matrix-cell '+cls+'">'+pct+
+            '%</div><div class="matrix-cell '+cls+'">'+(idx<3?'🔥':idx<7?'➡️':'❄️')+'</div></div>';
+    });
+    html+='</div></div>';
+    document.getElementById('matContent').innerHTML=html;
+};
+window.rMatT = function(data){
+    if(document.getElementById('matTitle')) document.getElementById('matTitle').textContent='🧮 Terminales';
+    const ls=getLastSorteoMes(); const lsT=ls?getTerm(ls.number):null;
+    const tF={}; for(let i=0;i<=9;i++) tF[i]=0;
+    data.forEach(d=>tF[getTerm(d.number)]++);
+    const sorted=Object.entries(tF).sort((a,b)=>b[1]-a[1]);
+    let html='<div style="overflow-x:auto"><div class="matrix"><div class="matrix-row">'+
+        '<div class="matrix-cell matrix-header">T</div><div class="matrix-cell matrix-header">F</div>'+
+        '<div class="matrix-cell matrix-header">%</div><div class="matrix-cell matrix-header">🔥</div></div>';
+    sorted.forEach(([t,c],idx)=>{
+        const pct=((c/Math.max(data.length,1))*100).toFixed(1);
+        let cls='normal';
+        if(idx===0)cls='hot-1'; else if(idx<=2)cls='hot-2'; else if(idx<=4)cls='hot-3'; else if(idx>=8)cls='cold-1';
+        const isLS=parseInt(t,10)===lsT;
+        html+='<div class="matrix-row"><div class="matrix-cell '+cls+'" style="font-weight:800'+(isLS?';color:var(--gold2)':'')+'">T'+
+            t+(isLS?' 📌':'')+'</div><div class="matrix-cell '+cls+'">'+c+'x</div><div class="matrix-cell '+cls+'">'+pct+
+            '%</div><div class="matrix-cell '+cls+'">'+(idx<3?'🔥':idx<7?'➡️':'❄️')+'</div></div>';
+    });
+    html+='</div></div>';
+    document.getElementById('matContent').innerHTML=html;
+};
+window.rMatTr = function(data){
+    if(document.getElementById('matTitle')) document.getElementById('matTitle').textContent='🧮 Transiciones';
+    const pairs=getTransitions(data,'all');
+    const freq=getDecTransFreq(pairs);
+    let html='<div style="overflow-x:auto"><table style="font-size:0.65rem;width:100%;border-collapse:collapse"><thead><tr><th>→</th>';
+    for(let j=0;j<=9;j++) html+='<th>'+j+'0s</th>';
+    html+='</tr></thead><tbody>';
+    for(let i=0;i<=9;i++){
+        html+='<tr><th>'+i+'0s</th>';
+        const rM=Math.max(...Array.from({length:10},(_,j)=>freq[i+'->'+j]||0),1);
+        for(let j=0;j<=9;j++){
+            const c=freq[i+'->'+j]||0;
+            let bg='';
+            if(c===rM&&c>0) bg='background:rgba(255,71,87,0.3);color:var(--red);font-weight:800';
+            else if(c>rM*0.7) bg='background:rgba(255,140,0,0.2);color:var(--orange)';
+            else if(c>0) bg='color:var(--text)';
+            else bg='color:var(--border)';
+            html+='<td style="text-align:center;border:1px solid var(--border);padding:4px;'+bg+'">'+(c||'·')+'</td>';
+        }
+        html+='</tr>';
+    }
+    html+='</tbody></table></div>';
+    document.getElementById('matContent').innerHTML=html;
+};
+
+// ===== VIBRACIONES =====
+window.curVV = window.curVV || 'nums';
+window.vibView = function(v,btn){
+    curVV=v;
+    document.querySelectorAll('#sec-vib .sub-tab').forEach(b=>b.classList.remove('active'));
+    if(btn) btn.classList.add('active');
+    rVib();
+};
+window.rVib = function(){
+    const data=LD();
+    const host=document.getElementById('vibContent');
+    if(!host) return;
+    if(!data.length){ host.innerHTML='<div class="empty"><p>Sin datos</p></div>'; return; }
+    renderLsBanner('lsBannerVib');
+    if(curVV==='nums') rVN(data);
+    else if(curVV==='decs') rVD(data);
+    else rVT(data);
+};
+window.rVN = function(data){
+    if(document.getElementById('vibTitle')) document.getElementById('vibTitle').textContent='📡 Números';
+    const ls=getLastSorteoMes(); const next=getNextTurno();
+    const res=[];
+    for(let i=0;i<=99;i++){ const n=p2(i); res.push({num:n,vib:calcVibration(data,n,20)}); }
+    res.sort((a,b)=>b.vib.level-a.vib.level);
+    let html='';
+    if(ls){
+        html+='<div class="rec-box"><h4>🎯 '+next.label+' | Último:'+ls.number+'</h4><div class="rec-nums">';
+        res.filter(r=>r.vib.level>60).slice(0,6).forEach(r=>{
+            html+='<div class="rec-item"><span>'+r.num+'</span>('+r.vib.level+'%)</div>';
+        });
+        html+='</div></div>';
+    }
+    html+=res.slice(0,20).map(r=>
+        '<div class="fb"><div class="n">'+r.num+'</div><div class="track"><div class="vib-fill '+r.vib.cls+
+        '" style="width:'+r.vib.level+'%;height:100%;border-radius:9px"><span style="font-size:0.55rem;color:var(--bg);font-weight:700;padding-left:3px">'+
+        r.vib.label+'</span></div></div></div>').join('');
+    document.getElementById('vibContent').innerHTML=html;
+};
+window.rVD = function(data){
+    if(document.getElementById('vibTitle')) document.getElementById('vibTitle').textContent='📡 Decenas';
+    const sorted=[...data].sort(revSort);
+    const recent=sorted.slice(0,20);
+    const gD={},rD={}; for(let i=0;i<=9;i++){gD[i]=0;rD[i]=0;}
+    data.forEach(d=>gD[getDec(d.number)]++);
+    recent.forEach(d=>rD[getDec(d.number)]++);
+    const res=[];
+    for(let i=0;i<=9;i++){
+        const ratio=(rD[i]/Math.max(recent.length,1))/(gD[i]/Math.max(data.length,1)||0.001);
+        const level=Math.min(100,Math.round(ratio*50));
+        res.push({dec:i,level,cls:ratio>1.2?'vib-high':ratio>0.8?'vib-med':'vib-low',
+            label:ratio>1.5?'🔥MUY ALTA':ratio>1?'⚡ALTA':ratio>0.5?'➡️MEDIA':'💤BAJA'});
+    }
+    res.sort((a,b)=>b.level-a.level);
+    document.getElementById('vibContent').innerHTML=res.map(r=>
+        '<div class="fb"><div class="n">'+r.dec+'0s</div><div class="track"><div class="vib-fill '+r.cls+
+        '" style="width:'+r.level+'%;height:100%;border-radius:9px"><span style="font-size:0.55rem;color:var(--bg);font-weight:700;padding-left:3px">'+
+        r.label+'</span></div></div></div>').join('');
+};
+window.rVT = function(data){
+    if(document.getElementById('vibTitle')) document.getElementById('vibTitle').textContent='📡 Terminales';
+    const sorted=[...data].sort(revSort);
+    const recent=sorted.slice(0,20);
+    const gT={},rT={}; for(let i=0;i<=9;i++){gT[i]=0;rT[i]=0;}
+    data.forEach(d=>gT[getTerm(d.number)]++);
+    recent.forEach(d=>rT[getTerm(d.number)]++);
+    const res=[];
+    for(let i=0;i<=9;i++){
+        const ratio=(rT[i]/Math.max(recent.length,1))/(gT[i]/Math.max(data.length,1)||0.001);
+        const level=Math.min(100,Math.round(ratio*50));
+        res.push({term:i,level,cls:ratio>1.2?'vib-high':ratio>0.8?'vib-med':'vib-low',
+            label:ratio>1.5?'🔥MUY ALTA':ratio>1?'⚡ALTA':ratio>0.5?'➡️MEDIA':'💤BAJA'});
+    }
+    res.sort((a,b)=>b.level-a.level);
+    document.getElementById('vibContent').innerHTML=res.map(r=>
+        '<div class="fb"><div class="n">T'+r.term+'</div><div class="track"><div class="vib-fill '+r.cls+
+        '" style="width:'+r.level+'%;height:100%;border-radius:9px"><span style="font-size:0.55rem;color:var(--bg);font-weight:700;padding-left:3px">'+
+        r.label+'</span></div></div></div>').join('');
+};
+
+// ===== CONEXIONES =====
+window.curPV = window.curPV || 'nums';
+window.pullView = function(v,btn){
+    curPV=v;
+    document.querySelectorAll('#sec-pull .sub-tab').forEach(b=>b.classList.remove('active'));
+    if(btn) btn.classList.add('active');
+    rPull();
+};
+window.rPull = function(){
+    const data=LD();
+    const host=document.getElementById('pullContent');
+    if(!host) return;
+    if(!data.length){ host.innerHTML='<div class="empty"><p>Sin datos</p></div>'; return; }
+    if(curPV==='nums') rPN(data);
+    else if(curPV==='decs') rPD(data);
+    else rPT(data);
+};
+window.rPN = function(data){
+    if(document.getElementById('pullTitle')) document.getElementById('pullTitle').textContent='🧲 Números';
+    const conns=getPullConnections(data,25);
+    const ln=([...data].sort(revSort)[0]||{}).number;
+    let html='';
+    if(ln){
+        const fl=getPullConnections(data,1000).filter(c=>c.from===ln).slice(0,5);
+        if(fl.length){
+            html+='<div class="card-t fxs mb">🎯 Tras '+ln+':</div>';
+            html+=fl.map(c=>'<div class="pull-box"><div class="pull-from">'+c.from+
+                '</div><div class="pull-arrow">→</div><div class="pull-to">'+c.to+
+                '</div><div class="pull-count">'+c.count+'x</div></div>').join('');
+            html+='<div class="divider"></div>';
+        }
+    }
+    html+='<div class="card-t fxs mb">🔝 Top</div>';
+    html+=conns.map(c=>'<div class="pull-box"><div class="pull-from">'+c.from+
+        '</div><div class="pull-arrow">→</div><div class="pull-to">'+c.to+
+        '</div><div class="pull-count">'+c.count+'x</div></div>').join('');
+    document.getElementById('pullContent').innerHTML=html;
+};
+window.rPD = function(data){
+    if(document.getElementById('pullTitle')) document.getElementById('pullTitle').textContent='🧲 Decenas';
+    const pairs=getTransitions(data,'all');
+    const freq=getDecTransFreq(pairs);
+    const sorted=Object.entries(freq).sort((a,b)=>b[1]-a[1]).filter(([,c])=>c>0).slice(0,15);
+    const ln=([...data].sort(revSort)[0]||{}).number;
+    const lD=ln!=null?getDec(ln):null;
+    let html='';
+    if(lD!==null){
+        const fl=Object.entries(freq).filter(([k])=>k.startsWith(lD+'->')).sort((a,b)=>b[1]-a[1]).filter(([,c])=>c>0).slice(0,5);
+        if(fl.length){
+            html+='<div class="card-t fxs mb">🎯 Tras '+lD+'0s:</div>';
+            html+=fl.map(([k,c])=>'<div class="pull-box"><div class="pull-from">'+lD+'0s</div><div class="pull-arrow">→</div><div class="pull-to">'+
+                k.split('->')[1]+'0s</div><div class="pull-count">'+c+'x</div></div>').join('');
+            html+='<div class="divider"></div>';
+        }
+    }
+    html+='<div class="card-t fxs mb">🔝 Top</div>';
+    html+=sorted.map(([k,c])=>{
+        const p=k.split('->');
+        return '<div class="pull-box"><div class="pull-from">'+p[0]+'0s</div><div class="pull-arrow">→</div><div class="pull-to">'+
+            p[1]+'0s</div><div class="pull-count">'+c+'x</div></div>';
+    }).join('');
+    document.getElementById('pullContent').innerHTML=html;
+};
+window.rPT = function(data){
+    if(document.getElementById('pullTitle')) document.getElementById('pullTitle').textContent='🧲 Terminales';
+    const pairs=getTransitions(data,'all');
+    const freq=getTermTransFreq(pairs);
+    const sorted=Object.entries(freq).sort((a,b)=>b[1]-a[1]).filter(([,c])=>c>0).slice(0,15);
+    const ln=([...data].sort(revSort)[0]||{}).number;
+    const lT=ln!=null?getTerm(ln):null;
+    let html='';
+    if(lT!==null){
+        const fl=Object.entries(freq).filter(([k])=>k.startsWith(lT+'->')).sort((a,b)=>b[1]-a[1]).filter(([,c])=>c>0).slice(0,5);
+        if(fl.length){
+            html+='<div class="card-t fxs mb">🎯 Tras T'+lT+':</div>';
+            html+=fl.map(([k,c])=>'<div class="pull-box"><div class="pull-from">T'+lT+'</div><div class="pull-arrow">→</div><div class="pull-to">T'+
+                k.split('->')[1]+'</div><div class="pull-count">'+c+'x</div></div>').join('');
+            html+='<div class="divider"></div>';
+        }
+    }
+    html+='<div class="card-t fxs mb">🔝 Top</div>';
+    html+=sorted.map(([k,c])=>{
+        const p=k.split('->');
+        return '<div class="pull-box"><div class="pull-from">T'+p[0]+'</div><div class="pull-arrow">→</div><div class="pull-to">T'+
+            p[1]+'</div><div class="pull-count">'+c+'x</div></div>';
+    }).join('');
+    document.getElementById('pullContent').innerHTML=html;
+};
+
+// ===== AÑO =====
+window.selYear = window.selYear || null;
+window.rYear = function(){
+    const data=LD();
+    if(!data.length){
+        const a=document.getElementById('yTabs'); if(a)a.innerHTML='';
+        const b=document.getElementById('yearContent'); if(b)b.innerHTML='';
+        const c=document.getElementById('yearCompare'); if(c)c.innerHTML='';
+        return;
+    }
+    renderLsBanner('lsBannerYear');
+    const years=[...new Set(data.map(d=>(d.drawDate||'').substring(0,4)).filter(Boolean))].sort().reverse();
+    if(!selYear||!years.includes(selYear)) selYear=years[0];
+    const yt=document.getElementById('yTabs');
+    if(yt) yt.innerHTML=years.map(y=>'<button class="ybtn '+(y===selYear?'active':'')+'" onclick="selY(\''+y+'\')">'+y+'</button>').join('');
+    rYC(data,selYear);
+    rYComp(data);
+};
+window.selY = function(y){ selYear=y; rYear(); };
+window.rYC = function(data,year){
+    const host=document.getElementById('yearContent'); if(!host) return;
+    const yd=data.filter(d=>(d.drawDate||'').startsWith(year));
+    if(!yd.length){ host.innerHTML='Sin datos'; return; }
+    const ls=getLastSorteoMes();
+    const sf=sFreq(gFreq(yd)).slice(0,5);
+    const mx=sf[0]?sf[0][1]:1;
+    const dF={},tF={}; for(let i=0;i<=9;i++){dF[i]=0;tF[i]=0;}
+    yd.forEach(d=>{dF[getDec(d.number)]++; tF[getTerm(d.number)]++;});
+    const tD=Object.entries(dF).sort((a,b)=>b[1]-a[1]);
+    const tT=Object.entries(tF).sort((a,b)=>b[1]-a[1]);
+    const lsD=ls?getDec(ls.number):null, lsT=ls?getTerm(ls.number):null;
+    host.innerHTML=
+        '<div class="g2 mb"><div class="stat-box"><div class="v">'+yd.length+'</div><div class="l">'+year+'</div></div>'+
+        '<div class="stat-box"><div class="v">'+yd.filter(d=>d.shift==='midday').length+'/'+yd.filter(d=>d.shift==='evening').length+
+        '</div><div class="l">☀️/🌙</div></div></div>'+
+        '<div class="card-t fxs mb">🔥 Top 5</div>'+
+        sf.map(([n,c])=>'<div class="fb"><div class="n">'+n+'</div><div class="track"><div class="fill fill-green" style="width:'+(c/mx*100)+
+        '%"><span>'+c+'</span></div></div><div class="c">'+c+'x</div></div>').join('')+
+        '<div class="divider"></div><div class="g2"><div><div class="card-t fxs mb">🔢 Dec</div>'+
+        tD.slice(0,5).map(([d,c])=>'<div class="fxs mb">'+d+'0s <span class="tg fw">'+c+'x</span>'+
+        (lsD!==null&&parseInt(d,10)===lsD?' 📌':'')+'</div>').join('')+
+        '</div><div><div class="card-t fxs mb">🎯 Term</div>'+
+        tT.slice(0,5).map(([t,c])=>'<div class="fxs mb">T'+t+' <span class="tgr fw">'+c+'x</span>'+
+        (lsT!==null&&parseInt(t,10)===lsT?' 📌':'')+'</div>').join('')+
+        '</div></div>';
+};
+window.rYComp = function(data){
+    const c=document.getElementById('yearCompare'); if(!c) return;
+    const ls=getLastSorteoMes(); if(!ls){ c.innerHTML=''; return; }
+    const next=getNextTurno();
+    const lsD=getDec(ls.number), lsT=getTerm(ls.number);
+    const years=[...new Set(data.map(d=>(d.drawDate||'').substring(0,4)).filter(Boolean))].sort().reverse();
+    const aD={},aT={};
+    years.forEach(y=>{
+        const yd=[...data.filter(d=>(d.drawDate||'').startsWith(y))].sort(chronoSort);
+        for(let i=0;i<yd.length-1;i++){
+            if(getDec(yd[i].number)===lsD) aD[getDec(yd[i+1].number)]=(aD[getDec(yd[i+1].number)]||0)+1;
+            if(getTerm(yd[i].number)===lsT) aT[getTerm(yd[i+1].number)]=(aT[getTerm(yd[i+1].number)]||0)+1;
+        }
+    });
+    const bD=Object.entries(aD).sort((a,b)=>b[1]-a[1]).slice(0,8);
+    const bT=Object.entries(aT).sort((a,b)=>b[1]-a[1]).slice(0,8);
+    const mxD=bD[0]?bD[0][1]:1, mxT=bT[0]?bT[0][1]:1;
+    let html='<div class="fxs td mb">📌 '+ls.number+'→'+next.label+'</div><div class="card-t fxs mb">Dec tras '+lsD+'0s</div>';
+    html+=bD.map(([d,cnt])=>'<div class="fb"><div class="n">'+d+'0s</div><div class="track"><div class="fill fill-hot" style="width:'+(cnt/mxD*100)+
+        '%"><span>'+cnt+'</span></div></div><div class="c">'+cnt+'x</div></div>').join('');
+    html+='<div class="divider"></div><div class="card-t fxs mb">Term tras T'+lsT+'</div>';
+    html+=bT.map(([t,cnt])=>'<div class="fb"><div class="n">T'+t+'</div><div class="track"><div class="fill fill-blue" style="width:'+(cnt/mxT*100)+
+        '%"><span>'+cnt+'</span></div></div><div class="c">'+cnt+'x</div></div>').join('');
+    c.innerHTML=html;
+};
+
+// ===== SEMANA =====
+window.rSemana = function(){
+    const c=document.getElementById('semanaContent'); if(!c) return;
+    const data=LD();
+    if(!data.length){ c.innerHTML='<div class="empty"><p>Sin datos</p></div>'; return; }
+    renderLsBanner('lsBannerSemana');
+    const ls=getLastSorteoMes(); if(!ls){ c.innerHTML='Sin datos'; return; }
+    const next=getNextTurno();
+    const lDate=new Date(ls.drawDate+'T12:00:00');
+    const wAgo=new Date(lDate); wAgo.setDate(wAgo.getDate()-7);
+    const wStr=wAgo.toISOString().split('T')[0];
+    const wData=data.filter(d=>d.drawDate>=wStr&&d.drawDate<=ls.drawDate).sort(chronoSort);
+    let html='<p class="fxs td mb">'+wStr+' al '+ls.drawDate+' — '+wData.length+' sorteos</p><div class="week-grid">';
+    wData.forEach(s=>{
+        html+='<div class="week-card"><div class="wc-day">'+getDayName(s.drawDate)+' '+(s.drawDate||'').substring(5)+
+            '</div><div class="wc-num">'+s.number+'</div><div class="wc-info">'+
+            (s.shift==='midday'?'☀️':'🌙')+' '+getDec(s.number)+'0s T'+getTerm(s.number)+'</div></div>';
+    });
+    html+='</div>';
+    const dF={},tF={}; for(let i=0;i<=9;i++){dF[i]=0;tF[i]=0;}
+    wData.forEach(s=>{dF[getDec(s.number)]++; tF[getTerm(s.number)]++;});
+    const topD=Object.entries(dF).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    const topT=Object.entries(tF).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    html+='<div class="rec-box"><h4>Dec semana</h4><div class="rec-nums">';
+    topD.forEach(([d,cnt])=>{html+='<div class="rec-item"><span>'+d+'0s</span>('+cnt+'x)</div>';});
+    html+='</div></div><div class="rec-box"><h4>Term semana</h4><div class="rec-nums">';
+    topT.forEach(([t,cnt])=>{html+='<div class="rec-item"><span>T'+t+'</span>('+cnt+'x)</div>';});
+    html+='</div></div><div class="rec-box"><h4>🎯→'+next.label+'</h4><div class="rec-nums">';
+    topD.slice(0,3).forEach(([d])=>topT.slice(0,3).forEach(([t])=>{
+        html+='<div class="rec-item"><span>'+d+'0s</span>+<span>T'+t+'</span></div>';
+    }));
+    html+='</div></div>';
+    c.innerHTML=html;
+};
+
+// ===== ANÁLISIS =====
+window.curAV = window.curAV || 'auto';
+window.analView = function(v,btn){
+    curAV=v;
+    document.querySelectorAll('#sec-analisis .sub-tab').forEach(b=>b.classList.remove('active'));
+    if(btn) btn.classList.add('active');
+    rAnalisis();
+};
+window.rAnalisis = function(){
+    const c=document.getElementById('analisisContent'); if(!c) return;
+    const data=LD();
+    if(data.length<5){ c.innerHTML='<div class="empty"><p>Min 5 sorteos</p></div>'; return; }
+    renderLsBanner('lsBannerAnalisis');
+    const ls=getLastSorteoMes(); if(!ls){ c.innerHTML='Sin datos'; return; }
+    if(curAV==='auto'){
+        const next=getNextTurno();
+        if(document.getElementById('analTitle')) document.getElementById('analTitle').textContent='🎯→'+next.label;
+        c.innerHTML=buildAnal(data,ls,next.shift,next.label);
+    } else if(curAV==='midday'){
+        if(document.getElementById('analTitle')) document.getElementById('analTitle').textContent='☀️ Mediodía';
+        c.innerHTML=buildAnal(data,ls,'midday','Mediodía');
+    } else if(curAV==='evening'){
+        if(document.getElementById('analTitle')) document.getElementById('analTitle').textContent='🌙 Noche';
+        c.innerHTML=buildAnal(data,ls,'evening','Noche');
+    } else {
+        if(document.getElementById('analTitle')) document.getElementById('analTitle').textContent='📊 Comparar';
+        c.innerHTML=buildComp(data,ls);
+    }
+};
+window.buildAnal = function(data,ls,tS,tL){
+    const lsD=getDec(ls.number), lsT=getTerm(ls.number);
+    const sorted=[...data].sort(chronoSort);
+    const dA={},tA={},dAT={},tAT={};
+    for(let i=0;i<sorted.length-1;i++){
+        const c=sorted[i], n=sorted[i+1];
+        if(getDec(c.number)===lsD){
+            dA[getDec(n.number)]=(dA[getDec(n.number)]||0)+1;
+            if(n.shift===tS) dAT[getDec(n.number)]=(dAT[getDec(n.number)]||0)+1;
+        }
+        if(getTerm(c.number)===lsT){
+            tA[getTerm(n.number)]=(tA[getTerm(n.number)]||0)+1;
+            if(n.shift===tS) tAT[getTerm(n.number)]=(tAT[getTerm(n.number)]||0)+1;
+        }
+    }
+    const sD=data.filter(d=>d.shift===tS);
+    const sDec={},sTerm={}; for(let i=0;i<=9;i++){sDec[i]=0;sTerm[i]=0;}
+    sD.forEach(d=>{sDec[getDec(d.number)]++; sTerm[getTerm(d.number)]++;});
+    const dSc={},tSc={}; for(let i=0;i<=9;i++){dSc[i]=0;tSc[i]=0;}
+    Object.entries(dA).forEach(([k,v])=>{dSc[parseInt(k,10)]+=v*3;});
+    Object.entries(tA).forEach(([k,v])=>{tSc[parseInt(k,10)]+=v*3;});
+    Object.entries(dAT).forEach(([k,v])=>{dSc[parseInt(k,10)]+=v*2.5;});
+    Object.entries(tAT).forEach(([k,v])=>{tSc[parseInt(k,10)]+=v*2.5;});
+    Object.entries(sDec).forEach(([k,v])=>{dSc[parseInt(k,10)]+=v*0.05;});
+    Object.entries(sTerm).forEach(([k,v])=>{tSc[parseInt(k,10)]+=v*0.05;});
+    const bD=Object.entries(dSc).sort((a,b)=>b[1]-a[1]);
+    const bT=Object.entries(tSc).sort((a,b)=>b[1]-a[1]);
+    const mxD=bD[0]?bD[0][1]:1, mxT=bT[0]?bT[0][1]:1;
+    let html='<div class="rec-box"><h4>🎰 '+ls.number+'('+(ls.shift==='midday'?'☀️':'🌙')+')→'+tL+
+        '</h4><div class="fxs td">'+fmtD(ls.drawDate)+' | '+sD.length+' sorteos '+tL+'</div></div>';
+    html+='<div class="card-t fxs mt mb">🎯 Dec→'+tL+'</div><div>';
+    bD.forEach(([num,score])=>{
+        const pct=Math.round(score/mxD*100);
+        const cls=pct>70?'prob-high':pct>40?'prob-med':'prob-low';
+        const isLS=parseInt(num,10)===lsD;
+        html+='<div class="fb"><div class="n" style="'+(isLS?'color:var(--gold2)':'')+'">'+num+'0s'+(isLS?' 📌':'')+
+            '</div><div style="flex:1"><div class="prob-bar"><div class="prob-fill '+cls+'" style="width:'+pct+
+            '%"></div></div></div><div class="c" style="width:45px">'+pct+'%('+(dAT[parseInt(num,10)]||0)+')</div></div>';
+    });
+    html+='</div><div class="card-t fxs mt mb">🎯 Term→'+tL+'</div><div>';
+    bT.forEach(([num,score])=>{
+        const pct=Math.round(score/mxT*100);
+        const cls=pct>70?'prob-high':pct>40?'prob-med':'prob-low';
+        const isLS=parseInt(num,10)===lsT;
+        html+='<div class="fb"><div class="n" style="'+(isLS?'color:var(--gold2)':'')+'">T'+num+(isLS?' 📌':'')+
+            '</div><div style="flex:1"><div class="prob-bar"><div class="prob-fill '+cls+'" style="width:'+pct+
+            '%"></div></div></div><div class="c" style="width:45px">'+pct+'%('+(tAT[parseInt(num,10)]||0)+')</div></div>';
+    });
+    html+='</div>';
+    const combos=[];
+    bD.slice(0,5).forEach(([d,ds])=>bT.slice(0,5).forEach(([t,ts])=>combos.push({d:d,t:t,s:ds+ts})));
+    combos.sort((a,b)=>b.s-a.s);
+    html+='<div class="rec-box mt"><h4>🏆 Combinaciones→'+tL+'</h4><div class="rec-nums">';
+    combos.slice(0,12).forEach((c,i)=>{
+        const em=i<3?['🥇','🥈','🥉'][i]:'';
+        html+='<div class="rec-item">'+em+'<span>'+c.d+'0s</span>+<span>T'+c.t+'</span></div>';
+    });
+    html+='</div></div>';
+    return html;
+};
+window.buildComp = function(data,ls){
+    const lsD=getDec(ls.number), lsT=getTerm(ls.number);
+    const sorted=[...data].sort(chronoSort);
+    const dBS={midday:{},evening:{}}, tBS={midday:{},evening:{}};
+    for(let i=0;i<sorted.length-1;i++){
+        const c=sorted[i], n=sorted[i+1];
+        if(getDec(c.number)===lsD) dBS[n.shift][getDec(n.number)]=(dBS[n.shift][getDec(n.number)]||0)+1;
+        if(getTerm(c.number)===lsT) tBS[n.shift][getTerm(n.number)]=(tBS[n.shift][getTerm(n.number)]||0)+1;
+    }
+    const midD=data.filter(d=>d.shift==='midday'), eveD=data.filter(d=>d.shift==='evening');
+    let html='<div class="rec-box"><h4>📊 '+ls.number+' | ☀️'+midD.length+' 🌙'+eveD.length+'</h4></div>';
+    html+='<div class="card-t fxs mb">Dec tras '+lsD+'0s</div><div class="tw"><table><thead><tr><th>Dec</th><th>☀️</th><th>🌙</th><th>Tot</th></tr></thead><tbody>';
+    for(let i=0;i<=9;i++){
+        const m=dBS.midday[i]||0, e=dBS.evening[i]||0, t=m+e;
+        if(!t) continue;
+        html+='<tr><td>'+i+'0s</td><td>'+m+'x</td><td>'+e+'x</td><td class="fw">'+t+'x</td></tr>';
+    }
+    html+='</tbody></table></div>';
+    html+='<div class="card-t fxs mt mb">Term tras T'+lsT+'</div><div class="tw"><table><thead><tr><th>Term</th><th>☀️</th><th>🌙</th><th>Tot</th></tr></thead><tbody>';
+    for(let i=0;i<=9;i++){
+        const m=tBS.midday[i]||0, e=tBS.evening[i]||0, t=m+e;
+        if(!t) continue;
+        html+='<tr><td>T'+i+'</td><td>'+m+'x</td><td>'+e+'x</td><td class="fw">'+t+'x</td></tr>';
+    }
+    html+='</tbody></table></div>';
+    return html;
+};
+
+// ===== goTab unificado (no rompe spider/nucleo) =====
+(function(){
+    const prevGo = window.goTab;
+    window.goTab = function(id, btn){
+        // navegación base
+        document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
+        document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
+        const sec=document.getElementById('sec-'+id);
+        if(sec) sec.classList.add('active');
+        if(btn) btn.classList.add('active');
+
+        // peones
+        const map = {
+            home: rHome,
+            hist: rHist,
+            freq: rFreq,
+            dec: rDec,
+            term: rTerm,
+            matrix: rMat,
+            vib: rVib,
+            pull: rPull,
+            year: rYear,
+            semana: rSemana,
+            analisis: rAnalisis
+        };
+        if(map[id]) {
+            try { map[id](); } catch(e){ console.error(id, e); }
+        }
+
+        // spider / nucleo si existen
+        if(id==='spider' && typeof window.rSpider==='function') {
+            try { window.rSpider(); } catch(e){ console.error(e); }
+        }
+        if(id==='nucleo' && typeof window.rNucleo==='function') {
+            try { window.rNucleo(); } catch(e){ console.error(e); }
+        }
+
+        // si había goTab anterior y no cubrimos algo raro
+        if(typeof prevGo==='function' && id!=='home' && id!=='hist' && id!=='freq' &&
+           id!=='dec' && id!=='term' && id!=='matrix' && id!=='vib' && id!=='pull' &&
+           id!=='year' && id!=='semana' && id!=='analisis' && id!=='spider' && id!=='nucleo'){
+            try { prevGo(id, btn); } catch(e){}
+        }
+    };
+})();
+
+// rAll seguro
+window.rAll = function(){
+    try { rHome(); } catch(e){}
+    const a=document.querySelector('.sec.active');
+    if(!a) return;
+    const id=a.id.replace('sec-','');
+    if(typeof goTab==='function'){
+        // re-render pestaña activa sin cambiar botón
+        const map = {
+            home:rHome,hist:rHist,freq:rFreq,dec:rDec,term:rTerm,matrix:rMat,
+            vib:rVib,pull:rPull,year:rYear,semana:rSemana,analisis:rAnalisis,
+            spider:window.rSpider, nucleo:window.rNucleo
+        };
+        if(map[id]) try { map[id](); } catch(e){ console.error(e); }
+    }
+};
+
+// Al cargar: refrescar home si hay datos
+setTimeout(function(){
+    try {
+        if(sorteos && sorteos.length) rHome();
+        const a=document.querySelector('.sec.active');
+        if(a){
+            const id=a.id.replace('sec-','');
+            if(id!=='spider' && id!=='nucleo' && typeof goTab==='function'){
+                // no re-click nav; solo render
+                const map={home:rHome,hist:rHist,freq:rFreq,dec:rDec,term:rTerm,matrix:rMat,vib:rVib,pull:rPull,year:rYear,semana:rSemana,analisis:rAnalisis};
+                if(map[id]) map[id]();
+            }
+        }
+    } catch(e){ console.error(e); }
+}, 400);
+
+console.log('%c🛠️ PEONES REPARADOS — Home, Freq, Dec, Term, Matrix, Vib, Pull, Año, Semana, Análisis', 'color:#00d4aa;font-weight:bold');
+</script>
 </body>
 </html>
