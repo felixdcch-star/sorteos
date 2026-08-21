@@ -5649,5 +5649,294 @@ function muRenderMatrixTable(mat, asTerm){
 
 console.log('%c🌌 MOTOR UNIVERSAL V1 activo — Fórmula del Maestro en Núcleo + Telaraña + Decenas + Terminales + Conexiones + Matrix', 'color:#00d4aa;font-weight:bold');
 </script>
+    <script>
+/* ═══════════════════════════════════════════════════════════
+   🔥 CONVERGENCIA UNIVERSAL
+   Detecta decenas/terminales que aparecen en AMBAS fuentes:
+   - Previo Mismo Turno
+   - Previo Turno Opuesto
+   Cuando coinciden = señal fuerte del Universo
+═══════════════════════════════════════════════════════════ */
+
+window.MU = window.MU || {};
+
+/**
+ * Calcula la convergencia entre dos orígenes
+ * Retorna:
+ *   - convergentes: [{val, count, sources}] - aparecen en 2+ fuentes
+ *   - simples: [{val, source}] - aparecen en 1 sola
+ *   - fuentes: {mismo: {origin, tops}, opuesto: {origin, tops}}
+ */
+MU.convergencia = function(mat, origenMismo, origenOpuesto, topN){
+    topN = topN || 3;
+
+    const topMismo = (origenMismo !== null && origenMismo !== undefined)
+        ? MU.topPulls(mat, origenMismo, topN).map(x => x.dest)
+        : [];
+    const topOpuesto = (origenOpuesto !== null && origenOpuesto !== undefined)
+        ? MU.topPulls(mat, origenOpuesto, topN).map(x => x.dest)
+        : [];
+
+    // Contar apariciones
+    const counter = {};
+    topMismo.forEach(v => {
+        if (!counter[v]) counter[v] = { val: v, count: 0, sources: [] };
+        counter[v].count++;
+        counter[v].sources.push('mismo');
+    });
+    topOpuesto.forEach(v => {
+        if (!counter[v]) counter[v] = { val: v, count: 0, sources: [] };
+        counter[v].count++;
+        counter[v].sources.push('opuesto');
+    });
+
+    const all = Object.values(counter);
+    const convergentes = all.filter(x => x.count >= 2)
+        .sort((a, b) => b.count - a.count || a.val - b.val);
+    const simples = all.filter(x => x.count === 1)
+        .sort((a, b) => a.val - b.val);
+
+    return {
+        convergentes,
+        simples,
+        topMismo,
+        topOpuesto,
+        origenMismo,
+        origenOpuesto
+    };
+};
+
+/**
+ * Obtiene los previos para el próximo turno
+ * next = próximo turno a jugar ('midday' o 'evening')
+ * Retorna { mismo, opuesto } — sorteos previos que influyen
+ */
+MU.previosParaProximo = function(next){
+    const sorted = MU.sorted();
+    if (!sorted.length) return { mismo: null, opuesto: null };
+
+    const nextShift = next;
+    const opu = nextShift === 'midday' ? 'evening' : 'midday';
+
+    // El último del mismo turno que voy a jugar
+    let mismo = null;
+    // El último del turno opuesto
+    let opuesto = null;
+
+    for (let i = sorted.length - 1; i >= 0 && (!mismo || !opuesto); i--) {
+        const s = sorted[i];
+        if (!mismo && s.shift === nextShift) mismo = s;
+        if (!opuesto && s.shift === opu) opuesto = s;
+    }
+
+    return { mismo, opuesto };
+};
+
+/**
+ * Render del bloque de convergencia
+ * Retorna HTML listo para inyectar
+ */
+MU.renderConvergencia = function(snap, mode){
+    // Determinar el próximo turno a jugar
+    const nextTurno = (typeof getNextTurno === 'function') ? getNextTurno() : null;
+    const nextShift = mode === 'all'
+        ? (nextTurno ? nextTurno.shift : 'midday')
+        : mode;
+    const nextLabel = nextShift === 'midday' ? '☀️ Mediodía' : '🌙 Noche';
+
+    const prev = MU.previosParaProximo(nextShift);
+    if (!prev.mismo && !prev.opuesto) {
+        return '<div class="rec-box"><h4>🔥 Convergencia Universal</h4>' +
+               '<div class="fxs td">Sin sorteos previos suficientes</div></div>';
+    }
+
+    // Obtener las decenas y terminales de origen
+    const decMismo = prev.mismo ? MU.dec(prev.mismo.number) : null;
+    const decOpuesto = prev.opuesto ? MU.dec(prev.opuesto.number) : null;
+    const termMismo = prev.mismo ? MU.term(prev.mismo.number) : null;
+    const termOpuesto = prev.opuesto ? MU.term(prev.opuesto.number) : null;
+
+    // Calcular convergencia
+    const convDec = MU.convergencia(snap.matDec, decMismo, decOpuesto, 3);
+    const convTerm = MU.convergencia(snap.matTerm, termMismo, termOpuesto, 3);
+
+    // ── HTML ──
+    let html = '<div class="rec-box" style="border-color:var(--gold);background:linear-gradient(135deg,rgba(245,166,35,0.1),rgba(0,212,170,0.06))">';
+    html += '<h4 style="color:var(--gold)">🔥 CONVERGENCIA UNIVERSAL — Para ' + nextLabel + '</h4>';
+
+    // Info de fuentes
+    html += '<div class="fxs td" style="margin:6px 0">';
+    if (prev.mismo) html += '📍 Previo mismo turno: <strong class="tg">' + prev.mismo.number + '</strong> ';
+    if (prev.opuesto) html += '📍 Previo opuesto: <strong style="color:var(--green)">' + prev.opuesto.number + '</strong>';
+    html += '</div>';
+
+    // ─── DECENAS ───
+    html += '<div style="margin-top:10px"><div class="fw" style="color:var(--gold);margin-bottom:6px">🔢 DECENAS</div>';
+
+    // Top halones de cada fuente
+    html += '<div class="fxs td">Halones:</div>';
+    html += '<div style="display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 8px">';
+    if (decMismo !== null) {
+        html += '<div style="background:var(--bg3);padding:6px 10px;border-radius:8px;border:1px solid var(--border)">';
+        html += '<span class="fxs td">Dec ' + decMismo + '0s (mismo) →</span> ';
+        html += convDec.topMismo.map(v => '<strong class="tg">' + v + '0s</strong>').join(', ');
+        html += '</div>';
+    }
+    if (decOpuesto !== null) {
+        html += '<div style="background:var(--bg3);padding:6px 10px;border-radius:8px;border:1px solid var(--border)">';
+        html += '<span class="fxs td">Dec ' + decOpuesto + '0s (opuesto) →</span> ';
+        html += convDec.topOpuesto.map(v => '<strong style="color:var(--green)">' + v + '0s</strong>').join(', ');
+        html += '</div>';
+    }
+    html += '</div>';
+
+    // Convergentes
+    if (convDec.convergentes.length > 0) {
+        html += '<div style="background:rgba(0,212,170,0.15);border:2px solid var(--green);border-radius:10px;padding:10px;margin:6px 0">';
+        html += '<div class="fw" style="color:var(--green);margin-bottom:4px">🔥 CONVERGENTES (aparecen en ambas):</div>';
+        html += '<div style="display:flex;gap:8px;flex-wrap:wrap">';
+        convDec.convergentes.forEach(c => {
+            html += '<span style="background:var(--green);color:var(--bg);padding:6px 14px;border-radius:20px;font-weight:900;font-size:1.1rem;box-shadow:0 0 12px rgba(0,212,170,0.5)">' +
+                c.val + '0s ×' + c.count + '</span>';
+        });
+        html += '</div></div>';
+    }
+
+    // Simples
+    if (convDec.simples.length > 0) {
+        html += '<div class="fxs td" style="margin-top:6px">Simples (una sola fuente):</div>';
+        html += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">';
+        convDec.simples.forEach(s => {
+            html += '<span style="background:var(--bg3);padding:4px 10px;border-radius:16px;font-size:0.8rem;border:1px solid var(--border);color:var(--dim)">' +
+                s.val + '0s</span>';
+        });
+        html += '</div>';
+    }
+
+    html += '</div>';
+
+    // ─── TERMINALES ───
+    html += '<div style="margin-top:14px"><div class="fw" style="color:var(--blue);margin-bottom:6px">🎯 TERMINALES</div>';
+
+    html += '<div class="fxs td">Halones:</div>';
+    html += '<div style="display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 8px">';
+    if (termMismo !== null) {
+        html += '<div style="background:var(--bg3);padding:6px 10px;border-radius:8px;border:1px solid var(--border)">';
+        html += '<span class="fxs td">T' + termMismo + ' (mismo) →</span> ';
+        html += convTerm.topMismo.map(v => '<strong class="tg">T' + v + '</strong>').join(', ');
+        html += '</div>';
+    }
+    if (termOpuesto !== null) {
+        html += '<div style="background:var(--bg3);padding:6px 10px;border-radius:8px;border:1px solid var(--border)">';
+        html += '<span class="fxs td">T' + termOpuesto + ' (opuesto) →</span> ';
+        html += convTerm.topOpuesto.map(v => '<strong style="color:var(--green)">T' + v + '</strong>').join(', ');
+        html += '</div>';
+    }
+    html += '</div>';
+
+    if (convTerm.convergentes.length > 0) {
+        html += '<div style="background:rgba(0,212,170,0.15);border:2px solid var(--green);border-radius:10px;padding:10px;margin:6px 0">';
+        html += '<div class="fw" style="color:var(--green);margin-bottom:4px">🔥 CONVERGENTES (aparecen en ambas):</div>';
+        html += '<div style="display:flex;gap:8px;flex-wrap:wrap">';
+        convTerm.convergentes.forEach(c => {
+            html += '<span style="background:var(--green);color:var(--bg);padding:6px 14px;border-radius:20px;font-weight:900;font-size:1.1rem;box-shadow:0 0 12px rgba(0,212,170,0.5)">' +
+                'T' + c.val + ' ×' + c.count + '</span>';
+        });
+        html += '</div></div>';
+    }
+
+    if (convTerm.simples.length > 0) {
+        html += '<div class="fxs td" style="margin-top:6px">Simples:</div>';
+        html += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">';
+        convTerm.simples.forEach(s => {
+            html += '<span style="background:var(--bg3);padding:4px 10px;border-radius:16px;font-size:0.8rem;border:1px solid var(--border);color:var(--dim)">T' +
+                s.val + '</span>';
+        });
+        html += '</div>';
+    }
+
+    html += '</div>';
+
+    // ─── COMBINACIONES DE JUEGO (Decena convergente + Terminal convergente) ───
+    if (convDec.convergentes.length > 0 && convTerm.convergentes.length > 0) {
+        html += '<div style="margin-top:14px;padding:10px;background:linear-gradient(135deg,rgba(255,215,0,0.1),rgba(245,166,35,0.05));border:2px solid var(--gold2);border-radius:10px">';
+        html += '<div class="fw" style="color:var(--gold2);margin-bottom:6px">👑 NÚMEROS SUGERIDOS (Convergencia Total)</div>';
+        html += '<div style="display:flex;gap:6px;flex-wrap:wrap">';
+        convDec.convergentes.forEach(cd => {
+            convTerm.convergentes.forEach(ct => {
+                const num = String(cd.val) + String(ct.val);
+                html += '<span style="background:linear-gradient(135deg,#ffd700,#ffa502);color:var(--bg);padding:8px 14px;border-radius:12px;font-weight:900;font-size:1.2rem;box-shadow:0 0 15px rgba(255,215,0,0.5)">' +
+                    num + '</span>';
+            });
+        });
+        html += '</div>';
+        html += '<div class="fxs td" style="margin-top:6px">Combinaciones de decenas + terminales que convergen en ambas fuentes</div>';
+        html += '</div>';
+    }
+
+    html += '</div>'; // cierra rec-box
+
+    return html;
+};
+
+// ═══════════════════════════════════════════════════════════
+// INYECTAR EN NÚCLEO
+// ═══════════════════════════════════════════════════════════
+(function(){
+    const oldRender = window.renderNucleo;
+    window.renderNucleo = function(R){
+        if (typeof oldRender === 'function') oldRender(R);
+
+        // Agregar convergencia después del render normal
+        const out = document.getElementById('nucOut');
+        if (!out || !R) return;
+
+        try {
+            const ym = R.mes || (window.mMesActual && window.mMesActual());
+            const snap = MU.snapshot(R.mode || 'all', ym);
+            const convHtml = MU.renderConvergencia(snap, R.mode || 'all');
+
+            // Insertar al final
+            const div = document.createElement('div');
+            div.className = 'nuc-block';
+            div.innerHTML = '<div class="nuc-block-t">🔥 CONVERGENCIA UNIVERSAL</div>' + convHtml;
+            out.appendChild(div);
+        } catch (e) {
+            console.error('Convergencia error:', e);
+        }
+    };
+})();
+
+// ═══════════════════════════════════════════════════════════
+// INYECTAR EN TELARAÑA
+// ═══════════════════════════════════════════════════════════
+(function(){
+    const oldRender = window.renderSpider;
+    window.renderSpider = function(A){
+        if (typeof oldRender === 'function') oldRender(A);
+
+        const box = document.getElementById('spResults') ||
+                    document.getElementById('spOut') ||
+                    document.getElementById('spiderResults');
+        if (!box || !A) return;
+
+        try {
+            const snap = A.snap || MU.snapshot(A.mode || 'all', A.ym);
+            const convHtml = MU.renderConvergencia(snap, A.mode || 'all');
+
+            // Insertar como card adicional
+            const div = document.createElement('div');
+            div.className = 'card';
+            div.style.marginTop = '10px';
+            div.innerHTML = convHtml;
+            box.appendChild(div);
+        } catch (e) {
+            console.error('Convergencia Telaraña error:', e);
+        }
+    };
+})();
+
+console.log('%c🔥 CONVERGENCIA UNIVERSAL activa en Núcleo y Telaraña', 'color:#ffd700;font-weight:bold');
+</script>
 </body>
 </html>
