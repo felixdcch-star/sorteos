@@ -989,5 +989,153 @@ window.addEventListener('online',updOffStatus);
 window.addEventListener('offline',updOffStatus);
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
+   <script>
+/* ═══════════════════════════════════════
+   HISTORIAL: Editar + Borrar sorteo a sorteo
+═══════════════════════════════════════ */
+
+// Asegurar índice de edición global
+window.editIdx = window.editIdx ?? -1;
+
+// Reemplaza el render del historial con botones ✏️ y 🗑️
+window.rHist = function(){
+    const q = (document.getElementById('sI')?.value || '').toLowerCase();
+    const f = document.getElementById('sF')?.value || '';
+    let data = (window.sorteos || []).slice();
+    if (f) data = data.filter(s => s.shift === f);
+
+    const flt = data.filter(d =>
+        !q ||
+        String(d.number).includes(q) ||
+        String(d.drawDate).includes(q)
+    ).sort(revSort);
+
+    window.curPage = window.curPage || 0;
+    window.perPage = window.perPage || 20;
+    const tot = Math.ceil(flt.length / perPage) || 1;
+    curPage = Math.max(0, Math.min(curPage, tot - 1));
+    const page = flt.slice(curPage * perPage, (curPage + 1) * perPage);
+
+    // Guardamos la página filtrada para editar/borrar por índice de página
+    window._histPage = page;
+
+    const tb = document.getElementById('hBody');
+    if (!tb) return;
+
+    tb.innerHTML = page.map((d, i) => {
+        const realIdx = sorteos.findIndex(s =>
+            s.drawDate === d.drawDate &&
+            s.shift === d.shift &&
+            s.number === d.number
+        );
+        return '<tr>' +
+            '<td>' + fmtD(d.drawDate) + '</td>' +
+            '<td><span class="badge ' + (d.shift === 'midday' ? 'badge-m' : 'badge-e') + '">' +
+            (d.shift === 'midday' ? '☀️ Med' : '🌙 Noc') + '</span></td>' +
+            '<td><strong class="tg">' + d.number + '</strong></td>' +
+            '<td>' + getDec(d.number) + '0s</td>' +
+            '<td>T' + getTerm(d.number) + '</td>' +
+            '<td style="white-space:nowrap">' +
+            '<button class="btn btn-outline" style="padding:3px 7px;font-size:0.7rem;margin-right:3px" ' +
+            'onclick="editSorteo(' + realIdx + ')" title="Editar">✏️</button>' +
+            '<button class="btn btn-outline" style="padding:3px 7px;font-size:0.7rem;border-color:var(--red);color:var(--red)" ' +
+            'onclick="borrarSorteo(' + realIdx + ')" title="Borrar">🗑️</button>' +
+            '</td></tr>';
+    }).join('');
+
+    const pi = document.getElementById('pInfo');
+    if (pi) pi.textContent = (curPage + 1) + '/' + tot + ' (' + flt.length + ')';
+};
+
+window.cPage = function(d){
+    window.curPage = (window.curPage || 0) + d;
+    rHist();
+};
+
+// ✏️ EDITAR
+window.editSorteo = function(realIdx){
+    if (realIdx < 0 || !sorteos[realIdx]) {
+        alert('No se encontró el sorteo');
+        return;
+    }
+    window.editIdx = realIdx;
+    const s = sorteos[realIdx];
+    const ef = document.getElementById('eFecha');
+    const et = document.getElementById('eTurno');
+    const en = document.getElementById('eNum');
+    const modal = document.getElementById('editModal');
+    if (!ef || !et || !en || !modal) {
+        alert('Modal de edición no encontrado');
+        return;
+    }
+    ef.value = s.drawDate || '';
+    et.value = s.shift || 'midday';
+    en.value = s.number || '';
+    modal.classList.add('show');
+};
+
+window.closeEdit = function(){
+    const modal = document.getElementById('editModal');
+    if (modal) modal.classList.remove('show');
+    window.editIdx = -1;
+};
+
+window.saveEdit = function(){
+    if (window.editIdx < 0 || !sorteos[window.editIdx]) return;
+    const n = (document.getElementById('eNum').value || '').trim().replace(/\D/g,'').padStart(2,'0');
+    const f = document.getElementById('eFecha').value;
+    const t = document.getElementById('eTurno').value;
+    if (!f || !/^\d{2}$/.test(n) || parseInt(n,10) > 99) {
+        alert('Fecha o número inválido');
+        return;
+    }
+    sorteos[window.editIdx] = {
+        drawDate: f,
+        shift: t,
+        number: n
+    };
+    // reordenar por si cambió la fecha
+    sorteos.sort(chronoSort);
+    saveData();
+    closeEdit();
+    rAll(); // refresca Inicio, Telaraña, Núcleo si hace falta
+    rHist();
+};
+
+// 🗑️ BORRAR uno por uno
+window.borrarSorteo = function(realIdx){
+    if (realIdx < 0 || !sorteos[realIdx]) {
+        alert('No se encontró el sorteo');
+        return;
+    }
+    const s = sorteos[realIdx];
+    const ok = confirm(
+        '¿Borrar este sorteo?\n\n' +
+        'Fecha: ' + (s.drawDate || '') + '\n' +
+        'Turno: ' + (s.shift === 'midday' ? 'Mediodía' : 'Noche') + '\n' +
+        'Número: ' + s.number + '\n\n' +
+        'Útil para validar hacia atrás. Esta acción se guarda al instante.'
+    );
+    if (!ok) return;
+
+    sorteos.splice(realIdx, 1);
+    saveData();
+    rAll();
+    rHist();
+};
+
+// Compatibilidad si algo llama editS(i) de la página filtrada
+window.editS = function(pageIdx){
+    const page = window._histPage || [];
+    const d = page[pageIdx];
+    if (!d) return;
+    const realIdx = sorteos.findIndex(s =>
+        s.drawDate === d.drawDate && s.shift === d.shift && s.number === d.number
+    );
+    editSorteo(realIdx);
+};
+
+console.log('%c📋 Historial: ✏️ Editar + 🗑️ Borrar listos', 'color:#00d4aa;font-weight:bold');
+</script>
 </body>
 </html>
