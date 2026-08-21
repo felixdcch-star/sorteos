@@ -4275,5 +4275,260 @@ window.rHist = function() {
     if (pInfo) pInfo.textContent = (window.curPage + 1) + '/' + tot + ' (' + flt.length + ')';
 };
 </script>
+    <script>
+/* ═══════════════════════════════════════════════════════════
+   🌌 EL NÚCLEO V13 — CAMINO VIGENTE VS CAMINO TRASCURRIDO
+   Doble Espejo Temporal + Resumen de Alineación
+═══════════════════════════════════════════════════════════ */
+
+window.calcNucleo = function(all, mode, mes) {
+    const allData = Array.isArray(all) ? all : (sorteos || []);
+    const sorted = [...allData].sort(chronoSort);
+
+    // 1. BASE VIGENTE (2 Meses Previos)
+    const mes1 = window.mPrevMonth ? window.mPrevMonth(mes, 2) : (window.nucPrevMonth ? window.nucPrevMonth(mes, 2) : '2020-01');
+    const mes2 = window.mPrevMonth ? window.mPrevMonth(mes, 1) : (window.nucPrevMonth ? window.nucPrevMonth(mes, 1) : '2020-02');
+
+    let baseVig = sorted.filter(d => d.drawDate && (d.drawDate.startsWith(mes1) || d.drawDate.startsWith(mes2)));
+    if (baseVig.length < 10) {
+        baseVig = sorted.filter(d => d.drawDate && d.drawDate < (mes + '-01'));
+    }
+
+    // 2. BASE TRASCURRIDA (Historial Completo hasta el mes)
+    let baseTras = sorted.filter(d => d.drawDate && d.drawDate < (mes + '-01'));
+    if (baseTras.length < 10) baseTras = sorted;
+
+    // Sorteos a evaluar en el mes seleccionado
+    const mesData = sorted.filter(d => d.drawDate && d.drawDate.startsWith(mes));
+    const turnoMesData = mode === 'midday' ? mesData.filter(d => d.shift === 'midday') :
+                         mode === 'evening' ? mesData.filter(d => d.shift === 'evening') :
+                         mesData;
+
+    const mLabel = mode === 'midday' ? '☀️ Mediodía' :
+                   mode === 'evening' ? '🌙 Noche' : '🌐 General';
+    const esMesActual = (mes === (window.nucMesActual ? window.nucMesActual() : window.mMesActual ? window.mMesActual() : ''));
+
+    // Helper para construir matrices 10x10 de transiciones
+    function buildTransMap(baseList) {
+        const decMap = {}, termMap = {};
+        for (let col = 0; col <= 9; col++) {
+            const cD = Array(10).fill(0), cT = Array(10).fill(0);
+            for (let i = 0; i < baseList.length - 1; i++) {
+                const curr = baseList[i], next = baseList[i + 1];
+                if (mode !== 'all' && next.shift !== mode) continue;
+
+                const pD = window.mDec ? window.mDec(curr.number) : getDec(curr.number);
+                const nD = window.mDec ? window.mDec(next.number) : getDec(next.number);
+                const pT = window.mTerm ? window.mTerm(curr.number) : getTerm(curr.number);
+                const nT = window.mTerm ? window.mTerm(next.number) : getTerm(next.number);
+
+                if (pD !== null && nD !== null && pD === col) cD[nD]++;
+                if (pT !== null && nT !== null && pT === col) cT[nT]++;
+            }
+            decMap[col] = [0,1,2,3,4,5,6,7,8,9].sort((a,b) => cD[b] - cD[a] || a - b);
+            termMap[col] = [0,1,2,3,4,5,6,7,8,9].sort((a,b) => cT[b] - cT[a] || a - b);
+        }
+        return { decMap, termMap };
+    }
+
+    const mapVig = buildTransMap(baseVig);
+    const mapTras = buildTransMap(baseTras);
+
+    // Helper para contar puntos de un mes contra una Matrix dada
+    function countPuntos(decMap, termMap) {
+        const decP = {P1:0, P2:0, P3:0, P4:0};
+        const termP = {P1:0, P2:0, P3:0, P4:0};
+        let evals = 0;
+
+        for (let i = 0; i < sorted.length - 1; i++) {
+            const curr = sorted[i], next = sorted[i + 1];
+            if (!next.drawDate || !next.drawDate.startsWith(mes)) continue;
+            if (mode !== 'all' && next.shift !== mode) continue;
+
+            const pD = window.mDec ? window.mDec(curr.number) : getDec(curr.number);
+            const nD = window.mDec ? window.mDec(next.number) : getDec(next.number);
+            const pT = window.mTerm ? window.mTerm(curr.number) : getTerm(curr.number);
+            const nT = window.mTerm ? window.mTerm(next.number) : getTerm(next.number);
+
+            if (nD === null || nT === null) continue;
+
+            const cD = pD === null ? 0 : pD;
+            const cT = pT === null ? 0 : pT;
+
+            const rD = decMap[cD] ? decMap[cD].indexOf(nD) : 9;
+            const rowD = rD >= 0 ? rD : 9;
+            if (rowD === 0) decP.P1++;
+            else if (rowD <= 3) decP.P2++;
+            else if (rowD <= 6) decP.P3++;
+            else decP.P4++;
+
+            const rT = termMap[cT] ? termMap[cT].indexOf(nT) : 9;
+            const rowT = rT >= 0 ? rT : 9;
+            if (rowT === 0) termP.P1++;
+            else if (rowT <= 3) termP.P2++;
+            else if (rowT <= 6) termP.P3++;
+            else termP.P4++;
+
+            evals++;
+        }
+        return { decP, termP, evals };
+    }
+
+    const ptsVig = countPuntos(mapVig.decMap, mapVig.termMap);
+    const ptsTras = countPuntos(mapTras.decMap, mapTras.termMap);
+
+    return {
+        mode, mLabel, mes, esMesActual,
+        mes1, mes2,
+        labelVig: (window.mMesNombre ? window.mMesNombre(mes1) : mes1) + ' + ' + (window.mMesNombre ? window.mMesNombre(mes2) : mes2),
+        countVig: baseVig.length,
+        labelTras: `Historial Completo (2020 a ${mes})`,
+        countTras: baseTras.length,
+        evaluados: ptsVig.evals,
+        mesTotal: turnoMesData.length,
+        // Vigente
+        decMapVig: mapVig.decMap, termMapVig: mapVig.termMap,
+        decPtsVig: ptsVig.decP, termPtsVig: ptsVig.termP,
+        // Trascurrido
+        decMapTras: mapTras.decMap, termMapTras: mapTras.termMap,
+        decPtsTras: ptsTras.decP, termPtsTras: ptsTras.termP
+    };
+};
+
+window.renderNucleo = function(R) {
+    const out = document.getElementById('nucOut');
+    if (!out || !R) return;
+
+    // RENDER DE CADA SECCIÓN (Vigente o Trascurrida)
+    function renderSeccion(titulo, tag, mapDec, mapTerm, ptsDec, ptsTerm, esPrincipal) {
+        function renderBloque(subTitulo, tipo, transMap, puntos) {
+            const isDec = (tipo === 'dec');
+            const prefix = isDec ? '' : 'T';
+            const suffix = isDec ? '0s' : '';
+            const sem = window.getSemaforoNuc(puntos, R.esMesActual);
+
+            let h = '<table class="nuc-matrix"><thead><tr><th style="min-width:40px">POS</th>';
+            for (let c = 0; c <= 9; c++) h += '<th class="header-dec">' + prefix + c + suffix + '</th>';
+            h += '</tr></thead><tbody>';
+
+            for (let row = 0; row <= 9; row++) {
+                const p = row === 0 ? 'P1' : row <= 3 ? 'P2' : row <= 6 ? 'P3' : 'P4';
+                const tc = sem.colors && sem.colors[p] ? sem.colors[p] : 'p-neutral';
+                const rowClass = tc.indexOf('verde') >= 0 ? 'bg-verde' : tc.indexOf('rojo') >= 0 ? 'bg-rojo' : tc.indexOf('amarillo') >= 0 ? 'bg-amarillo' : '';
+
+                h += '<tr class="' + rowClass + '">';
+                if (row === 0) h += '<td class="' + (sem.colors.P1 || 'p-neutral') + '">P1</td>';
+                else if (row === 1) h += '<td class="' + (sem.colors.P2 || 'p-neutral') + '" rowspan="3" style="vertical-align:middle">P2</td>';
+                else if (row === 4) h += '<td class="' + (sem.colors.P3 || 'p-neutral') + '" rowspan="3" style="vertical-align:middle">P3</td>';
+                else if (row === 7) h += '<td class="' + (sem.colors.P4 || 'p-neutral') + '" rowspan="3" style="vertical-align:middle">P4</td>';
+
+                for (let col = 0; col <= 9; col++) {
+                    const val = (transMap[col] && transMap[col][row] !== undefined) ? transMap[col][row] : col;
+                    h += '<td class="hala">' + prefix + val + suffix + '</td>';
+                }
+                h += '</tr>';
+            }
+            h += '</tbody></table>';
+
+            const cr = sem.colorsRes || {};
+            const ptsHtml = `
+            <table class="nuc-results">
+            <thead><tr><th>POS</th><th>PTS</th></tr></thead>
+            <tbody>
+            <tr><td class="pos-label">P1</td><td class="${cr.P1 || ''}">${puntos.P1}</td></tr>
+            <tr><td class="pos-label">P2</td><td class="${cr.P2 || ''}">${puntos.P2}</td></tr>
+            <tr><td class="pos-label">P3</td><td class="${cr.P3 || ''}">${puntos.P3}</td></tr>
+            <tr><td class="pos-label">P4</td><td class="${cr.P4 || ''}">${puntos.P4}</td></tr>
+            <tr><td class="pos-label" style="color:var(--gold)">Σ</td><td style="font-weight:900;color:var(--gold)">${puntos.P1+puntos.P2+puntos.P3+puntos.P4}</td></tr>
+            </tbody></table>`;
+
+            let semHtml = '';
+            if (sem.type === 'verde') {
+                semHtml = `<div class="nuc-semaforo verde"><div class="nuc-semaforo-t">${sem.decision}</div><div class="nuc-semaforo-d">${sem.text}</div></div>`;
+            } else if (sem.type === 'amarillo') {
+                semHtml = `<div class="nuc-semaforo amarillo"><div class="nuc-semaforo-t">${sem.decision}</div><div class="nuc-semaforo-d">${sem.text}</div></div>`;
+            } else {
+                semHtml = `<div class="nuc-semaforo" style="background:rgba(107,114,128,0.1);border:2px solid var(--dim);color:var(--dim)"><div class="nuc-semaforo-t">${sem.decision}</div><div class="nuc-semaforo-d">${sem.text}</div></div>`;
+            }
+
+            return `
+            <div class="nuc-block" style="${!esPrincipal ? 'border-color:var(--purple);' : ''}">
+            <div class="nuc-block-t ${tipo}" style="${!esPrincipal ? 'color:var(--purple);' : ''}">${subTitulo} — ${R.mLabel}</div>
+            <div class="nuc-wrap">
+            <div class="nuc-matrix-wrap">${h}</div>
+            <div class="nuc-results-wrap">${ptsHtml}</div>
+            </div>
+            ${semHtml}
+            </div>`;
+        }
+
+        return `
+        <div style="margin-top:16px;padding:12px;background:rgba(255,255,255,0.015);border-radius:14px;border:1px solid ${esPrincipal ? 'var(--gold)' : 'var(--purple)'}">
+        <div style="font-size:0.95rem;font-weight:900;color:${esPrincipal ? 'var(--gold)' : 'var(--purple)'};margin-bottom:4px">
+            ${titulo} <span class="badge" style="background:${esPrincipal ? 'var(--gold)' : 'var(--purple)'};color:#000;font-size:0.65rem">${tag}</span>
+        </div>
+        ${renderBloque('🔢 DECENAS', 'dec', mapDec, ptsDec)}
+        ${renderBloque('🎯 TERMINALES', 'term', mapTerm, ptsTerm)}
+        </div>`;
+    }
+
+    // SEMÁFOROS COMPARATIVOS
+    const semDecVig = window.getSemaforoNuc(R.decPtsVig, R.esMesActual);
+    const semDecTras = window.getSemaforoNuc(R.decPtsTras, R.esMesActual);
+    const semTermVig = window.getSemaforoNuc(R.termPtsVig, R.esMesActual);
+    const semTermTras = window.getSemaforoNuc(R.termPtsTras, R.esMesActual);
+
+    const winDecVig = semDecVig.winners && semDecVig.winners[0] ? semDecVig.winners[0] : '-';
+    const winDecTras = semDecTras.winners && semDecTras.winners[0] ? semDecTras.winners[0] : '-';
+    const winTermVig = semTermVig.winners && semTermVig.winners[0] ? semTermVig.winners[0] : '-';
+    const winTermTras = semTermTras.winners && semTermTras.winners[0] ? semTermTras.winners[0] : '-';
+
+    const alignDec = (winDecVig === winDecTras && winDecVig !== '-');
+    const alignTerm = (winTermVig === winTermTras && winTermVig !== '-');
+
+    // BLOQUE SUPERIOR DE ALINEACIÓN MAESTRA
+    const compHtml = `
+    <div style="background:linear-gradient(135deg,rgba(245,166,35,0.12),rgba(155,89,182,0.12));border:2px solid var(--gold);border-radius:14px;padding:14px;margin-bottom:14px;text-align:center">
+        <div style="font-size:0.9em;font-weight:900;color:var(--gold);margin-bottom:8px">
+            ⚖️ COMPARATIVA DE ALINEACIÓN MAESTRA (${R.mLabel})
+        </div>
+        <div class="g2" style="margin-top:8px">
+            <div style="background:var(--bg3);padding:10px;border-radius:10px;border:1px solid ${alignDec ? 'var(--green)' : 'var(--gold)'}">
+                <div class="fxs td">🔢 DECENAS</div>
+                <div style="font-weight:900;font-size:1.05rem;color:${alignDec ? 'var(--green)' : 'var(--gold)'};margin:4px 0">
+                    ${alignDec ? '🟢 ALINEACIÓN MAESTRA (' + winDecVig + ')' : '⚠️ DIVERGENCIA'}
+                </div>
+                <div class="fxs td">Vigente: <strong>${winDecVig}</strong> | Trascurrido: <strong>${winDecTras}</strong></div>
+            </div>
+            <div style="background:var(--bg3);padding:10px;border-radius:10px;border:1px solid ${alignTerm ? 'var(--green)' : 'var(--gold)'}">
+                <div class="fxs td">🎯 TERMINALES</div>
+                <div style="font-weight:900;font-size:1.05rem;color:${alignTerm ? 'var(--green)' : 'var(--gold)'};margin:4px 0">
+                    ${alignTerm ? '🟢 ALINEACIÓN MAESTRA (' + winTermVig + ')' : '⚠️ DIVERGENCIA'}
+                </div>
+                <div class="fxs td">Vigente: <strong>${winTermVig}</strong> | Trascurrido: <strong>${winTermTras}</strong></div>
+            </div>
+        </div>
+        <div class="fxs td" style="margin-top:8px">
+            ${(alignDec && alignTerm) ? '👑 ¡MÁXIMA CONFIRMACIÒN! Ambas bases temporales coinciden al 100%.' : '⚖️ Si hay divergencia, El Semáforo Vigente manda y se debate con La Telaraña.'}
+        </div>
+    </div>`;
+
+    const infoMes = `
+    <div class="nuc-info" style="text-align:center">
+        <strong>${window.nucMesNombre ? window.nucMesNombre(R.mes) : R.mes}</strong> · ${R.mLabel} · <strong>${R.evaluados} sorteos evaluados</strong>
+        ${R.esMesActual ? ' · <span style="color:var(--green)">● En vivo</span>' : ' · <span style="color:var(--dim)">● Histórico</span>'}
+    </div>`;
+
+    const secVigente = renderSeccion('1️⃣ CAMINO VIGENTE', `Matrix Base: ${R.labelVig}`, R.decMapVig, R.termMapVig, R.decPtsVig, R.termPtsVig, true);
+    const secTrascurrido = renderSeccion('2️⃣ CAMINO TRASCURRIDO', `Matrix Base: ${R.labelTras}`, R.decMapTras, R.termMapTras, R.decPtsTras, R.termPtsTras, false);
+
+    out.innerHTML = infoMes + compHtml + secVigente + secTrascurrido;
+};
+
+// Auto-run si está activo
+setTimeout(function(){
+    if (document.querySelector('#sec-nucleo.active')) window.rNucleo();
+}, 250);
+</script>
 </body>
 </html>
